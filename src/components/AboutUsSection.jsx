@@ -25,7 +25,7 @@ export default function AboutUsSection() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative w-full bg-white text-slate-900 py-6 sm:py-8 lg:py-8 px-6 sm:px-12 lg:px-16 border-t border-slate-100 overflow-hidden font-['Inter'] select-text"
+      className="relative w-full bg-white text-slate-900 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
     >
       <div className="relative max-w-[1560px] w-full mx-auto z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
@@ -54,7 +54,7 @@ export default function AboutUsSection() {
 
             {/* Sub-headline (Word-by-word Cut Reveal) */}
             <div className="mb-3 sm:mb-4">
-              <h3 className="text-xl sm:text-2xl lg:text-[26px] font-medium text-slate-900 tracking-tight leading-snug select-text">
+              <h3 className="text-xl sm:text-2xl lg:text-[26px] font-semibold text-slate-900 tracking-tight leading-snug select-text">
                 <VerticalCutReveal
                   splitBy="words"
                   staggerDuration={0.06}
@@ -67,17 +67,17 @@ export default function AboutUsSection() {
                     delay: 0.1,
                   }}
                 >
-                  Bridging Imagination and Physical Reality.
+                  We Build What Moves the World Forward.
                 </VerticalCutReveal>
               </h3>
             </div>
 
             {/* Primary description (Word-by-word Cut Reveal) */}
-            <div>
+            <div className="space-y-3 sm:space-y-3.5">
               <p className="text-[15px] sm:text-base text-slate-600 font-sans leading-relaxed select-text max-w-lg">
                 <VerticalCutReveal
                   splitBy="words"
-                  staggerDuration={0.015}
+                  staggerDuration={0.012}
                   staggerFrom="first"
                   inView={isUnrolled}
                   transition={{
@@ -87,7 +87,23 @@ export default function AboutUsSection() {
                     delay: 0.18,
                   }}
                 >
-                  We are an engineering lab turning bold concepts into tangible technologies. Through deep-tech research, human-centered design, and precision manufacturing, we build products that endure and make an impact.
+                  At UandWe Labs, we bring ideas, engineering, and technology together to create products with purpose. We focus on transforming complex challenges into practical solutions through thoughtful design and technical expertise.
+                </VerticalCutReveal>
+              </p>
+              <p className="text-[15px] sm:text-base text-slate-600 font-sans leading-relaxed select-text max-w-lg">
+                <VerticalCutReveal
+                  splitBy="words"
+                  staggerDuration={0.012}
+                  staggerFrom="first"
+                  inView={isUnrolled}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 180,
+                    damping: 24,
+                    delay: 0.28,
+                  }}
+                >
+                  Our goal is simple: build meaningful technology that makes a difference in the real world.
                 </VerticalCutReveal>
               </p>
             </div>
@@ -116,7 +132,7 @@ export default function AboutUsSection() {
                 className="inline-flex items-center gap-3.5 sm:gap-4 group cursor-pointer font-['Inter'] select-none"
               >
                 <span className="text-xs sm:text-[13px] font-semibold tracking-[0.18em] uppercase text-slate-900 group-hover:text-black transition-colors">
-                  EXPLORE OUR MISSION
+                  DISCOVER UANDWE LABS
                 </span>
                 <div className="h-[1.5px] w-10 sm:w-14 bg-slate-300 group-hover:w-16 sm:group-hover:w-20 group-hover:bg-black transition-all duration-300" />
                 <div className="w-8 h-8 rounded-full border border-slate-300 bg-slate-50 flex items-center justify-center group-hover:border-black group-hover:bg-black group-hover:text-white transition-all duration-300 shadow-xs text-slate-900">
@@ -134,7 +150,7 @@ export default function AboutUsSection() {
             <div className="relative w-full h-[430px] sm:h-[490px] lg:h-[clamp(470px,62vh,580px)]">
               {/* Unrolling Card Container */}
               <div
-                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border-2 border-slate-200/90 ring-1 ring-slate-900/10 bg-white shadow-2xl overflow-hidden group"
+                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border border-slate-200/80 ring-1 ring-slate-900/5 bg-white shadow-lg overflow-hidden group"
                 style={{
                   top: isUnrolled ? '0px' : '50%',
                   bottom: isUnrolled ? '0px' : '50%',
@@ -160,11 +176,11 @@ export default function AboutUsSection() {
               </div>
             </div>
 
-            {/* Image 2: Cross-Disciplinary Brainstorming (Offset downward for editorial feel) */}
-            <div className="relative w-full h-[430px] sm:h-[490px] lg:h-[clamp(470px,62vh,580px)] mt-3 sm:mt-5 lg:mt-5">
+            {/* Image 2: Cross-Disciplinary Brainstorming (Aligned evenly with Image 1) */}
+            <div className="relative w-full h-[430px] sm:h-[490px] lg:h-[clamp(470px,62vh,580px)]">
               {/* Unrolling Card Container */}
               <div
-                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border-2 border-slate-200/90 ring-1 ring-slate-900/10 bg-white shadow-2xl overflow-hidden group"
+                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border border-slate-200/80 ring-1 ring-slate-900/5 bg-white shadow-lg overflow-hidden group"
                 style={{
                   top: isUnrolled ? '0px' : '50%',
                   bottom: isUnrolled ? '0px' : '50%',

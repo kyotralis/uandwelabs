@@ -61,7 +61,7 @@ export default function ProductShowcaseSection({
     <section
       ref={sectionRef}
       id={id}
-      className="relative w-full bg-white text-slate-900 py-6 sm:py-8 lg:py-8 px-6 sm:px-12 lg:px-16 border-t border-slate-100 overflow-hidden font-['Inter'] select-text"
+      className="relative w-full bg-white text-slate-900 py-6 sm:py-8 lg:py-8 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
     >
       <div className="max-w-[1560px] w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">

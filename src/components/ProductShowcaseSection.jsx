@@ -12,6 +12,7 @@ export default function ProductShowcaseSection({
   nextSectionId,
   slides,
   carouselConfig = {},
+  bgClassName = 'bg-[var(--site-bg)]',
 }) {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef(null)
@@ -24,7 +25,10 @@ export default function ProductShowcaseSection({
       ([entry]) => {
         setIsVisible(entry.isIntersecting)
       },
-      { threshold: 0.12 }
+      {
+        threshold: 0.25,
+        rootMargin: '0px 0px -100px 0px',
+      }
     )
 
     observer.observe(el)
@@ -61,7 +65,7 @@ export default function ProductShowcaseSection({
     <section
       ref={sectionRef}
       id={id}
-      className="relative w-full bg-white text-slate-900 py-6 sm:py-8 lg:py-8 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
+      className={`relative w-full ${bgClassName} text-slate-900 py-6 sm:py-8 lg:py-8 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text`}
     >
       <div className="max-w-[1560px] w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
@@ -141,7 +145,7 @@ export default function ProductShowcaseSection({
                 <button
                   type="button"
                   onClick={handleNextSectionClick}
-                  className="inline-flex items-center gap-3.5 sm:gap-4 group cursor-pointer font-['Inter'] select-none"
+                  className="inline-flex items-center gap-3.5 sm:gap-4 group cursor-pointer font-['Inter'] select-none active:scale-[0.98] transition-all duration-150"
                 >
                   <span className="text-xs sm:text-[13px] font-semibold tracking-[0.18em] uppercase text-slate-900 group-hover:text-black transition-colors">
                     {buttonText}

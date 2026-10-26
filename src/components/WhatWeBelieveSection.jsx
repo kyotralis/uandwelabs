@@ -42,8 +42,8 @@ export default function WhatWeBelieveSection() {
         setIsVisible(entry.isIntersecting)
       },
       {
-        threshold: 0.15,
-        rootMargin: '0px 0px -60px 0px',
+        threshold: 0.25,
+        rootMargin: '0px 0px -100px 0px',
       }
     )
 
@@ -54,7 +54,7 @@ export default function WhatWeBelieveSection() {
   return (
     <section
       id="beliefs"
-      className="relative w-full bg-white text-slate-900 pt-10 sm:pt-12 lg:pt-14 pb-6 sm:pb-8 lg:pb-10 px-6 sm:px-12 lg:px-16 border-t border-slate-100 overflow-visible font-['Inter'] select-text"
+      className="relative w-full bg-[var(--site-bg)] text-slate-900 pt-10 sm:pt-12 lg:pt-14 pb-6 sm:pb-8 lg:pb-10 px-6 sm:px-12 lg:px-16 border-t border-[var(--site-border)] overflow-visible font-['Inter'] select-text"
     >
       {/* Subtle warm ambient glow in top-right corner */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
@@ -143,7 +143,7 @@ export default function WhatWeBelieveSection() {
                   key={item.title}
                   onMouseEnter={() => setHoveredIdx(idx)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  className={`group sticky rounded-3xl sm:rounded-[32px] p-8 sm:p-11 lg:p-14 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_-4px_24px_rgba(0,0,0,0.03),0_20px_50px_rgba(0,0,0,0.07)] ring-1 ring-slate-900/5 transition-all duration-500 cursor-default ${isLast ? 'mb-0' : 'mb-[30vh] sm:mb-[40vh] lg:mb-[48vh]'
+                  className={`group sticky rounded-3xl sm:rounded-[32px] p-8 sm:p-11 lg:p-14 bg-white/95 backdrop-blur-xl border border-[var(--site-border)] shadow-[0_-4px_24px_rgba(0,0,0,0.03),0_20px_50px_rgba(0,0,0,0.07)] ring-1 ring-slate-900/5 transition-all duration-500 cursor-default ${isLast ? 'mb-0' : 'mb-[30vh] sm:mb-[40vh] lg:mb-[48vh]'
                     }`}
                   style={{
                     top: `calc(7.5rem + ${idx * 14}px)`,

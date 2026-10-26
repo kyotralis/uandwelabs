@@ -48,7 +48,10 @@ export function CoverflowCarousel({
       ([entry]) => {
         setInternalUnrolled(entry.isIntersecting)
       },
-      { threshold: 0.12 }
+      {
+        threshold: 0.25,
+        rootMargin: '0px 0px -100px 0px',
+      }
     )
 
     observer.observe(frame)
@@ -352,7 +355,7 @@ export function CoverflowCarousel({
               const distanceToSelected = count > 1
                 ? Math.min(Math.abs(index - selected), count - Math.abs(index - selected))
                 : 0
-              const delay = distanceToSelected * 140
+              const delay = distanceToSelected * 180
 
               return (
                 <div
@@ -368,7 +371,7 @@ export function CoverflowCarousel({
                     goTo(index)
                   }}
                   className={cn(
-                    'absolute left-1/2 p-1 sm:p-[5px] rounded-3xl bg-white shadow-2xl will-change-transform cursor-pointer border-2 border-slate-200/90 ring-1 ring-slate-900/10 hover:shadow-black/40 overflow-hidden',
+                    'absolute left-1/2 p-1 sm:p-[5px] rounded-3xl bg-[var(--site-card-bg)] shadow-2xl will-change-transform cursor-pointer border-2 border-[var(--site-border)] ring-1 ring-slate-900/10 hover:shadow-black/40 overflow-hidden',
                     cardClassName,
                   )}
                   style={{
@@ -377,7 +380,7 @@ export function CoverflowCarousel({
                     bottom: isUnrolled ? '0px' : '50%',
                     opacity: isUnrolled ? 1 : 0,
                     transition: isUnrolled
-                      ? `top 1100ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, bottom 1100ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, opacity 800ms ease ${delay}ms`
+                      ? `top 1650ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, bottom 1650ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, opacity 1200ms ease ${delay}ms`
                       : 'top 500ms ease, bottom 500ms ease, opacity 400ms ease',
                   }}
                 >
@@ -468,8 +471,8 @@ export function CoverflowCarousel({
               aria-current={index === selected}
               onClick={() => goTo(index)}
               className={cn(
-                'size-2.5 rounded-full transition-all cursor-pointer',
-                index === selected ? 'bg-black w-6' : 'bg-slate-300 hover:bg-slate-400',
+                'size-2 sm:size-2.5 rounded-full transition-all duration-300 cursor-pointer active:scale-90',
+                index === selected ? 'bg-slate-900 w-7 sm:w-8 shadow-xs' : 'bg-slate-300 hover:bg-slate-500 hover:scale-110',
               )}
             />
           ))}

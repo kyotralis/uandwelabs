@@ -14,7 +14,10 @@ export default function AboutUsSection() {
       ([entry]) => {
         setIsUnrolled(entry.isIntersecting)
       },
-      { threshold: 0.12 }
+      {
+        threshold: 0.25,
+        rootMargin: '0px 0px -100px 0px',
+      }
     )
 
     observer.observe(el)
@@ -25,7 +28,7 @@ export default function AboutUsSection() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative w-full bg-white text-slate-900 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
+      className="relative w-full bg-[var(--site-bg)] text-slate-900 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
     >
       <div className="relative max-w-[1560px] w-full mx-auto z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
@@ -129,7 +132,7 @@ export default function AboutUsSection() {
                     }
                   }
                 }}
-                className="inline-flex items-center gap-3.5 sm:gap-4 group cursor-pointer font-['Inter'] select-none"
+                className="inline-flex items-center gap-3.5 sm:gap-4 group cursor-pointer font-['Inter'] select-none active:scale-[0.98] transition-all duration-150"
               >
                 <span className="text-xs sm:text-[13px] font-semibold tracking-[0.18em] uppercase text-slate-900 group-hover:text-black transition-colors">
                   DISCOVER UANDWE LABS
@@ -150,13 +153,13 @@ export default function AboutUsSection() {
             <div className="relative w-full h-[430px] sm:h-[490px] lg:h-[clamp(470px,62vh,580px)]">
               {/* Unrolling Card Container */}
               <div
-                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border border-slate-200/80 ring-1 ring-slate-900/5 bg-white shadow-lg overflow-hidden group"
+                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border border-[var(--site-border)] ring-1 ring-slate-900/5 bg-[var(--site-card-bg)] shadow-lg overflow-hidden group"
                 style={{
                   top: isUnrolled ? '0px' : '50%',
                   bottom: isUnrolled ? '0px' : '50%',
                   opacity: isUnrolled ? 1 : 0,
                   transition: isUnrolled
-                    ? 'top 1100ms cubic-bezier(0.16, 1, 0.3, 1) 0ms, bottom 1100ms cubic-bezier(0.16, 1, 0.3, 1) 0ms, opacity 800ms ease 0ms'
+                    ? 'top 1650ms cubic-bezier(0.16, 1, 0.3, 1) 0ms, bottom 1650ms cubic-bezier(0.16, 1, 0.3, 1) 0ms, opacity 1200ms ease 0ms'
                     : 'top 500ms ease, bottom 500ms ease, opacity 400ms ease',
                 }}
               >
@@ -180,13 +183,13 @@ export default function AboutUsSection() {
             <div className="relative w-full h-[430px] sm:h-[490px] lg:h-[clamp(470px,62vh,580px)]">
               {/* Unrolling Card Container */}
               <div
-                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border border-slate-200/80 ring-1 ring-slate-900/5 bg-white shadow-lg overflow-hidden group"
+                className="absolute inset-x-0 p-1 sm:p-[5px] rounded-3xl border border-[var(--site-border)] ring-1 ring-slate-900/5 bg-[var(--site-card-bg)] shadow-lg overflow-hidden group"
                 style={{
                   top: isUnrolled ? '0px' : '50%',
                   bottom: isUnrolled ? '0px' : '50%',
                   opacity: isUnrolled ? 1 : 0,
                   transition: isUnrolled
-                    ? 'top 1100ms cubic-bezier(0.16, 1, 0.3, 1) 140ms, bottom 1100ms cubic-bezier(0.16, 1, 0.3, 1) 140ms, opacity 800ms ease 140ms'
+                    ? 'top 1650ms cubic-bezier(0.16, 1, 0.3, 1) 220ms, bottom 1650ms cubic-bezier(0.16, 1, 0.3, 1) 220ms, opacity 1200ms ease 220ms'
                     : 'top 500ms ease, bottom 500ms ease, opacity 400ms ease',
                 }}
               >

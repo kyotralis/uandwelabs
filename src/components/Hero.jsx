@@ -99,9 +99,8 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
 
       {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition) */}
       <div
-        className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${
-          isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
-        }`}
+        className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
+          }`}
       >
         <MorphGallery
           items={HERO_SLIDES}
@@ -143,9 +142,8 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
             {/* Master Content: Synchronized with Active Slide & Image Morph */}
             <div
               key={slideIndex}
-              className={`transition-all duration-1000 ${
-                isRevealed ? 'animate-hero-sync' : 'opacity-0'
-              }`}
+              className={`transition-all duration-1000 ${isRevealed ? 'animate-hero-sync' : 'opacity-0'
+                }`}
             >
               {/* Master Headline: Synchronized with Active Slide */}
               <div className="relative inline-block py-1">
@@ -167,7 +165,7 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
                     e.preventDefault()
                     document.getElementById(currentSlide.targetId)?.scrollIntoView({ behavior: 'smooth' })
                   }}
-                  className="inline-flex items-center gap-4 group cursor-pointer font-['Inter']"
+                  className="inline-flex items-center gap-4 group cursor-pointer font-['Inter'] active:scale-[0.98] transition-transform duration-150"
                 >
                   <span className="text-[11.5px] font-semibold tracking-[0.2em] uppercase text-white group-hover:text-white/80 transition-colors drop-shadow-sm">
                     {currentSlide.ctaText}
@@ -195,9 +193,8 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
       {/* ========================================================= */}
       <nav
         aria-label="Hero Slide Navigation"
-        className={`absolute bottom-6 sm:bottom-10 right-6 sm:right-12 lg:right-18 z-20 pointer-events-auto transition-all duration-1000 ${
-          isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-        }`}
+        className={`absolute bottom-6 sm:bottom-10 right-6 sm:right-12 lg:right-18 z-20 pointer-events-auto transition-all duration-1000 ${isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+          }`}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -209,11 +206,10 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
                 key={slide.id}
                 type="button"
                 onClick={() => handleSelectSlide(idx)}
-                className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${
-                  isActive
+                className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${isActive
                     ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
                     : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
-                }`}
+                  }`}
                 title={`Switch to ${slide.headline}`}
                 aria-label={`Slide ${idx + 1}: ${slide.headline}`}
                 aria-current={isActive}

@@ -15,8 +15,8 @@ export default function GrowWithUsSection() {
         setIsVisible(entry.isIntersecting)
       },
       {
-        threshold: 0.08,
-        rootMargin: '0px 0px -20px 0px',
+        threshold: 0.22,
+        rootMargin: '0px 0px -100px 0px',
       }
     )
 
@@ -27,7 +27,7 @@ export default function GrowWithUsSection() {
   return (
     <section
       id="careers"
-      className="relative w-full bg-white pt-2 sm:pt-4 lg:pt-6 pb-16 sm:pb-24 lg:pb-28 px-4 sm:px-8 lg:px-12 overflow-hidden font-['Inter'] select-text"
+      className="relative w-full bg-[var(--site-bg)] pt-2 sm:pt-4 lg:pt-6 pb-16 sm:pb-24 lg:pb-28 px-4 sm:px-8 lg:px-12 overflow-hidden font-['Inter'] select-text"
       aria-labelledby="grow-with-us-heading"
     >
       <div className="max-w-[1560px] w-full mx-auto">
@@ -35,7 +35,7 @@ export default function GrowWithUsSection() {
         {/* ================= CINEMATIC FULL-WIDTH CURVED CARD ================= */}
         <div
           ref={cardRef}
-          className="group relative w-full min-h-[520px] sm:min-h-[580px] lg:min-h-[640px] rounded-3xl sm:rounded-[40px] lg:rounded-[48px] overflow-hidden shadow-[0_24px_70px_rgba(234,88,12,0.08),0_4px_20px_rgba(0,0,0,0.04)] border border-slate-200/80 flex items-center bg-white transition-opacity duration-700 ease-out"
+          className="group relative w-full min-h-[520px] sm:min-h-[580px] lg:min-h-[640px] rounded-3xl sm:rounded-[40px] lg:rounded-[48px] overflow-hidden shadow-[0_24px_70px_rgba(234,88,12,0.08),0_4px_20px_rgba(0,0,0,0.04)] border border-[var(--site-border)] flex items-center bg-[var(--site-card-bg)] transition-opacity duration-700 ease-out"
           style={{
             opacity: isVisible ? 1 : 0,
           }}

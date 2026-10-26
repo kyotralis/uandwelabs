@@ -9,10 +9,33 @@
   --font-noto: "Inter", sans-serif;
   --font-newsreader: "Inter", sans-serif;
   --font-inter: "Inter", sans-serif;
+
+  --color-site-bg: var(--site-bg);
+  --color-site-card: var(--site-card-bg);
+  --color-site-text: var(--site-text);
+  --color-site-muted: var(--site-text-muted);
+  --color-site-border: var(--site-border);
+  --color-site-accent: var(--site-accent);
 }
 
 :root {
   font-family: "Inter", sans-serif;
+
+  /* ========================================================================= */
+  /* 🎨 GLOBAL WEBSITE THEME COLORS (CHANGE HERE TO UPDATE ACROSS ALL SECTIONS) */
+  /* ========================================================================= */
+  --site-bg: #ffffff;
+  /* Main Background for all sections */
+  --site-card-bg: #ffffff;
+  /* Card background                  */
+  --site-text: #0f172a;
+  /* Primary text / headlines         */
+  --site-text-muted: #64748b;
+  /* Secondary & description text     */
+  --site-border: rgba(226, 232, 240, 0.85);
+  /* Section & Card borders          */
+  --site-accent: #ea580c;
+  /* Brand accent (Orange)            */
 }
 
 html {
@@ -23,8 +46,8 @@ body {
   font-family: "Inter", sans-serif;
   margin: 0;
   min-height: 100vh;
-  background-color: #ffffff;
-  color: #1e293b;
+  background-color: var(--site-bg);
+  color: var(--site-text);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

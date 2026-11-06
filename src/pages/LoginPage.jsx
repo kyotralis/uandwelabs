@@ -240,7 +240,11 @@ export default function LoginPage({
         },
         error_callback: (error) => {
           console.error('[Google Auth Popup Error]:', error)
-          setErrorMessage('Google sign-in window could not open. Please check popup permissions.')
+          if (error?.type === 'popup_closed') {
+            setErrorMessage('')
+          } else {
+            setErrorMessage('Google popup was blocked by browser. Click the site settings icon in your address bar to allow pop-ups.')
+          }
           setLoading(false)
         },
       })

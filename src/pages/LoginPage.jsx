@@ -159,7 +159,7 @@ export default function LoginPage({
     setErrorMessage('')
     setLoading(true)
 
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '437563486795-2l163eihu31uc0pspnfo6ltq2jdbjot5.apps.googleusercontent.com'
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '437563486795-6s1h2njshkno8htq6m1g2v7b2r2cfdd8.apps.googleusercontent.com'
     if (!clientId) {
       setErrorMessage('Google Client ID is not configured.')
       setLoading(false)

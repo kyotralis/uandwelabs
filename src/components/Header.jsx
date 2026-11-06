@@ -9,31 +9,91 @@ import {
   LogOut,
   Check,
   ArrowRight,
+  Building2,
+  Home,
+  Radio,
+  Cpu,
+  ArrowUpRight,
 } from 'lucide-react'
-import Logo from '../assets/logo.png'
+import Logo from '../assets/logo.webp'
+import { useTranslation, GLOBAL_LOCALES } from '../i18n'
 
-
-// Dropdown Navigation Data
+// Dropdown Navigation Data (Horizontal Segmented Dock)
 const PRODUCTS_DATA = [
   {
-    title: 'Ananda · Geo Spatial',
-    targetId: 'introduction',
+    id: 'ananda',
+    title: 'Ananda',
+    subtitle: 'Urban Physics & Microclimate',
+    description: 'Solar ray-casting, aerodynamic CFD, daylight autonomy & flood hydrology simulation.',
+    tag: 'GEOSPATIAL',
+    badgeClass: 'bg-orange-100 text-orange-800 border-orange-200/80',
+    iconBg: 'bg-orange-50 text-orange-600 border-orange-200/60',
+    targetId: 'ananda',
+    hasVariants: true,
   },
   {
-    title: 'Healthcare',
-    targetId: 'healthcare',
+    id: 'dara',
+    title: 'Dara',
+    subtitle: 'Assistive Healthcare Hardware',
+    description: '60 GHz contactless wall radar, optical prescription magnifier & voice companion.',
+    tag: 'HEALTHCARE',
+    badgeClass: 'bg-blue-100 text-[#0a192f] border-blue-200/80',
+    iconBg: 'bg-blue-50 text-[#0a192f] border-blue-200/60',
+    targetId: 'dara',
+    hasVariants: false,
+    pills: ['60GHz Wall Radar', '4.5x Optical Lens'],
   },
   {
-    title: 'Aura · Security Cam',
-    targetId: 'board',
+    id: 'aura',
+    title: 'Aura',
+    subtitle: 'Autonomous Edge Vision',
+    description: '128-TOPS neural tensor silicon, multilane highway LPR & 350m perimeter defense.',
+    tag: 'PHYSICAL AI',
+    badgeClass: 'bg-indigo-100 text-indigo-900 border-indigo-200/80',
+    iconBg: 'bg-indigo-50 text-indigo-600 border-indigo-200/60',
+    targetId: 'aura',
+    hasVariants: false,
+    pills: ['128-TOPS Silicon', '350m Defense Mesh'],
   },
 ]
 
-// Global Locales / Regions
-const GLOBAL_LOCALES = [
-  { code: 'en-in', label: 'India', region: 'India', country: '🇮🇳' },
-  { code: 'en-us', label: 'USA', region: 'United States', country: '🇺🇸' },
-  { code: 'zh-cn', label: 'China', region: 'China (中国)', country: '🇨🇳' },
+const SOLUTIONS_DATA = [
+  {
+    id: 'environmental-simulation',
+    title: 'Environmental Physics',
+    subtitle: 'Microclimate & Aerodynamics',
+    description: 'Predictive solar radiation, aerodynamic CFD wind flow, and flood risk mapping.',
+    tag: 'SIMULATION',
+    badgeClass: 'bg-orange-100 text-orange-800 border-orange-200/80',
+    iconBg: 'bg-orange-50 text-orange-600 border-orange-200/60',
+    targetId: 'ananda',
+    category: 'commercial',
+    pills: ['Solar Radiation', 'CFD Wind Flow'],
+  },
+  {
+    id: 'healthcare-assistive-ai',
+    title: 'Assistive Healthcare',
+    subtitle: 'Autonomous Elder Safety',
+    description: 'Sub-300ms contactless fall detection and optical prescription reading with zero wearables.',
+    tag: 'CLINICAL',
+    badgeClass: 'bg-blue-100 text-[#0a192f] border-blue-200/80',
+    iconBg: 'bg-blue-50 text-[#0a192f] border-blue-200/60',
+    targetId: 'dara',
+    category: null,
+    pills: ['Contactless Radar', 'Zero Wearables'],
+  },
+  {
+    id: 'physical-ai-vision',
+    title: 'Edge Computer Vision',
+    subtitle: 'Tactical Defense & Highway LPR',
+    description: 'Multilane highway LPR and 350m perimeter tracking with on-chip edge tensor cores.',
+    tag: 'TACTICAL',
+    badgeClass: 'bg-indigo-100 text-indigo-900 border-indigo-200/80',
+    iconBg: 'bg-indigo-50 text-indigo-600 border-indigo-200/60',
+    targetId: 'aura',
+    category: null,
+    pills: ['Edge Tensor Silicon', '350m Perimeter Mesh'],
+  },
 ]
 
 const SECTION_IDS = ['hero', 'about', 'introduction', 'healthcare', 'board', 'beliefs', 'careers']
@@ -44,18 +104,80 @@ export default function Header({
   user,
   onLogout,
   onNavigateToLogin,
+  onNavigateToAnanda,
+  onNavigateToDara,
+  onNavigateToAura,
+  onNavigateToBlogs,
+  onNavigateToAbout,
+  onNavigateToCareers,
+  onNavigateToHome,
   isRevealed: propIsRevealed,
+  anandaCategory: propAnandaCategory,
 }) {
   const [internalRevealed, setInternalRevealed] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState(null)
+  const [hoveredProductCategory, setHoveredProductCategory] = useState('ananda')
   const [globalOpen, setGlobalOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [signInMenuOpen, setSignInMenuOpen] = useState(false)
+  const [signInGeoSpatialOpen, setSignInGeoSpatialOpen] = useState(false)
+  const [userGeoSpatialOpen, setUserGeoSpatialOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileGeoSpatialOpen, setMobileGeoSpatialOpen] = useState(false)
+  const [avatarError, setAvatarError] = useState(false)
+
+  useEffect(() => {
+    setAvatarError(false)
+  }, [user?.avatar])
+
+  // Track active Ananda platform ('commercial' or 'residential')
+  const [activePlatform, setActivePlatform] = useState(() => {
+    if (propAnandaCategory) return propAnandaCategory
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase()
+      if (hash.includes('residential')) return 'residential'
+      if (hash.includes('ananda') || hash.includes('commercial')) return 'commercial'
+      try {
+        const saved = sessionStorage.getItem('ananda_category') || localStorage.getItem('uandwe_active_platform')
+        if (saved) return saved
+      } catch {
+        // ignore
+      }
+    }
+    return 'commercial'
+  })
+
+  useEffect(() => {
+    if (propAnandaCategory) {
+      setActivePlatform(propAnandaCategory)
+    }
+  }, [propAnandaCategory])
+
+  useEffect(() => {
+    const handleCategoryChange = (e) => {
+      if (e.detail) {
+        setActivePlatform(e.detail)
+      }
+    }
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase()
+      if (hash.includes('residential')) {
+        setActivePlatform('residential')
+      } else if (hash.includes('ananda') || hash.includes('commercial')) {
+        setActivePlatform('commercial')
+      }
+    }
+    window.addEventListener('ananda_category_change', handleCategoryChange)
+    window.addEventListener('hashchange', handleHash)
+    return () => {
+      window.removeEventListener('ananda_category_change', handleCategoryChange)
+      window.removeEventListener('hashchange', handleHash)
+    }
+  }, [])
 
   const headerVisibleRef = useRef(true)
   const isHoveredRef = useRef(false)
@@ -64,28 +186,25 @@ export default function Header({
   const lastScrollYRef = useRef(0)
   const lastSectionRef = useRef('hero')
 
-  // Selected global locale
-  const [selectedLocale, setSelectedLocale] = useState(() => {
-    try {
-      const saved = localStorage.getItem('uandwe_locale')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        const match = GLOBAL_LOCALES.find((l) => l.code === parsed.code)
-        if (match) return match
-      }
-    } catch {
-      // ignore
-    }
-    return GLOBAL_LOCALES[0] // Default: India
-  })
+  // Global i18n Translation Context
+  const { selectedLocale, setLocale, isZh, t: i18nDict } = useTranslation()
+  const t = i18nDict.header
+  const localizedSolutions = t.solutions
 
   const headerRef = useRef(null)
   const searchContainerRef = useRef(null)
   const searchInputRef = useRef(null)
+  const mobileSearchRef = useRef(null)
+  const mobileSearchInputRef = useRef(null)
   const globalRef = useRef(null)
   const userMenuRef = useRef(null)
   const signInMenuRef = useRef(null)
   const navDropdownTimeoutRef = useRef(null)
+  const signInTimeoutRef = useRef(null)
+  const userMenuTimeoutRef = useRef(null)
+  const globalTimeoutRef = useRef(null)
+  const lastUserMenuHoverTimeRef = useRef(0)
+  const lastGlobalHoverTimeRef = useRef(0)
 
   const isAnyMenuOpen = Boolean(
     activeDropdown ||
@@ -129,106 +248,23 @@ export default function Header({
     }
   }, [isAnyMenuOpen, isHovered])
 
-  // Scroll listener: only show header on scroll UP when in other sections, and auto-hide after 3s
+  // Close open dropdowns when scrolling down from top
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    lastScrollYRef.current = window.scrollY
-
-    if (window.scrollY > 60) {
-      resetAutoHideTimer()
-    }
-
     const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      const lastScrollY = lastScrollYRef.current
-      const delta = currentScrollY - lastScrollY
-
-      // Detect active section
-      let activeSection = 'hero'
-      if (currentScrollY > 60) {
-        const scrollMid = currentScrollY + window.innerHeight * 0.35
-        for (const id of SECTION_IDS) {
-          const el = document.getElementById(id)
-          if (el) {
-            const top = el.offsetTop
-            const height = el.offsetHeight
-            if (scrollMid >= top && scrollMid < top + height) {
-              activeSection = id
-              break
-            }
-          }
-        }
+      if (window.scrollY > 80) {
+        if (activeDropdown) setActiveDropdown(null)
+        if (globalOpen) setGlobalOpen(false)
+        if (userMenuOpen) setUserMenuOpen(false)
+        if (signInMenuOpen) setSignInMenuOpen(false)
+        if (searchOpen) setSearchOpen(false)
       }
-
-      // If at top of the page (hero section)
-      if (currentScrollY <= 60) {
-        updateHeaderVisible(true)
-        if (autoHideTimerRef.current) {
-          clearTimeout(autoHideTimerRef.current)
-          autoHideTimerRef.current = null
-        }
-        lastScrollYRef.current = currentScrollY
-        lastSectionRef.current = 'hero'
-        return
-      }
-
-      // In other sections:
-      // If section changed while header is visible, restart 3s timer
-      if (activeSection !== lastSectionRef.current) {
-        lastSectionRef.current = activeSection
-        if (headerVisibleRef.current) {
-          resetAutoHideTimer()
-        }
-      }
-
-      // Ignore micro jitter
-      if (Math.abs(delta) < 6) {
-        return
-      }
-
-      if (delta > 0) {
-        // Moving DOWN: Hide header immediately when in other section
-        if (!isHoveredRef.current && !isAnyMenuOpenRef.current) {
-          updateHeaderVisible(false)
-          setActiveDropdown(null)
-        }
-        if (autoHideTimerRef.current) {
-          clearTimeout(autoHideTimerRef.current)
-          autoHideTimerRef.current = null
-        }
-      } else {
-        // Moving UP: Show header, and auto-hide after 3 seconds in the section
-        updateHeaderVisible(true)
-        resetAutoHideTimer()
-      }
-
-      lastScrollYRef.current = currentScrollY
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-
-    let lenisTimer = null
-    const attachLenis = () => {
-      if (window.__lenis) {
-        window.__lenis.on('scroll', handleScroll)
-      } else {
-        lenisTimer = setTimeout(attachLenis, 150)
-      }
-    }
-    attachLenis()
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      if (window.__lenis) {
-        window.__lenis.off('scroll', handleScroll)
-      }
-      if (lenisTimer) clearTimeout(lenisTimer)
-      if (autoHideTimerRef.current) {
-        clearTimeout(autoHideTimerRef.current)
-      }
-    }
-  }, [])
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [activeDropdown, globalOpen, userMenuOpen, signInMenuOpen, searchOpen])
 
   const handleCapsuleMouseEnter = () => {
     setIsHovered(true)
@@ -260,7 +296,11 @@ export default function Header({
   useEffect(() => {
     if (searchOpen) {
       const timer = setTimeout(() => {
-        searchInputRef.current?.focus({ preventScroll: true })
+        if (window.innerWidth < 1024) {
+          mobileSearchInputRef.current?.focus({ preventScroll: true })
+        } else {
+          searchInputRef.current?.focus({ preventScroll: true })
+        }
       }, 100)
       return () => clearTimeout(timer)
     }
@@ -274,11 +314,17 @@ export default function Header({
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setUserMenuOpen(false)
+        setUserGeoSpatialOpen(false)
       }
       if (signInMenuRef.current && !signInMenuRef.current.contains(e.target)) {
         setSignInMenuOpen(false)
+        setSignInGeoSpatialOpen(false)
       }
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target) &&
+        (!mobileSearchRef.current || !mobileSearchRef.current.contains(e.target))
+      ) {
         setSearchOpen(false)
       }
       if (headerRef.current && !headerRef.current.contains(e.target)) {
@@ -287,7 +333,11 @@ export default function Header({
     }
 
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside, { passive: true })
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
   }, [])
 
   // Smooth hover handlers for dropdowns
@@ -295,16 +345,119 @@ export default function Header({
     if (navDropdownTimeoutRef.current) {
       clearTimeout(navDropdownTimeoutRef.current)
     }
+    if (globalTimeoutRef.current) {
+      clearTimeout(globalTimeoutRef.current)
+    }
+    setGlobalOpen(false)
     setActiveDropdown(menuName)
   }
 
   const handleNavMouseLeave = () => {
     navDropdownTimeoutRef.current = setTimeout(() => {
       setActiveDropdown(null)
-    }, 180)
+    }, 240)
   }
 
-  const handleDropdownItemClick = (targetId, navKey, requiresAuth = false) => {
+  // Smooth hover handlers for Guest Sign In menu
+  const handleSignInMouseEnter = () => {
+    if (signInTimeoutRef.current) {
+      clearTimeout(signInTimeoutRef.current)
+    }
+    if (globalTimeoutRef.current) {
+      clearTimeout(globalTimeoutRef.current)
+    }
+    setGlobalOpen(false)
+    setSignInMenuOpen(true)
+  }
+
+  const handleSignInMouseLeave = () => {
+    signInTimeoutRef.current = setTimeout(() => {
+      setSignInMenuOpen(false)
+      setSignInGeoSpatialOpen(false)
+    }, 280)
+  }
+
+  // Smooth hover handlers for User Profile menu
+  const handleUserMenuMouseEnter = () => {
+    lastUserMenuHoverTimeRef.current = performance.now()
+    if (userMenuTimeoutRef.current) {
+      clearTimeout(userMenuTimeoutRef.current)
+    }
+    if (globalTimeoutRef.current) {
+      clearTimeout(globalTimeoutRef.current)
+    }
+    setGlobalOpen(false)
+    setUserMenuOpen(true)
+  }
+
+  const handleUserMenuMouseLeave = () => {
+    userMenuTimeoutRef.current = setTimeout(() => {
+      setUserMenuOpen(false)
+    }, 280)
+  }
+
+  const handleUserMenuToggle = (e) => {
+    e.stopPropagation()
+    if (userMenuTimeoutRef.current) {
+      clearTimeout(userMenuTimeoutRef.current)
+    }
+    // On touch devices, a finger tap triggers synthetic mouseenter followed immediately by click.
+    // If mouseenter ran within the last 350ms, ensure the menu stays OPEN.
+    const timeSinceHover = performance.now() - lastUserMenuHoverTimeRef.current
+    if (timeSinceHover < 350) {
+      setUserMenuOpen(true)
+    } else {
+      setUserMenuOpen((prev) => !prev)
+    }
+    setGlobalOpen(false)
+    setSignInMenuOpen(false)
+    setActiveDropdown(null)
+  }
+
+  // Smooth hover handlers for Global Locale / Region selector
+  const handleGlobalMouseEnter = () => {
+    lastGlobalHoverTimeRef.current = performance.now()
+    if (globalTimeoutRef.current) {
+      clearTimeout(globalTimeoutRef.current)
+    }
+    if (navDropdownTimeoutRef.current) {
+      clearTimeout(navDropdownTimeoutRef.current)
+    }
+    if (signInTimeoutRef.current) {
+      clearTimeout(signInTimeoutRef.current)
+    }
+    if (userMenuTimeoutRef.current) {
+      clearTimeout(userMenuTimeoutRef.current)
+    }
+    setActiveDropdown(null)
+    setUserMenuOpen(false)
+    setSignInMenuOpen(false)
+    setGlobalOpen(true)
+  }
+
+  const handleGlobalMouseLeave = () => {
+    globalTimeoutRef.current = setTimeout(() => {
+      setGlobalOpen(false)
+    }, 280)
+  }
+
+  const handleGlobalToggle = (e) => {
+    e.stopPropagation()
+    if (globalTimeoutRef.current) {
+      clearTimeout(globalTimeoutRef.current)
+    }
+    const timeSinceHover = performance.now() - lastGlobalHoverTimeRef.current
+    if (timeSinceHover < 350) {
+      setGlobalOpen(true)
+    } else {
+      setGlobalOpen((prev) => !prev)
+    }
+    setUserMenuOpen(false)
+    setSignInMenuOpen(false)
+    setActiveDropdown(null)
+  }
+
+  const handleDropdownItemClick = (targetId, navKey, requiresAuth = false, category = null) => {
     setActiveDropdown(null)
     setMobileMenuOpen(false)
     if (requiresAuth && !user) {
@@ -318,26 +471,111 @@ export default function Header({
     if (onNavChange) {
       onNavChange(navKey)
     }
+    if (category) {
+      window.dispatchEvent(new CustomEvent('ananda_category_change', { detail: category }))
+    }
+    if (targetId === 'dara' || targetId === 'healthcare') {
+      if (onNavigateToDara) {
+        onNavigateToDara()
+        return
+      }
+    }
+    if (targetId === 'aura' || targetId === 'board') {
+      if (onNavigateToAura) {
+        onNavigateToAura()
+        return
+      }
+    }
+    if (targetId === 'blogs' || navKey === 'BLOGS') {
+      if (onNavigateToBlogs) {
+        onNavigateToBlogs()
+        return
+      }
+    }
+    if (targetId === 'about' || navKey === 'ABOUT' || targetId === 'about-us') {
+      if (onNavigateToAbout) {
+        onNavigateToAbout()
+        return
+      }
+      window.location.hash = 'about'
+      return
+    }
+    if (targetId === 'careers' || navKey === 'CAREERS' || targetId === 'career' || targetId === 'jobs') {
+      if (onNavigateToCareers) {
+        onNavigateToCareers()
+        return
+      }
+      window.location.hash = 'careers'
+      return
+    }
+    if (targetId === 'ananda') {
+      if (onNavigateToAnanda) {
+        onNavigateToAnanda(category || 'commercial')
+        return
+      }
+    }
     if (targetId) {
-      const el = document.getElementById(targetId)
+      const resolvedId = targetId
+      const el = document.getElementById(resolvedId)
       if (el) {
         if (window.__lenis) {
           window.__lenis.scrollTo(el, { duration: 1.2 })
         } else {
           el.scrollIntoView({ behavior: 'smooth' })
         }
+      } else {
+        if (onNavigateToHome) {
+          onNavigateToHome()
+        }
+        window.location.hash = resolvedId
+      }
+    }
+  }
+
+  // Navigate with selected Ananda platform destination:
+  // - If user is already logged in: navigate directly to Commercial or Residency!
+  // - If user is a guest (not logged in): navigate to login page, remembering the chosen platform.
+  const handleNavigateToLoginWithTarget = (targetCategory) => {
+    setActiveDropdown(null)
+    setSignInMenuOpen(false)
+    setSignInGeoSpatialOpen(false)
+    setMobileMenuOpen(false)
+    setUserMenuOpen(false)
+    setUserGeoSpatialOpen(false)
+
+    setActivePlatform(targetCategory)
+    try {
+      sessionStorage.setItem('ananda_category', targetCategory)
+      localStorage.setItem('uandwe_active_platform', targetCategory)
+    } catch {
+      // ignore
+    }
+
+    if (user) {
+      // User is logged in: take them directly to the chosen Ananda platform
+      if (onNavigateToAnanda) {
+        onNavigateToAnanda(targetCategory)
+      } else {
+        window.location.hash = targetCategory === 'residential' ? 'ananda-residential' : 'ananda'
+      }
+      window.dispatchEvent(new CustomEvent('ananda_category_change', { detail: targetCategory }))
+    } else {
+      // User is a guest: go to login page with target
+      const target = targetCategory === 'residential' ? 'ananda-residential' : 'ananda'
+      if (onNavigateToLogin) {
+        onNavigateToLogin('signin', target)
+      } else {
+        window.location.hash = 'login'
       }
     }
   }
 
   const handleSelectLocale = (locale) => {
-    setSelectedLocale(locale)
-    setGlobalOpen(false)
-    try {
-      localStorage.setItem('uandwe_locale', JSON.stringify(locale))
-    } catch {
-      // ignore
+    if (globalTimeoutRef.current) {
+      clearTimeout(globalTimeoutRef.current)
     }
+    setLocale(locale)
+    setGlobalOpen(false)
   }
 
   const handleSearchSubmit = (e) => {
@@ -355,7 +593,7 @@ export default function Header({
     }
   }
 
-  const isHeaderActive = isRevealed && headerVisible
+  const isHeaderActive = isRevealed
 
   return (
     <header
@@ -366,9 +604,9 @@ export default function Header({
         transition: 'opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 450ms cubic-bezier(0.16, 1, 0.3, 1)',
         pointerEvents: isHeaderActive ? undefined : 'none',
       }}
-      className="fixed top-0 left-0 right-0 z-50 w-full px-3 sm:px-5 md:px-7 lg:px-9 pt-3.5 sm:pt-4.5 pointer-events-none font-sans"
+      className="absolute top-0 left-0 right-0 z-50 w-full px-2 sm:px-6 lg:px-10 xl:px-16 pt-2 sm:pt-4 pointer-events-none font-sans"
     >
-      <div className="w-full max-w-[97vw] xl:max-w-[1460px] 2xl:max-w-[1560px] mx-auto flex flex-col items-center">
+      <div className="w-full max-w-[1560px] mx-auto flex flex-col items-center">
 
         {/* ========================================================= */}
         {/* SLEEK UNIFIED GLASS CAPSULE BAR (Increased Height)        */}
@@ -377,40 +615,50 @@ export default function Header({
         <div
           onMouseEnter={handleCapsuleMouseEnter}
           onMouseLeave={handleCapsuleMouseLeave}
-          className="pointer-events-auto w-full h-[62px] sm:h-[68px] lg:h-[72px] px-5 sm:px-7 lg:px-9 rounded-full bg-white/85 backdrop-blur-2xl border border-white/80 shadow-[0_14px_45px_rgba(0,0,0,0.09),0_1px_4px_rgba(0,0,0,0.04)] ring-1 ring-slate-900/5 flex items-center justify-between transition-all duration-300 hover:shadow-[0_18px_50px_rgba(0,0,0,0.12)]"
+          className="pointer-events-auto w-full max-w-full h-[56px] sm:h-[70px] lg:h-[74px] px-3 sm:px-6 lg:px-7 xl:px-9 rounded-full bg-white shadow-[0_16px_50px_rgba(0,0,0,0.18),0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200/90 ring-1 ring-black/[0.04] flex items-center justify-between transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.22)]"
         >
 
           {/* ------------------------------------------------------- */}
           {/* LEFT: Brand Logo + Navigation Links */}
           {/* Products | Blogs | Careers */}
           {/* ------------------------------------------------------- */}
-          <div className="flex items-center gap-6 sm:gap-8 lg:gap-10">
+          <div className="flex items-center gap-1.5 sm:gap-4 lg:gap-5 xl:gap-7 shrink-0">
 
-            {/* Brand Logo - Enlarged & Crisp */}
+            {/* Brand Logo & Name - Enlarged & Crisp */}
             <a
               href="#hero"
               onClick={(e) => {
                 e.preventDefault()
-                if (window.__lenis) {
-                  window.__lenis.scrollTo(0, { duration: 1.2 })
+                const heroEl = document.getElementById('hero')
+                if (heroEl) {
+                  if (window.__lenis) {
+                    window.__lenis.scrollTo(0, { duration: 1.2 })
+                  } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
+                } else if (onNavigateToHome) {
+                  onNavigateToHome()
                 } else {
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  window.location.hash = 'hero'
                 }
               }}
-              className="flex items-center cursor-pointer select-none group shrink-0 py-0.5"
+              className="flex items-center gap-1.5 sm:gap-2.5 xl:gap-3 cursor-pointer select-none group shrink-0 py-0.5"
               aria-label="uandwelabs Home"
             >
               <img
                 src={Logo}
-                alt="uandwelabs"
-                className="h-9 sm:h-10 md:h-11 lg:h-[46px] w-auto object-contain group-hover:opacity-85 transition-opacity drop-shadow-xs"
+                alt="uandwelabs logo"
+                className="h-8 sm:h-10 md:h-11 lg:h-11 xl:h-[50px] w-auto object-contain group-hover:scale-105 transition-all duration-200 drop-shadow-xs"
               />
+              <span className="text-[13px] sm:text-[17px] xl:text-[19px] font-semibold tracking-[-0.01em] uppercase text-slate-900 group-hover:text-black transition-colors font-['Inter'] whitespace-nowrap">
+                UANDWE LABS
+              </span>
             </a>
 
             {/* Navigation Links (Desktop) */}
-            <nav className="hidden md:flex items-center gap-1.5 sm:gap-2 lg:gap-2.5">
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 shrink-0">
 
-              {/* 1. Products (with dropdown) */}
+              {/* 1. Products (Includes Ananda with Commercial & Residency) */}
               <div
                 className="relative"
                 onMouseEnter={() => handleNavMouseEnter('products')}
@@ -421,65 +669,405 @@ export default function Header({
                   onClick={() => {
                     setActiveDropdown(activeDropdown === 'products' ? null : 'products')
                   }}
-                  className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-[14.5px] sm:text-[15px] lg:text-[15.5px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${
-                    activeDropdown === 'products' || activeNav?.toLowerCase() === 'products'
-                      ? 'text-black bg-black/10 font-semibold shadow-xs'
-                      : 'text-slate-700 hover:text-black hover:bg-black/5'
-                  }`}
+                  className={`flex items-center gap-1 xl:gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${activeDropdown === 'products' || activeNav?.toLowerCase() === 'products'
+                      ? 'text-black bg-slate-100 font-semibold shadow-xs'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
+                    }`}
                 >
                   <span>Products</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
-                      activeDropdown === 'products' ? 'rotate-180 text-black' : ''
-                    }`}
+                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${activeDropdown === 'products' ? 'rotate-180 text-black' : ''
+                      }`}
                   />
                 </button>
+                
 
-                {/* Products Dropdown Panel */}
+                {/* Products Dropdown (Anchored under Products button) */}
                 {activeDropdown === 'products' && (
-                  <div
-                    onMouseEnter={() => handleNavMouseEnter('products')}
-                    onMouseLeave={handleNavMouseLeave}
-                    className="absolute left-0 top-full pt-3 w-64 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
-                  >
-                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 ring-1 ring-black/5">
-                      {PRODUCTS_DATA.map((item) => (
-                        <button
-                          key={item.title}
-                          type="button"
-                          onClick={() => handleDropdownItemClick(item.targetId, 'PRODUCTS')}
-                          className="w-full text-left px-4 py-2.5 rounded-xl text-[14.5px] font-medium text-slate-800 hover:text-black hover:bg-slate-100/90 transition-colors cursor-pointer"
-                        >
-                          {item.title}
-                        </button>
-                      ))}
+                  <>
+                    {/* Narrow hover bridge strictly scoped to Products button width */}
+                    <div className="absolute top-full left-0 right-0 h-8 pointer-events-auto z-40" />
+
+                    <div
+                      onMouseEnter={() => handleNavMouseEnter('products')}
+                      onMouseLeave={handleNavMouseLeave}
+                      className="absolute left-0 top-full pt-7 sm:pt-8 w-[820px] sm:w-[890px] lg:w-[940px] max-w-[calc(100vw-2rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
+                    >
+                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_28px_70px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/90 ring-1 ring-black/[0.04] overflow-hidden p-3.5 sm:p-4.5">
+                      {/* Master-Detail Split Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 min-h-[290px]">
+                        {/* LEFT COLUMN: 3 Categories (Hover Switcher) */}
+                        <div className="md:col-span-5 flex flex-col justify-between space-y-2 border-b md:border-b-0 md:border-r border-slate-200/80 pb-3 md:pb-0 md:pr-3.5">
+                          <div className="space-y-2">
+                            {/* 1. Ananda Tab */}
+                            <div
+                              onMouseEnter={() => setHoveredProductCategory('ananda')}
+                              onClick={() => handleDropdownItemClick('ananda', 'PRODUCTS', false, activePlatform || 'commercial')}
+                              className={`group flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                hoveredProductCategory === 'ananda'
+                                  ? 'bg-black text-white border-black shadow-md'
+                                  : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-semibold text-[15px] tracking-tight block">Ananda</span>
+                                <span
+                                  className={`text-[11.5px] block leading-tight mt-0.5 ${
+                                    hoveredProductCategory === 'ananda' ? 'text-neutral-400' : 'text-slate-500'
+                                  }`}
+                                >
+                                  Urban Physics &amp; CFD
+                                </span>
+                              </div>
+                              <ArrowRight
+                                className={`w-4 h-4 transition-transform duration-200 ${
+                                  hoveredProductCategory === 'ananda'
+                                    ? 'text-white translate-x-1 opacity-100'
+                                    : 'text-slate-400 opacity-40 group-hover:opacity-100'
+                                }`}
+                              />
+                            </div>
+
+                            {/* 2. Physical AI Tab */}
+                            <div
+                              onMouseEnter={() => setHoveredProductCategory('physical-ai')}
+                              onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
+                              className={`group flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                hoveredProductCategory === 'physical-ai'
+                                  ? 'bg-black text-white border-black shadow-md'
+                                  : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-semibold text-[15px] tracking-tight block">Physical AI</span>
+                                <span
+                                  className={`text-[11.5px] block leading-tight mt-0.5 ${
+                                    hoveredProductCategory === 'physical-ai' ? 'text-neutral-400' : 'text-slate-500'
+                                  }`}
+                                >
+                                  Autonomous Edge Vision
+                                </span>
+                              </div>
+                              <ArrowRight
+                                className={`w-4 h-4 transition-transform duration-200 ${
+                                  hoveredProductCategory === 'physical-ai'
+                                    ? 'text-white translate-x-1 opacity-100'
+                                    : 'text-slate-400 opacity-40 group-hover:opacity-100'
+                                }`}
+                              />
+                            </div>
+
+                            {/* 3. Healthcare Tab */}
+                            <div
+                              onMouseEnter={() => setHoveredProductCategory('healthcare')}
+                              onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
+                              className={`group flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                hoveredProductCategory === 'healthcare'
+                                  ? 'bg-black text-white border-black shadow-md'
+                                  : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-semibold text-[15px] tracking-tight block">Healthcare</span>
+                                <span
+                                  className={`text-[11.5px] block leading-tight mt-0.5 ${
+                                    hoveredProductCategory === 'healthcare' ? 'text-neutral-400' : 'text-slate-500'
+                                  }`}
+                                >
+                                  Elder Longevity &amp; Fall Radar
+                                </span>
+                              </div>
+                              <ArrowRight
+                                className={`w-4 h-4 transition-transform duration-200 ${
+                                  hoveredProductCategory === 'healthcare'
+                                    ? 'text-white translate-x-1 opacity-100'
+                                    : 'text-slate-400 opacity-40 group-hover:opacity-100'
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* RIGHT COLUMN: Revealed Content on Hover */}
+                        <div className="md:col-span-7 pl-0 md:pl-2 flex flex-col justify-between">
+                          {/* 1. When Hovering ANANDA -> Shows Commercial and Residency */}
+                          {hoveredProductCategory === 'ananda' && (
+                            <div className="h-full flex flex-col justify-center animate-in fade-in-50 duration-200">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 items-stretch">
+                                {/* Commercial Card */}
+                                <div
+                                  onClick={() => handleNavigateToLoginWithTarget('commercial')}
+                                  className="group/card p-5 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
+                                >
+                                  <div>
+                                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                                      <h4 className="font-semibold text-slate-900 text-[16px] group-hover/card:text-black transition-colors">
+                                        Commercial
+                                      </h4>
+                                      <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
+                                    </div>
+                                    <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
+                                      Sub-meter solar ray-casting, aerodynamic wind CFD, and flood hydrology for urban masterplans.
+                                    </p>
+                                  </div>
+                                  <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
+                                    <span>Enter Commercial</span>
+                                    <span className="group-hover/card:translate-x-1 transition-transform">→</span>
+                                  </div>
+                                </div>
+
+                                {/* Residency Card */}
+                                <div
+                                  onClick={() => handleNavigateToLoginWithTarget('residential')}
+                                  className="group/card p-5 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
+                                >
+                                  <div>
+                                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                                      <h4 className="font-semibold text-slate-900 text-[16px] group-hover/card:text-black transition-colors">
+                                        Residency
+                                      </h4>
+                                      <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
+                                    </div>
+                                    <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
+                                      Passive cross-ventilation breezes, daylight autonomy, and microclimate comfort for estates.
+                                    </p>
+                                  </div>
+                                  <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
+                                    <span>Enter Residency</span>
+                                    <span className="group-hover/card:translate-x-1 transition-transform">→</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 2. When Hovering PHYSICAL AI -> Shows Aura */}
+                          {hoveredProductCategory === 'physical-ai' && (
+                            <div
+                              onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
+                              className="group/aura p-6 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between h-full cursor-pointer animate-in fade-in-50 duration-200 shadow-2xs hover:shadow-xs"
+                            >
+                              <div>
+                                <div className="mb-1">
+                                  <h4 className="font-semibold text-slate-900 text-[22px] sm:text-[24px] tracking-tight group-hover/aura:text-black transition-colors">
+                                    Aura
+                                  </h4>
+                                </div>
+                                <span className="text-[12px] font-medium text-slate-500 block mb-2.5">
+                                  Autonomous Edge Vision &amp; 128-TOPS Silicon
+                                </span>
+                                <p className="text-[13px] text-slate-600 leading-relaxed font-normal">
+                                  Deterministic INT8 quantized neural inferencing directly in hardware cache. Sub-millisecond multilane highway LPR at 180 km/h and 350m perimeter tracking with zero cloud egress.
+                                </p>
+                              </div>
+
+                              <div className="pt-3 mt-4 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/aura:text-black">
+                                <span>Explore Aura Hardware Node</span>
+                                <span className="group-hover/aura:translate-x-1 transition-transform">→</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 3. When Hovering HEALTHCARE -> Shows Dara */}
+                          {hoveredProductCategory === 'healthcare' && (
+                            <div
+                              onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
+                              className="group/dara p-6 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between h-full cursor-pointer animate-in fade-in-50 duration-200 shadow-2xs hover:shadow-xs"
+                            >
+                              <div>
+                                <div className="mb-1">
+                                  <h4 className="font-semibold text-slate-900 text-[22px] sm:text-[24px] tracking-tight group-hover/dara:text-black transition-colors">
+                                    Dara
+                                  </h4>
+                                </div>
+                                <span className="text-[12px] font-medium text-slate-500 block mb-2.5">
+                                  Autonomous Senior Dignity &amp; Fall Radar
+                                </span>
+                                <p className="text-[13px] text-slate-600 leading-relaxed font-normal">
+                                  Smart assistive device keeping seniors safe and independent. Features 60 GHz contactless wall radar, multi-language talking clock (English, Hindi, Tamil, Kannada, Telugu, Malayalam), and rise-to-wake torch.
+                                </p>
+                              </div>
+
+                              <div className="pt-3 mt-4 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/dara:text-black">
+                                <span>Explore Dara Assistive Platform</span>
+                                <span className="group-hover/dara:translate-x-1 transition-transform">→</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  </>
                 )}
               </div>
 
-              {/* 2. Blogs */}
+              {/* 2. Solutions */}
+              <div
+                className="relative"
+                onMouseEnter={() => handleNavMouseEnter('solutions')}
+                onMouseLeave={handleNavMouseLeave}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveDropdown(activeDropdown === 'solutions' ? null : 'solutions')
+                  }}
+                  className={`flex items-center gap-1 xl:gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${activeDropdown === 'solutions' || activeNav?.toLowerCase() === 'solutions'
+                      ? 'text-black bg-slate-100 font-semibold shadow-xs'
+                      : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
+                    }`}
+                >
+                  <span>Solutions</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${activeDropdown === 'solutions' ? 'rotate-180 text-black' : ''
+                      }`}
+                  />
+                </button>
+
+                {/* Solutions Dropdown */}
+                {activeDropdown === 'solutions' && (
+                  <>
+                    {/* Narrow hover bridge strictly scoped to Solutions button width */}
+                    <div className="absolute top-full left-0 right-0 h-8 pointer-events-auto z-40" />
+
+                    <div
+                      onMouseEnter={() => handleNavMouseEnter('solutions')}
+                      onMouseLeave={handleNavMouseLeave}
+                      className="absolute left-0 top-full pt-7 sm:pt-8 w-[780px] sm:w-[870px] lg:w-[930px] max-w-[calc(100vw-2rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
+                    >
+                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_28px_70px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/90 ring-1 ring-black/[0.04] overflow-hidden p-3.5 sm:p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {SOLUTIONS_DATA.map((item) => {
+                          const IconComp = item.id === 'environmental-simulation' ? Globe : item.id === 'healthcare-assistive-ai' ? Radio : Cpu
+                          const accentHover = item.id === 'environmental-simulation' ? 'group-hover:text-orange-600' : item.id === 'healthcare-assistive-ai' ? 'group-hover:text-blue-900' : 'group-hover:text-indigo-600'
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => handleDropdownItemClick(item.targetId, 'SOLUTIONS', false, item.category)}
+                              className="group relative flex flex-col justify-between p-4 sm:p-4.5 text-left rounded-2xl bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-slate-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer"
+                            >
+                              <div>
+                                <div className="flex items-start justify-between gap-1.5 mb-3">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border group-hover:scale-105 transition-transform duration-200 ${item.iconBg}`}>
+                                      <IconComp className="w-4.5 h-4.5" />
+                                    </div>
+                                    <div>
+                                      <div className={`flex items-center gap-1 font-semibold text-[15px] text-slate-900 ${accentHover} transition-colors`}>
+                                        <span>{item.title}</span>
+                                        <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
+                                      </div>
+                                      <span className="text-[11px] font-medium text-slate-500 block leading-tight">
+                                        {item.subtitle}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border shrink-0 ${item.badgeClass}`}>
+                                    {item.tag}
+                                  </span>
+                                </div>
+                                <p className="text-[12px] text-slate-500 group-hover:text-slate-700 leading-relaxed font-normal mb-3.5 transition-colors">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              {item.pills && (
+                                <div className="flex items-center gap-1.5 mt-auto pt-3 border-t border-slate-200/70">
+                                  {item.pills.map((pill, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex-1 py-1.5 px-2 rounded-lg bg-white/90 group-hover:bg-slate-50 text-slate-700 text-[11px] font-medium border border-slate-200/90 text-center truncate shadow-2xs transition-colors"
+                                    >
+                                      {pill}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Clean Executive Solutions Footer */}
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 bg-slate-50/80 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                          <span className="text-[11px] sm:text-[11.5px] text-slate-600 font-semibold tracking-tight uppercase">
+                            ENTERPRISE &amp; MUNICIPAL DEPLOYMENTS
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDropdownItemClick('beliefs', 'SOLUTIONS')}
+                          className="text-[11.5px] sm:text-[12px] font-semibold text-slate-700 hover:text-black flex items-center gap-1.5 cursor-pointer transition-colors group/foot"
+                        >
+                          <span>Explore All Capabilities</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover/foot:text-black group-hover/foot:translate-x-0.5 transition-all duration-200" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  </>
+                )}
+              </div>
+
+              {/* 3. Blogs */}
               <button
                 type="button"
-                onClick={() => handleDropdownItemClick('about', 'BLOGS')}
-                className={`px-3.5 sm:px-4 py-2 text-[14.5px] sm:text-[15px] lg:text-[15.5px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${
-                  activeNav?.toLowerCase() === 'blogs'
-                    ? 'text-black bg-black/10 font-semibold shadow-xs'
-                    : 'text-slate-700 hover:text-black hover:bg-black/5'
-                }`}
+                onMouseEnter={() => {
+                  if (navDropdownTimeoutRef.current) clearTimeout(navDropdownTimeoutRef.current)
+                  setActiveDropdown(null)
+                }}
+                onClick={() => handleDropdownItemClick('blogs', 'BLOGS')}
+                className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${activeNav?.toLowerCase() === 'blogs'
+                    ? 'text-black bg-slate-100 font-semibold shadow-xs'
+                    : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
+                  }`}
               >
                 Blogs
               </button>
 
-              {/* 3. Careers */}
+              {/* 4. About Us */}
               <button
                 type="button"
-                onClick={() => handleDropdownItemClick('careers', 'CAREERS')}
-                className={`px-3.5 sm:px-4 py-2 text-[14.5px] sm:text-[15px] lg:text-[15.5px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${
-                  activeNav?.toLowerCase() === 'careers'
-                    ? 'text-black bg-black/10 font-semibold shadow-xs'
-                    : 'text-slate-700 hover:text-black hover:bg-black/5'
-                }`}
+                onMouseEnter={() => {
+                  if (navDropdownTimeoutRef.current) clearTimeout(navDropdownTimeoutRef.current)
+                  setActiveDropdown(null)
+                }}
+                onClick={() => {
+                  if (onNavigateToAbout) {
+                    onNavigateToAbout()
+                  } else {
+                    handleDropdownItemClick('about', 'ABOUT')
+                  }
+                }}
+                className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${activeNav?.toLowerCase() === 'about'
+                    ? 'text-black bg-slate-100 font-semibold shadow-xs'
+                    : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
+                  }`}
+              >
+                About Us
+              </button>
+
+              {/* 5. Careers */}
+              <button
+                type="button"
+                onMouseEnter={() => {
+                  if (navDropdownTimeoutRef.current) clearTimeout(navDropdownTimeoutRef.current)
+                  setActiveDropdown(null)
+                }}
+                onClick={() => {
+                  if (onNavigateToCareers) {
+                    onNavigateToCareers()
+                  } else {
+                    handleDropdownItemClick('careers', 'CAREERS')
+                  }
+                }}
+                className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${activeNav?.toLowerCase() === 'careers'
+                    ? 'text-black bg-slate-100 font-semibold shadow-xs'
+                    : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
+                  }`}
               >
                 Careers
               </button>
@@ -490,10 +1078,35 @@ export default function Header({
           {/* ------------------------------------------------------- */}
           {/* RIGHT: Search | India ▾ | Sign In                       */}
           {/* ------------------------------------------------------- */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5">
+          <div className="flex items-center gap-1 sm:gap-2.5 xl:gap-3.5 shrink-0">
 
-            {/* 1. Expandable Search */}
-            <div ref={searchContainerRef} className="relative flex items-center">
+            {/* 1A. Mobile & Tablet Search Toggle Button (Fixed icon in header, opens dropdown bar below on < lg screens) */}
+            <button
+              type="button"
+              onClick={() => {
+                const next = !searchOpen
+                setSearchOpen(next)
+                if (next) {
+                  setGlobalOpen(false)
+                  setUserMenuOpen(false)
+                  setSignInMenuOpen(false)
+                  setActiveDropdown(null)
+                  setMobileMenuOpen(false)
+                }
+              }}
+              className={`lg:hidden flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full transition-colors cursor-pointer shrink-0 ${
+                searchOpen
+                  ? 'bg-black text-white shadow-xs'
+                  : 'text-slate-700 hover:text-black hover:bg-slate-100'
+              }`}
+              title="Search"
+              aria-label="Toggle Search"
+            >
+              {searchOpen ? <X className="w-4 h-4 text-white" /> : <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />}
+            </button>
+
+            {/* 1B. Desktop Expandable Search (Expands inline on >= lg desktop screens) */}
+            <div ref={searchContainerRef} className="relative hidden lg:flex items-center">
               <form
                 onSubmit={handleSearchSubmit}
                 onClick={() => {
@@ -506,8 +1119,8 @@ export default function Header({
                 }}
                 className={`flex items-center h-9 sm:h-9.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
                   searchOpen
-                    ? 'w-48 sm:w-60 md:w-68 px-3.5 bg-white/95 border border-slate-300/80 shadow-[0_4px_18px_rgba(0,0,0,0.08)] ring-2 ring-black/5'
-                    : 'w-9 sm:w-9.5 px-0 bg-transparent hover:bg-black/5 cursor-pointer justify-center border border-transparent'
+                    ? 'w-44 lg:w-44 xl:w-56 px-3 bg-white border border-slate-300/80 shadow-[0_4px_18px_rgba(0,0,0,0.08)] ring-2 ring-black/5'
+                    : 'w-9 sm:w-9.5 px-0 bg-transparent hover:bg-slate-100 cursor-pointer justify-center border border-transparent'
                 }`}
               >
                 <button
@@ -523,7 +1136,7 @@ export default function Header({
                   }}
                   className={`flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
                     searchOpen
-                      ? 'text-slate-400 hover:text-slate-700 mr-2'
+                      ? 'text-slate-400 hover:text-slate-700 mr-1.5'
                       : 'w-9 sm:w-9.5 h-9 sm:h-9.5 text-slate-700 hover:text-black'
                   }`}
                   title="Search"
@@ -572,33 +1185,35 @@ export default function Header({
             <span className="h-5 w-px bg-slate-200/90 hidden sm:block" />
 
             {/* 2. Global Locale / Region Selector (Globe + India ▾) */}
-            <div ref={globalRef} className="relative">
+            <div
+              ref={globalRef}
+              className="relative hidden sm:block"
+              onMouseEnter={handleGlobalMouseEnter}
+              onMouseLeave={handleGlobalMouseLeave}
+            >
               <button
                 type="button"
-                onClick={() => {
-                  setGlobalOpen(!globalOpen)
-                  setUserMenuOpen(false)
-                  setSignInMenuOpen(false)
-                  setActiveDropdown(null)
-                }}
-                className={`flex items-center gap-1.5 py-1.5 px-3 sm:px-3.5 rounded-full text-[14px] sm:text-[14.5px] font-medium text-slate-700 transition-colors cursor-pointer ${
-                  globalOpen ? 'bg-black/10 text-black font-semibold' : 'hover:bg-black/5 hover:text-black'
-                }`}
-                title="Select Language / Region"
+                onClick={handleGlobalToggle}
+                className={`flex items-center gap-1 sm:gap-1.5 py-1 sm:py-1.5 px-2 sm:px-3 xl:px-3.5 rounded-full text-[13px] sm:text-[14px] xl:text-[14.5px] font-medium text-slate-700 transition-colors cursor-pointer select-none ${globalOpen ? 'bg-slate-100 text-black font-semibold' : 'hover:bg-slate-100 hover:text-black'
+                  }`}
                 aria-label="Select Language or Region"
               >
-                <Globe className="w-4 h-4 text-slate-700" />
-                <span className="hidden sm:inline">{selectedLocale.label}</span>
+                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 shrink-0" />
+                <span className="hidden xl:inline">{selectedLocale.label}</span>
+                <span className="hidden sm:inline xl:hidden uppercase font-semibold text-xs tracking-wider">{selectedLocale.code}</span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
-                    globalOpen ? 'rotate-180 text-black' : ''
-                  }`}
+                  className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${globalOpen ? 'rotate-180 text-black' : ''
+                    }`}
                 />
               </button>
 
               {/* Region Popover */}
               {globalOpen && (
-                <div className="absolute right-0 top-full pt-3 w-64 sm:w-72 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div
+                  onMouseEnter={handleGlobalMouseEnter}
+                  onMouseLeave={handleGlobalMouseLeave}
+                  className="absolute right-0 top-full pt-6 sm:pt-7 w-64 sm:w-72 z-50 animate-in fade-in slide-in-from-top-1 duration-150 before:absolute before:-top-3 before:left-0 before:w-full before:h-8 before:content-['']"
+                >
                   <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 text-xs ring-1 ring-black/5">
                     <div className="px-3.5 py-2 border-b border-slate-100 mb-1 flex items-center justify-between">
                       <span className="font-semibold text-slate-500 uppercase tracking-wider text-[11px]">
@@ -615,11 +1230,10 @@ export default function Header({
                             key={locale.code}
                             type="button"
                             onClick={() => handleSelectLocale(locale)}
-                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-colors cursor-pointer ${
-                              isSelected
+                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-colors cursor-pointer ${isSelected
                                 ? 'bg-slate-100 text-slate-900 font-semibold'
                                 : 'text-slate-700 hover:bg-slate-50 hover:text-black'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               <span className="text-base">{locale.country}</span>
@@ -648,60 +1262,131 @@ export default function Header({
             {/* 3. Sign In / User Profile */}
             {user ? (
               /* User Profile Dropdown */
-              <div ref={userMenuRef} className="relative">
+              <div
+                ref={userMenuRef}
+                className="relative"
+                onMouseEnter={handleUserMenuMouseEnter}
+                onMouseLeave={handleUserMenuMouseLeave}
+              >
                 <button
                   type="button"
-                  onClick={() => {
-                    setUserMenuOpen(!userMenuOpen)
-                    setGlobalOpen(false)
-                    setSignInMenuOpen(false)
-                  }}
-                  className="flex items-center gap-2 py-1 px-2 rounded-full hover:bg-black/5 transition-colors cursor-pointer"
+                  onClick={handleUserMenuToggle}
+                  className="flex items-center gap-1.5 sm:gap-2 py-1 px-1.5 sm:px-2 rounded-full hover:bg-slate-100 transition-colors cursor-pointer select-none"
+                  aria-expanded={userMenuOpen}
+                  aria-haspopup="true"
                 >
-                  <div className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  <div className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs relative overflow-hidden shrink-0 border border-slate-200">
+                    {user.avatar && !avatarError ? (
+                      <img
+                        src={user.avatar}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                          setAvatarError(true)
+                        }}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : null}
+                    <span className={user.avatar && !avatarError ? 'hidden' : 'block'}>
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </span>
                   </div>
-                  <span className="text-[14px] sm:text-[14.5px] font-semibold text-black hidden sm:inline max-w-[120px] truncate">
+                  <span className="text-[13px] sm:text-[14px] xl:text-[14.5px] font-semibold text-black hidden sm:inline max-w-[75px] xl:max-w-[120px] truncate">
                     {user.name || 'Member'}
                   </span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-slate-500 transition-transform ${
-                      userMenuOpen ? 'rotate-180 text-black' : ''
-                    }`}
+                    className={`w-3.5 h-3.5 text-slate-500 transition-transform hidden sm:inline ${userMenuOpen ? 'rotate-180 text-black' : ''
+                      }`}
                   />
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full pt-3 w-64 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div
+                    onMouseEnter={handleUserMenuMouseEnter}
+                    onMouseLeave={handleUserMenuMouseLeave}
+                    className="absolute right-0 top-full pt-6 sm:pt-7 w-64 sm:w-72 z-50 animate-in fade-in slide-in-from-top-1 duration-150 before:absolute before:-top-3 before:left-0 before:w-full before:h-8 before:content-['']"
+                  >
                     <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 text-xs divide-y divide-slate-100 ring-1 ring-black/5">
-                      <div className="px-3.5 py-2.5">
-                        <p className="font-semibold text-slate-900 truncate text-[14px]">
-                          {user.name || 'uandwelabs Member'}
-                        </p>
-                        <p className="text-slate-500 truncate text-[12px] mt-0.5">
-                          {user.email || 'member@uandwelabs.com'}
-                        </p>
+                      <div className="px-3.5 py-2.5 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-xs relative overflow-hidden shrink-0 border border-slate-200">
+                          {user.avatar && !avatarError ? (
+                            <img
+                              src={user.avatar}
+                              alt=""
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none'
+                                setAvatarError(true)
+                              }}
+                              className="w-full h-full rounded-full object-cover"
+                            />
+                          ) : null}
+                          <span className={user.avatar && !avatarError ? 'hidden' : 'block'}>
+                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                          </span>
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="font-semibold text-slate-900 truncate text-[14px]">
+                            {user.name || 'Member'}
+                          </p>
+                          <p className="text-slate-500 truncate text-[12px] mt-0.5">
+                            {user.email || ''}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="py-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserMenuOpen(false)
-                            const el = document.getElementById('introduction')
-                            if (el) {
-                              if (window.__lenis) {
-                                window.__lenis.scrollTo(el, { duration: 1.2 })
-                              } else {
-                                el.scrollIntoView({ behavior: 'smooth' })
-                              }
-                            }
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-slate-700 hover:bg-slate-50 text-[13px] text-left cursor-pointer"
-                        >
-                          <Globe className="w-4 h-4 text-slate-500" />
-                          <span className="font-medium text-slate-900">Geo Spatial</span>
-                        </button>
+                      {/* User Profile Platform Section: ONLY displays Commercial or Residency based on user selection */}
+                      <div className="py-1">
+                        {activePlatform === 'residential' ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUserMenuOpen(false)
+                              handleNavigateToLoginWithTarget('residential')
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-700 hover:text-black hover:bg-slate-100 text-[12.5px] font-medium text-left cursor-pointer transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-800 group-hover:bg-black group-hover:text-white transition-colors">
+                                <Home className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <span className="font-semibold text-slate-900 block leading-tight">
+                                  Residency
+                                </span>
+                                <span className="text-[10.5px] text-slate-500 font-medium">
+                                  Living Platform
+                                </span>
+                              </div>
+                            </div>
+                            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-black transition-all" />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUserMenuOpen(false)
+                              handleNavigateToLoginWithTarget('commercial')
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-700 hover:text-black hover:bg-slate-100 text-[12.5px] font-medium text-left cursor-pointer transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-800 group-hover:bg-black group-hover:text-white transition-colors">
+                                <Building2 className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <span className="font-semibold text-slate-900 block leading-tight">
+                                  Commercial
+                                </span>
+                                <span className="text-[10.5px] text-slate-500 font-medium">
+                                  Scale Platform
+                                </span>
+                              </div>
+                            </div>
+                            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-black transition-all" />
+                          </button>
+                        )}
                       </div>
 
                       <div className="pt-1.5">
@@ -723,59 +1408,92 @@ export default function Header({
               </div>
             ) : (
               /* Guest Sign In Button */
-              <div ref={signInMenuRef} className="relative">
+              <div
+                ref={signInMenuRef}
+                className="relative hidden sm:block"
+                onMouseEnter={handleSignInMouseEnter}
+                onMouseLeave={handleSignInMouseLeave}
+              >
                 <button
                   type="button"
                   onClick={() => setSignInMenuOpen((prev) => !prev)}
-                  onMouseEnter={() => setSignInMenuOpen(true)}
-                  className={`group inline-flex items-center gap-1.5 px-4.5 sm:px-5 py-2 rounded-full bg-black text-white hover:bg-orange-500 text-[13.5px] sm:text-[14px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/25 active:scale-95 select-none ${
-                    signInMenuOpen ? 'ring-2 ring-orange-400/40 bg-orange-500' : ''
-                  }`}
+                  onMouseEnter={handleSignInMouseEnter}
+                  className={`group inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 xl:px-5 py-1.5 sm:py-2 rounded-full bg-black text-white hover:bg-orange-500 text-[13px] sm:text-[13.5px] xl:text-[14px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/25 active:scale-95 select-none ${signInMenuOpen ? 'ring-2 ring-orange-400/40 bg-orange-500' : ''
+                    }`}
                   aria-expanded={signInMenuOpen}
                   aria-haspopup="true"
                 >
                   <span>Sign In</span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      signInMenuOpen ? 'rotate-180 text-white' : 'text-slate-300 group-hover:text-white'
-                    }`}
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${signInMenuOpen ? 'rotate-180 text-white' : 'text-slate-300 group-hover:text-white'
+                      }`}
                   />
                 </button>
 
                 {signInMenuOpen && (
                   <div
-                    onMouseEnter={() => setSignInMenuOpen(true)}
-                    onMouseLeave={() => setSignInMenuOpen(false)}
-                    className="absolute right-0 top-full pt-2.5 w-64 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
+                    onMouseEnter={handleSignInMouseEnter}
+                    onMouseLeave={handleSignInMouseLeave}
+                    className="absolute right-0 top-full pt-6 sm:pt-7 w-72 sm:w-80 z-50 animate-in fade-in slide-in-from-top-1 duration-150 before:absolute before:-top-3 before:left-0 before:w-full before:h-3 before:content-['']"
                   >
                     <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2 text-xs divide-y divide-slate-100 ring-1 ring-black/5">
-                      <div className="p-1 space-y-1">
+                      <div
+                        className="p-1 space-y-1"
+                        onMouseEnter={() => setSignInGeoSpatialOpen(true)}
+                      >
                         <button
                           type="button"
-                          onClick={() => {
-                            setSignInMenuOpen(false)
-                            if (onNavigateToLogin) {
-                              onNavigateToLogin('signin', 'introduction')
-                            } else {
-                              window.location.hash = 'login'
-                            }
-                          }}
-                          className="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-slate-100/80 transition-colors group cursor-pointer"
+                          onClick={() => setSignInGeoSpatialOpen((prev) => !prev)}
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-slate-100/80 transition-colors cursor-pointer group"
                         >
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center text-slate-800 group-hover:bg-black group-hover:text-white transition-colors">
+                            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 group-hover:bg-black group-hover:text-white transition-colors">
                               <Globe className="w-4 h-4" />
                             </div>
                             <div>
-                              <p className="font-semibold text-slate-900 text-[13.5px] group-hover:text-black">
-                                Geo Spatial
+                              <p className="font-semibold text-slate-900 text-[13.5px]">
+                                Ananda
                               </p>
                               <p className="text-[11px] text-slate-500">
-                                Access platform
+                                Commercial & Residency
                               </p>
                             </div>
                           </div>
+                          <ChevronDown
+                            className={`w-4 h-4 text-slate-400 group-hover:text-black transition-transform ${
+                              signInGeoSpatialOpen ? 'rotate-180 text-black' : ''
+                            }`}
+                          />
                         </button>
+
+                        {/* Always visible on hover or toggle */}
+                        {signInGeoSpatialOpen && (
+                          <div className="pl-3 pr-2 py-1.5 space-y-1 bg-slate-50/90 rounded-xl my-1 border border-slate-100 animate-in fade-in-0 duration-150">
+                            <button
+                              type="button"
+                              onClick={() => handleNavigateToLoginWithTarget('commercial')}
+                              className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:text-black hover:bg-white text-[12px] font-medium transition-colors cursor-pointer group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Building2 className="w-3.5 h-3.5 text-slate-700 group-hover:text-black transition-colors" />
+                                <span>Commercial</span>
+                              </div>
+                              <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black transition-colors" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleNavigateToLoginWithTarget('residential')}
+                              className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:text-black hover:bg-white text-[12px] font-medium transition-colors cursor-pointer group"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Home className="w-3.5 h-3.5 text-slate-700 group-hover:text-black transition-colors" />
+                                <span>Residency</span>
+                              </div>
+                              <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black transition-colors" />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div className="p-1 pt-1.5 space-y-1">
@@ -783,16 +1501,29 @@ export default function Header({
                           type="button"
                           onClick={() => {
                             setSignInMenuOpen(false)
+                            setSignInGeoSpatialOpen(false)
                             if (onNavigateToLogin) {
-                              onNavigateToLogin('signin')
+                              onNavigateToLogin('signin', null)
                             } else {
                               window.location.hash = 'login'
                             }
                           }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-orange-600 hover:bg-orange-50/70 text-[13px] font-medium text-left transition-colors cursor-pointer group"
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-slate-100/80 transition-colors cursor-pointer group"
                         >
-                          <UserIcon className="w-4 h-4 text-slate-400 group-hover:text-orange-500 transition-colors" />
-                          <span>Sign In to Account</span>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-black group-hover:text-white transition-colors">
+                              <UserIcon className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-900 text-[13.5px]">
+                                Sign In to Account
+                              </p>
+                              <p className="text-[11px] text-slate-500">
+                                Email &amp; Google sign-in
+                              </p>
+                            </div>
+                          </div>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-black transition-all" />
                         </button>
                       </div>
                     </div>
@@ -805,16 +1536,71 @@ export default function Header({
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-full text-slate-800 hover:bg-black/5 transition-colors cursor-pointer"
+              className="lg:hidden p-1.5 sm:p-2 rounded-full text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
               title="Toggle Menu"
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-black" /> : <Menu className="w-6 h-6 text-black" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6 text-black" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-black" />}
             </button>
 
           </div>
 
         </div>
+
+
+
+        {/* ========================================================= */}
+        {/* MOBILE & TABLET SEARCH BAR DROPDOWN (Directly below capsule) */}
+        {/* ========================================================= */}
+        {searchOpen && (
+          <div
+            ref={mobileSearchRef}
+            className="pointer-events-auto lg:hidden w-full max-w-full sm:max-w-xl md:max-w-2xl mt-2 px-1 animate-in fade-in slide-in-from-top-2 duration-200"
+          >
+            <form
+              onSubmit={handleSearchSubmit}
+              className="flex items-center h-11 sm:h-12 w-full rounded-full bg-white shadow-[0_12px_36px_rgba(0,0,0,0.18)] border border-slate-200 px-4 ring-1 ring-black/5"
+            >
+              <Search className="w-4.5 h-4.5 text-slate-400 shrink-0 mr-2.5" />
+              <input
+                ref={mobileSearchInputRef}
+                type="text"
+                placeholder="Search products, solutions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setSearchOpen(false)
+                    setSearchQuery('')
+                  }
+                }}
+                className="w-full text-xs sm:text-sm font-normal bg-transparent outline-none text-slate-900 placeholder:text-slate-400"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-slate-400 hover:text-slate-600 p-1 mr-1.5 cursor-pointer"
+                  title="Clear text"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchOpen(false)
+                  setSearchQuery('')
+                }}
+                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-black py-1 px-2.5 rounded-md hover:bg-slate-100 cursor-pointer shrink-0"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        )}
+
+
 
         {/* ========================================================= */}
         {/* MOBILE DRAWER / FLYOUT                                    */}
@@ -823,7 +1609,7 @@ export default function Header({
           <div
             onMouseEnter={handleCapsuleMouseEnter}
             onMouseLeave={handleCapsuleMouseLeave}
-            className="pointer-events-auto md:hidden w-full max-w-md mt-2.5 rounded-3xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-2xl p-5 animate-in slide-in-from-top-2 duration-200 space-y-4 ring-1 ring-black/5"
+            className="pointer-events-auto lg:hidden w-full max-w-full mt-2.5 rounded-3xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-2xl p-5 sm:p-7 animate-in slide-in-from-top-2 duration-200 space-y-4 ring-1 ring-black/5 max-h-[calc(100vh-100px)] overflow-y-auto"
           >
             <div className="space-y-1">
               <span className="text-[11px] font-bold text-black uppercase tracking-widest block mb-2">
@@ -840,40 +1626,148 @@ export default function Header({
                   <span>Products</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </button>
-                <div className="pl-3 py-1 space-y-1.5">
-                  {PRODUCTS_DATA.map((item) => (
+                <div className="pl-1 py-1 space-y-2">
+                  {/* Ananda: Commercial & Residency */}
+                  <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-1.5">
+                    <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">Ananda</span>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => handleNavigateToLoginWithTarget('commercial')}
+                        className="text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
+                      >
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
+                          <span>Commercial</span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNavigateToLoginWithTarget('residential')}
+                        className="text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
+                      >
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
+                          <span>Residency</span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Physical AI & Healthcare (Responsive 2-Col on Tablets) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                    {/* Physical AI: Aura */}
+                    <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-1.5 flex flex-col justify-between">
+                      <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">Physical AI</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
+                        className="w-full text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
+                      >
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Cpu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
+                          <span>Aura — Autonomous Edge Vision</span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    </div>
+
+                    {/* Healthcare: Dara */}
+                    <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-1.5 flex flex-col justify-between">
+                      <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">Healthcare</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
+                        className="w-full text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
+                      >
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Radio className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
+                          <span>Dara — Assistive Elder Hardware</span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Solutions Mobile */}
+              <div className="border-b border-slate-100 pb-2">
+                <button
+                  type="button"
+                  onClick={() => handleDropdownItemClick('introduction', 'SOLUTIONS')}
+                  className="w-full flex items-center justify-between py-2 text-[15px] font-semibold text-black hover:opacity-75"
+                >
+                  <span>Solutions</span>
+                  <ArrowRight className="w-4 h-4 text-black" />
+                </button>
+                <div className="pl-1 py-1 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                  {SOLUTIONS_DATA.map((item) => (
                     <button
-                      key={item.title}
+                      key={item.id}
                       type="button"
-                      onClick={() => handleDropdownItemClick(item.targetId, 'PRODUCTS')}
-                      className="flex items-center gap-2 py-1 text-[13.5px] font-medium text-black hover:opacity-75 w-full text-left cursor-pointer"
+                      onClick={() => handleDropdownItemClick(item.targetId, 'SOLUTIONS', false, item.category)}
+                      className="w-full text-left p-2.5 sm:p-3 rounded-xl hover:bg-slate-100/80 border border-transparent hover:border-slate-200 transition-colors cursor-pointer"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-black" />
-                      <span>{item.title}</span>
+                      <span className="text-[13.5px] sm:text-[14px] font-semibold text-slate-900 block">
+                        {item.title}
+                      </span>
+                      <p className="text-[11.5px] text-slate-500 leading-snug mt-1">
+                        {item.description}
+                      </p>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Blogs Mobile */}
-              <button
-                type="button"
-                onClick={() => handleDropdownItemClick('about', 'BLOGS')}
-                className="w-full flex items-center justify-between py-2 text-[15px] font-semibold text-black hover:opacity-75 border-b border-slate-100"
-              >
-                <span>Blogs</span>
-                <ArrowRight className="w-4 h-4 text-black" />
-              </button>
+              {/* Navigation Links: Blogs, About Us, Careers */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-slate-100 pb-2">
+                {/* Blogs Mobile */}
+                <button
+                  type="button"
+                  onClick={() => handleDropdownItemClick('blogs', 'BLOGS')}
+                  className="w-full flex items-center justify-between py-2 sm:py-2.5 px-2 rounded-xl text-[14.5px] sm:text-[15px] font-semibold text-black hover:bg-slate-50 transition-colors"
+                >
+                  <span>Blogs</span>
+                  <ArrowRight className="w-4 h-4 text-black" />
+                </button>
 
-              {/* Careers Mobile */}
-              <button
-                type="button"
-                onClick={() => handleDropdownItemClick('careers', 'CAREERS')}
-                className="w-full flex items-center justify-between py-2 text-[15px] font-semibold text-black hover:opacity-75 border-b border-slate-100"
-              >
-                <span>Careers</span>
-                <ArrowRight className="w-4 h-4 text-black" />
-              </button>
+                {/* About Us Mobile */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    if (onNavigateToAbout) {
+                      onNavigateToAbout()
+                    } else {
+                      handleDropdownItemClick('about', 'ABOUT')
+                    }
+                  }}
+                  className="w-full flex items-center justify-between py-2 sm:py-2.5 px-2 rounded-xl text-[14.5px] sm:text-[15px] font-semibold text-black hover:bg-slate-50 transition-colors"
+                >
+                  <span>About Us</span>
+                  <ArrowRight className="w-4 h-4 text-black" />
+                </button>
+
+                {/* Careers Mobile */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    if (onNavigateToCareers) {
+                      onNavigateToCareers()
+                    } else {
+                      handleDropdownItemClick('careers', 'CAREERS')
+                    }
+                  }}
+                  className="w-full flex items-center justify-between py-2 sm:py-2.5 px-2 rounded-xl text-[14.5px] sm:text-[15px] font-semibold text-black hover:bg-slate-50 transition-colors"
+                >
+                  <span>Careers</span>
+                  <ArrowRight className="w-4 h-4 text-black" />
+                </button>
+              </div>
 
             </div>
 
@@ -888,11 +1782,10 @@ export default function Header({
                     key={locale.code}
                     type="button"
                     onClick={() => handleSelectLocale(locale)}
-                    className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 p-2 rounded-xl text-xs text-center border cursor-pointer transition-colors ${
-                      selectedLocale.code === locale.code
+                    className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 p-2 rounded-xl text-xs text-center border cursor-pointer transition-colors ${selectedLocale.code === locale.code
                         ? 'border-slate-900 bg-slate-100 font-semibold text-slate-900'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     <span className="text-base">{locale.country}</span>
                     <span className="text-[11.5px]">{locale.label}</span>
@@ -927,8 +1820,9 @@ export default function Header({
                   >
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4" />
-                      <span>Geo Spatial</span>
+                      <span>Sign In to Ananda</span>
                     </div>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
 
                   <button
@@ -949,5 +1843,6 @@ export default function Header({
 
       </div>
     </header>
+    
   )
 }

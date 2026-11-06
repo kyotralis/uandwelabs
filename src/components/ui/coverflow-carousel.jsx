@@ -73,7 +73,10 @@ export function CoverflowCarousel({
   const paint = React.useCallback(() => {
     const width = widthRef.current
     if (!width || !count) return
-    const pitch = width * (1 + gap)
+    const isMobileWidth = width < 290
+    const effectiveGap = typeof gap === 'number' ? gap : -0.16
+    const activeGap = isMobileWidth ? Math.min(effectiveGap, -0.20) : effectiveGap
+    const pitch = width * (1 + activeGap)
     const pos = posRef.current
 
     cardRefs.current.forEach((card, index) => {
@@ -93,8 +96,9 @@ export function CoverflowCarousel({
         `translateX(calc(-50% + ${offset * pitch}px)) ` +
         `translateZ(${-depth * width * ramp}px) rotateY(${-tilt}deg)`
 
-      const edge = loop ? Math.max(0, Math.min(1, (count / 2 - distance) * 2.8)) : 1
-      card.style.setProperty('--cf-fade', String(Math.max(0, 1 - fade * distance) * edge))
+      const edge = loop && count > 3 ? Math.max(0, Math.min(1, (count / 2 - distance) * 2.8)) : 1
+      const fadeFactor = Math.max(0.4, 1 - fade * distance)
+      card.style.setProperty('--cf-fade', String(fadeFactor * edge))
       card.style.zIndex = String(100 - Math.round(distance))
     })
   }, [count, depth, fade, falloff, gap, loop, rotate])
@@ -154,10 +158,14 @@ export function CoverflowCarousel({
 
   const goTo = React.useCallback(
     (index) => {
-      const target = loop
-        ? index + Math.round((targetRef.current - index) / count) * count
-        : index
-      settle(clamp(target), 620)
+      const pos = posRef.current
+      let offset = index - pos
+      if (loop) {
+        offset = ((offset % count) + count) % count
+        if (offset > count / 2) offset -= count
+      }
+      const target = clamp(Math.round(pos) + offset)
+      settle(target, 620)
     },
     [clamp, count, loop, settle],
   )
@@ -173,6 +181,48 @@ export function CoverflowCarousel({
 
   const isDraggingRef = React.useRef(false)
   const dragStartRef = React.useRef({ x: 0, y: 0 })
+  const lastClickTimeRef = React.useRef(0)
+
+  const handleCardClick = React.useCallback(
+    (event, cardIndex) => {
+      if (isDraggingRef.current) return
+
+      const now = performance.now()
+      if (now - lastClickTimeRef.current < 200) return
+      lastClickTimeRef.current = now
+
+      // 1. If explicit cardIndex was passed
+      if (cardIndex !== undefined) {
+        goTo(cardIndex)
+        return
+      }
+
+      // 2. Check closest card element with data-slide-index
+      const cardEl = event?.target?.closest?.('[data-slide-index]')
+      if (cardEl) {
+        const idx = parseInt(cardEl.dataset.slideIndex, 10)
+        if (!isNaN(idx)) {
+          goTo(idx)
+          return
+        }
+      }
+
+      // 3. Fallback: Position-based hit test relative to center card
+      const frame = frameRef.current
+      if (!frame || !event?.clientX) return
+      const rect = frame.getBoundingClientRect()
+      const clickX = event.clientX - rect.left
+      const frameCenter = rect.width / 2
+      const cardW = widthRef.current || (rect.width * 0.35)
+
+      if (clickX < frameCenter - cardW * 0.3) {
+        nudge(-1)
+      } else if (clickX > frameCenter + cardW * 0.3) {
+        nudge(1)
+      }
+    },
+    [goTo, nudge],
+  )
 
   const onPointerDown = (event) => {
     if (rafRef.current !== null) {
@@ -240,6 +290,7 @@ export function CoverflowCarousel({
     const drag = dragRef.current
     if (!drag || drag.id !== event.pointerId) return
 
+    const wasDragging = isDraggingRef.current
     if (drag.captured) {
       try {
         drag.target.releasePointerCapture(event.pointerId)
@@ -249,31 +300,58 @@ export function CoverflowCarousel({
     }
     dragRef.current = null
 
-    if (isDraggingRef.current) {
+    if (wasDragging) {
       const carried = Math.max(-2, Math.min(2, drag.v * 0.18))
       settle(clamp(Math.round(posRef.current + carried)), 550)
       setTimeout(() => {
         isDraggingRef.current = false
       }, 80)
+    } else {
+      // Tap/click without drag: trigger card centering
+      handleCardClick(event)
     }
   }
+
+  const [autoCardWidth, setAutoCardWidth] = React.useState('340px')
 
   useIsoLayoutEffect(() => {
     const frame = frameRef.current
     if (!frame) return
 
     const measure = () => {
-      const card = cardRefs.current[0]
-      if (!card) return
-      widthRef.current = card.offsetWidth
-      paint()
+      const containerW = frame.offsetWidth
+      if (containerW > 0) {
+        const effectiveGap = typeof gap === 'number' ? gap : -0.16
+        const isMobile = containerW < 640
+        let optimalWidth
+
+        if (isMobile) {
+          // On mobile screens (<640px), size the active center card comfortably (68% - 72% of width)
+          // so text is spacious, legible, and never clipped, while allowing side cards to peek gracefully
+          optimalWidth = Math.round(Math.min(Math.max(containerW * 0.70, 220), 285))
+        } else {
+          // Factor in 3D perspective foreshortening (cos(28deg) * 3.2 / 3.56 ≈ 0.794, half ≈ 0.397)
+          // so right edge lands precisely at containerW - 8px, directly flush under [ > ] button
+          const projectedFactor = (1 + effectiveGap) + 0.397
+          optimalWidth = Math.round(((containerW / 2) - 8) / projectedFactor)
+        }
+
+        setAutoCardWidth(`${optimalWidth}px`)
+        widthRef.current = optimalWidth
+        paint()
+      } else {
+        const card = cardRefs.current[0]
+        if (!card) return
+        widthRef.current = card.offsetWidth
+        paint()
+      }
     }
 
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(frame)
     return () => observer.disconnect()
-  }, [paint])
+  }, [paint, gap])
 
   React.useEffect(
     () => () => {
@@ -287,7 +365,7 @@ export function CoverflowCarousel({
   return (
     <div
       className={cn('w-full select-none', className)}
-      style={{ ['--cf-card']: cardWidth }}
+      style={{ ['--cf-card']: cardWidth && cardWidth !== 'auto' ? cardWidth : autoCardWidth }}
       role="region"
       aria-roledescription="carousel"
       aria-label={label}
@@ -295,7 +373,7 @@ export function CoverflowCarousel({
       {/* Top-Right Navigation Controls (NVIDIA Style) */}
       {showNavigation && (
         <div
-          className="flex items-center justify-end gap-1.5 sm:gap-2 mb-2 sm:mb-3 pr-1 sm:pr-3"
+          className="flex items-center justify-end gap-1.5 sm:gap-2 mb-2 sm:mb-3 pr-1 sm:pr-2"
           style={{
             opacity: isUnrolled ? 1 : 0,
             pointerEvents: isUnrolled ? 'auto' : 'none',
@@ -329,6 +407,7 @@ export function CoverflowCarousel({
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
+          onClick={(e) => handleCardClick(e)}
           onKeyDown={(event) => {
             if (event.key === 'ArrowLeft') {
               event.preventDefault()
@@ -345,7 +424,7 @@ export function CoverflowCarousel({
           }}
         >
           <div
-            className="relative select-none"
+            className="relative select-none w-full"
             style={{
               height: 'calc(var(--cf-card) * 1.25)',
               transformStyle: 'preserve-3d',
@@ -363,12 +442,14 @@ export function CoverflowCarousel({
                   ref={(node) => {
                     cardRefs.current[index] = node
                   }}
-                  role="group"
+                  data-slide-index={index}
+                  role="button"
+                  tabIndex={0}
                   aria-roledescription="slide"
                   aria-label={`${index + 1} of ${count}`}
-                  onClick={() => {
-                    if (isDraggingRef.current) return
-                    goTo(index)
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleCardClick(e, index)
                   }}
                   className={cn(
                     'absolute left-1/2 p-1 sm:p-[5px] rounded-3xl bg-[var(--site-card-bg)] shadow-2xl will-change-transform cursor-pointer border-2 border-[var(--site-border)] ring-1 ring-slate-900/10 hover:shadow-black/40 overflow-hidden',
@@ -402,17 +483,37 @@ export function CoverflowCarousel({
                         className="h-full w-full select-none object-cover pointer-events-none"
                       />
 
+                      {/* Deep multi-stop gradient scrim ensures 100% white text legibility over any bright photo highlight */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 via-50% to-black/20 pointer-events-none" />
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
+
                       {/* Scrim & title inside card */}
                       {slide.title && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent flex flex-col justify-end p-5 sm:p-7 text-white pointer-events-none">
-                          <p className="text-base sm:text-lg font-medium tracking-wide uppercase font-['Inter'] leading-tight">
-                            {slide.title}
-                          </p>
-                          {slide.subtitle && (
-                            <p className="text-xs sm:text-sm text-white/75 font-sans mt-1">
-                              {slide.subtitle}
+                        <div className="absolute inset-0 flex flex-col justify-end p-3.5 sm:p-5 md:p-6 lg:p-7 text-white pointer-events-none z-10">
+                          <div className="w-full">
+                            <p
+                              className={cn(
+                                "font-semibold tracking-wide uppercase font-['Inter'] leading-snug sm:leading-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]",
+                                index === selected
+                                  ? "text-sm sm:text-base md:text-lg line-clamp-3"
+                                  : "text-xs sm:text-sm md:text-base text-white/90 line-clamp-2"
+                              )}
+                            >
+                              {slide.title}
                             </p>
-                          )}
+                            {slide.subtitle && (
+                              <p
+                                className={cn(
+                                  "text-white/85 font-sans mt-1 sm:mt-1.5 leading-snug sm:leading-normal drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]",
+                                  index === selected
+                                    ? "text-[11px] sm:text-xs md:text-sm line-clamp-2 sm:line-clamp-none"
+                                    : "hidden sm:block text-[10px] sm:text-xs text-white/70 line-clamp-1"
+                                )}
+                              >
+                                {slide.subtitle}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

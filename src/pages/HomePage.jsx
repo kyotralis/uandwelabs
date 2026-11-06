@@ -1,22 +1,32 @@
 import { useEffect, useRef } from 'react'
 import Lenis from 'lenis'
 import Hero from '../components/Hero'
-import AboutUsSection from '../components/AboutUsSection'
+import WhatWeBelieveSection from '../components/WhatWeBelieveSection'
 import GeoSpatialSection from '../components/GeoSpatialSection'
 import HealthcareSection from '../components/HealthcareSection'
 import BoardSection from '../components/BoardSection'
-import WhatWeBelieveSection from '../components/WhatWeBelieveSection'
 import GrowWithUsSection from '../components/GrowWithUsSection'
 import Footer from '../components/Footer'
 
-const SECTION_IDS = ['hero', 'about', 'introduction', 'healthcare', 'board', 'beliefs', 'careers']
+const SECTION_IDS = ['hero', 'beliefs', 'introduction', 'healthcare', 'board', 'careers']
 
 export default function HomePage({
   user,
   onLogout,
   onNavigateToLogin,
+  onNavigateToAnanda,
+  onNavigateToDara,
+  onNavigateToAura,
+  onNavigateToBlogs,
+  onNavigateToAbout,
+  onNavigateToCareers,
+  onNavigateToPrivacy,
+  onNavigateToSecurity,
+  onNavigateToTerms,
+  anandaCategory,
 }) {
   const lenisRef = useRef(null)
+  const isRestoringRef = useRef(true)
 
   // 1. Initialize Lenis buttery-smooth momentum scrolling
   useEffect(() => {
@@ -87,14 +97,19 @@ export default function HomePage({
       }
 
       doScrollToSection()
-      const t1 = setTimeout(doScrollToSection, 40)
-      const t2 = setTimeout(doScrollToSection, 150)
-      const t3 = setTimeout(doScrollToSection, 350)
+      const t1 = setTimeout(doScrollToSection, 50)
+      const t2 = setTimeout(doScrollToSection, 180)
+      const t3 = setTimeout(doScrollToSection, 400)
+      const t4 = setTimeout(() => {
+        doScrollToSection()
+        isRestoringRef.current = false
+      }, 800)
 
       return () => {
         clearTimeout(t1)
         clearTimeout(t2)
         clearTimeout(t3)
+        clearTimeout(t4)
       }
     } else if (savedScrollY && Number(savedScrollY) > 80) {
       const scrollPos = Number(savedScrollY)
@@ -106,13 +121,20 @@ export default function HomePage({
         }
       }
       doScrollToY()
-      const t1 = setTimeout(doScrollToY, 40)
-      const t2 = setTimeout(doScrollToY, 150)
+      const t1 = setTimeout(doScrollToY, 50)
+      const t2 = setTimeout(doScrollToY, 180)
+      const t3 = setTimeout(() => {
+        doScrollToY()
+        isRestoringRef.current = false
+      }, 800)
 
       return () => {
         clearTimeout(t1)
         clearTimeout(t2)
+        clearTimeout(t3)
       }
+    } else {
+      isRestoringRef.current = false
     }
   }, [])
 
@@ -123,24 +145,27 @@ export default function HomePage({
     let hashUpdateTimer = null
 
     const handleScroll = () => {
+      if (isRestoringRef.current) return
+
       try {
         sessionStorage.setItem('uandwe_scroll_y', String(window.scrollY))
       } catch {
         // ignore
       }
 
-      // Check which section is currently in view
-      const scrollMid = window.scrollY + window.innerHeight * 0.45
+      // Check which section is currently in view using bounding client rect
       let activeId = 'hero'
+      const viewportMid = window.innerHeight * 0.45
 
-      for (const id of SECTION_IDS) {
-        const el = document.getElementById(id)
-        if (el) {
-          const top = el.offsetTop
-          const height = el.offsetHeight
-          if (scrollMid >= top && scrollMid < top + height) {
-            activeId = id
-            break
+      if (window.scrollY > 120) {
+        for (const id of SECTION_IDS) {
+          const el = document.getElementById(id)
+          if (el) {
+            const rect = el.getBoundingClientRect()
+            if (rect.top <= viewportMid && rect.bottom >= viewportMid) {
+              activeId = id
+              break
+            }
           }
         }
       }
@@ -179,28 +204,48 @@ export default function HomePage({
         user={user}
         onLogout={onLogout}
         onNavigateToLogin={onNavigateToLogin}
+        onNavigateToAnanda={onNavigateToAnanda}
+        onNavigateToDara={onNavigateToDara}
+        onNavigateToAura={onNavigateToAura}
+        onNavigateToBlogs={onNavigateToBlogs}
+        onNavigateToAbout={onNavigateToAbout}
+        onNavigateToHome={() => {
+          if (window.__lenis) {
+            window.__lenis.scrollTo(0, { duration: 1.2 })
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+        }}
+        anandaCategory={anandaCategory}
       />
 
-      {/* About Us Section */}
-      <AboutUsSection />
-
-      {/* Geo Spatial Section */}
-      <GeoSpatialSection />
-
-      {/* Healthcare Section */}
-      <HealthcareSection />
-
-      {/* Aura / Roadside Safety Vision & Vehicle Intelligence Section */}
-      <BoardSection />
-
-      {/* What We Believe In Section */}
+      {/* What We Believe In Section (Moved directly below Hero) */}
       <WhatWeBelieveSection />
 
+      {/* Geo Spatial Section */}
+      <GeoSpatialSection onNavigateToAnanda={onNavigateToAnanda} />
+
+      {/* Healthcare Section */}
+      <HealthcareSection onNavigateToDara={onNavigateToDara} />
+
+      {/* Aura / Physical AI Section */}
+      <BoardSection onNavigateToAura={onNavigateToAura} />
+
       {/* Grow With Us Careers Section */}
-      <GrowWithUsSection />
+      <GrowWithUsSection onNavigateToCareers={onNavigateToCareers} />
 
       {/* Clean Simple Footer */}
-      <Footer />
+      <Footer
+        onNavigateToAnanda={onNavigateToAnanda}
+        onNavigateToDara={onNavigateToDara}
+        onNavigateToAura={onNavigateToAura}
+        onNavigateToBlogs={onNavigateToBlogs}
+        onNavigateToAbout={onNavigateToAbout}
+        onNavigateToCareers={onNavigateToCareers}
+        onNavigateToPrivacy={onNavigateToPrivacy}
+        onNavigateToSecurity={onNavigateToSecurity}
+        onNavigateToTerms={onNavigateToTerms}
+      />
     </div>
   )
 }

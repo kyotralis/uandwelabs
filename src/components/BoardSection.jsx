@@ -1,53 +1,74 @@
+import { useMemo } from 'react'
 import ProductShowcaseSection from './ProductShowcaseSection'
+import { useTranslation } from '../i18n'
 
-// Aura Security Camera Slides
+// Aura Physical AI Slides
 export const BOARD_SLIDES = [
   {
-    src: '/aura_camera_1.jpg',
-    alt: 'Aura AI Security Camera with Precision Milled Optics',
-    title: 'Aura Vision Core',
-    subtitle: 'On-Device AI & 4K Multi-Spectral Lens',
+    src: '/aura_lpr.jpg',
+    alt: 'AURA LPR - AI-powered license plate recognition and vehicle identification',
+    title: 'AURA LPR',
+    subtitle: 'AI-powered license plate recognition and vehicle identification',
     meta: [
-      { label: 'Neural Power', value: '128 TOPS NPU' },
-      { label: 'Optical Sensor', value: '4K Multi-Spectral' },
+      { label: 'Recognition', value: 'Plate & Vehicle ID' },
+      { label: 'Speed Capture', value: 'High-Speed Multilane' },
       { label: 'Edge Latency', value: '< 1.2 ms' },
     ],
   },
   {
-    src: '/aura_camera_2.jpg',
-    alt: 'Aura LiDAR Ring Surveillance Camera at Dusk',
-    title: 'Sentinel LiDAR Array',
-    subtitle: 'Perimeter Scanning & Low-Light Halo Array',
+    src: '/aura_camera_1.jpg',
+    alt: 'AURA VISION - Intelligent cameras with real-time AI detection',
+    title: 'AURA VISION',
+    subtitle: 'Intelligent cameras with real-time AI detection',
     meta: [
-      { label: 'Illumination', value: 'LiDAR Ring Array' },
-      { label: 'Field of View', value: '180° Panoramic' },
-      { label: 'Range', value: '350m Zero-Drift' },
+      { label: 'Neural Power', value: '128 TOPS NPU' },
+      { label: 'Optical Sensor', value: '4K Multi-Spectral' },
+      { label: 'Detection', value: 'Real-Time Edge AI' },
     ],
   },
   {
-    src: '/aura_camera_3.jpg',
-    alt: 'Aura 360 Autonomous Optical Dome Camera',
-    title: 'Aura 360 Autonomous',
-    subtitle: 'Motorized Gimbal & Gold-Trace Sensor Die',
+    src: '/aura_camera_2.jpg',
+    alt: 'AURA SENTINEL - Multi-camera security and suspicious vehicle monitoring',
+    title: 'AURA SENTINEL',
+    subtitle: 'Multi-camera security and suspicious vehicle monitoring',
     meta: [
-      { label: 'Coverage', value: '360° Optical Zoom' },
-      { label: 'Gimbal Precision', value: '0.01° Micro-Step' },
-      { label: 'Standard', value: 'IP68 Mil-Spec' },
+      { label: 'Monitoring', value: 'Multi-Camera Mesh' },
+      { label: 'Suspicious Tracking', value: 'Vehicle & Threat Alerts' },
+      { label: 'Perimeter Range', value: '350m Zero-Drift' },
     ],
   },
 ]
 
-export default function BoardSection() {
+export default function BoardSection({ onNavigateToAura }) {
+  const { t } = useTranslation()
+  const b = t.board || {}
+
+  const localizedSlides = useMemo(() => {
+    return BOARD_SLIDES.map((slide, idx) => ({
+      ...slide,
+      title: b.slides?.[idx]?.title || slide.title,
+      subtitle: b.slides?.[idx]?.subtitle || slide.subtitle,
+      meta: b.slides?.[idx]?.meta || slide.meta,
+    }))
+  }, [b])
+
   return (
     <ProductShowcaseSection
       id="board"
-      title="Aura"
-      subtitle="Security Cam"
-      description="Next-generation autonomous security vision systems, edge neural compute, and real-time optical surveillance architecture engineered for mission-critical industrial monitoring."
-      buttonText="EXPLORE AURA"
+      title={b.title || 'Aura'}
+      subtitle={b.subtitle || 'Physical AI'}
+      description={b.description || 'Smart cameras and vehicle analytics powered by edge AI—delivering real-time visibility, threat detection, and proactive security.'}
+      buttonText={b.buttonText || 'EXPLORE AURA'}
+      onButtonClick={() => {
+        if (onNavigateToAura) {
+          onNavigateToAura()
+        } else {
+          window.location.hash = 'aura'
+        }
+      }}
       nextSectionId="beliefs"
-      slides={BOARD_SLIDES}
-      carouselConfig={{ gap: -0.20 }}
+      slides={localizedSlides}
     />
   )
 }
+

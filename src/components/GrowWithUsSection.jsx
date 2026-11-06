@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
 import careerHeroImg from '../assets/careerhomeimage.png'
+import { useTranslation } from '../i18n'
 
-export default function GrowWithUsSection() {
+export default function GrowWithUsSection({ onNavigateToCareers }) {
   const [isVisible, setIsVisible] = useState(false)
   const cardRef = useRef(null)
+  const { t } = useTranslation()
+  const c = t.careers || {}
 
   useEffect(() => {
     const el = cardRef.current
@@ -27,7 +30,7 @@ export default function GrowWithUsSection() {
   return (
     <section
       id="careers"
-      className="relative w-full bg-[var(--site-bg)] pt-2 sm:pt-4 lg:pt-6 pb-16 sm:pb-24 lg:pb-28 px-4 sm:px-8 lg:px-12 overflow-hidden font-['Inter'] select-text"
+      className="relative w-full bg-[var(--site-bg)] pt-2 sm:pt-4 lg:pt-6 pb-8 sm:pb-10 lg:pb-12 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
       aria-labelledby="grow-with-us-heading"
     >
       <div className="max-w-[1560px] w-full mx-auto">
@@ -91,7 +94,7 @@ export default function GrowWithUsSection() {
                       transitionDelay: isVisible ? '380ms' : '0ms',
                     }}
                   >
-                    Grow With Us
+                    {c.headline || 'Grow With Us'}
                   </h2>
                 </div>
               </div>
@@ -106,7 +109,7 @@ export default function GrowWithUsSection() {
                     transitionDelay: isVisible ? '580ms' : '0ms',
                   }}
                 >
-                  Curious minds. Bold ideas. Meaningful work. Let's build what's next, together.
+                  {c.statement || "Curious minds. Bold ideas. Meaningful work. Let's build what's next, together."}
                 </p>
               </div>
 
@@ -123,9 +126,15 @@ export default function GrowWithUsSection() {
                   {/* Explore Opportunities Button */}
                   <a
                     href="#careers"
+                    onClick={(e) => {
+                      if (onNavigateToCareers) {
+                        e.preventDefault()
+                        onNavigateToCareers()
+                      }
+                    }}
                     className="group/btn inline-flex items-center gap-3 px-8 py-4 rounded-full bg-slate-950 hover:bg-orange-500 text-white text-sm sm:text-[15px] font-semibold tracking-tight transition-all duration-300 shadow-[0_6px_25px_rgba(15,23,42,0.2)] hover:shadow-[0_8px_35px_rgba(249,115,22,0.4)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
                   >
-                    <span>Explore Opportunities</span>
+                    <span>{c.buttonText || 'Explore Opportunities'}</span>
                     <ArrowRight className="w-4 h-4 text-orange-400 group-hover/btn:text-white transition-all duration-300 ease-out group-hover/btn:translate-x-1.5" />
                   </a>
                 </div>

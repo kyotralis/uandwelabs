@@ -170,8 +170,8 @@ export default function AboutUsSection() {
                     style={{ height: 'clamp(470px, 62vh, 580px)' }}
                   >
                     <img
-                      src="/about_team_discussion.jpg"
-                      alt="Product Innovators in Collaborative Discussion"
+                      src="/about_indian_team_1.jpg"
+                      alt="UandWe Labs Indian Engineering & Product Team in Collaborative Discussion"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
@@ -200,8 +200,8 @@ export default function AboutUsSection() {
                     style={{ height: 'clamp(470px, 62vh, 580px)' }}
                   >
                     <img
-                      src="/about_team_brainstorm.jpg"
-                      alt="Engineers and Designers Brainstorming Innovations"
+                      src="/about_indian_team_2.jpg"
+                      alt="UandWe Labs Indian Hardware & AI Innovators Brainstorming Systems Architecture"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>

@@ -1,21 +1,22 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { ArrowRight } from 'lucide-react'
-import Header from './Header'
 import MorphGallery from './ui/morph-gallery'
+import { useTranslation } from '../i18n'
 
 // Hero Slides: Company Vision & Product Engineering
 const HERO_SLIDES = [
   {
     id: 'ideas-become-real',
     category: 'Design & Engineering',
-    src: '/hero_ideas_real.jpg',
-    thumb: '/hero_ideas_real.jpg',
+    src: '/hero_dara_ideas_real.jpg',
+    thumb: '/hero_dara_ideas_real.jpg',
+    thumbStyle: { objectPosition: '72% 38%' },
     alt: 'Ideas Deserve to Become Real - Purposeful Design and Advanced Engineering',
     headline: 'Ideas Deserve to Become Real.',
     tagline: 'Turn ambitious thinking into tangible products',
     subtitle:
       'Turn ambitious thinking into tangible products through purposeful design and advanced engineering.',
-    targetId: 'about',
+    targetId: 'beliefs',
     ctaText: 'DISCOVER OUR MISSION',
   },
   {
@@ -34,8 +35,8 @@ const HERO_SLIDES = [
   {
     id: 'tomorrow-starts-today',
     category: 'Future Architecture',
-    src: '/hero_tomorrow_build.jpg',
-    thumb: '/hero_tomorrow_build.jpg',
+    src: '/hero_aura_vision.jpg',
+    thumb: '/hero_aura_vision.jpg',
     alt: 'Tomorrow Starts with What We Build Today - Clear Purpose and New Possibilities',
     headline: 'Tomorrow Starts with What We Build Today.',
     tagline: 'Products with a clear purpose',
@@ -48,14 +49,38 @@ const HERO_SLIDES = [
 
 const AUTOPLAY_DURATION = 5000 // 5 seconds per slide
 
-export default function Hero({ user, onLogout, onNavigateToLogin }) {
+export default function Hero({
+  user,
+  onLogout,
+  onNavigateToLogin,
+  onNavigateToAnanda,
+  onNavigateToDara,
+  onNavigateToAura,
+  onNavigateToBlogs,
+  onNavigateToAbout,
+  onNavigateToHome,
+  anandaCategory,
+}) {
   const [activeNav, setActiveNav] = useState('PROJECTS')
   const [isRevealed, setIsRevealed] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const readyTriggered = useRef(false)
 
-  const currentSlide = HERO_SLIDES[slideIndex] || HERO_SLIDES[0]
+  const { t } = useTranslation()
+
+  const localizedSlides = useMemo(() => {
+    return HERO_SLIDES.map((slide, idx) => ({
+      ...slide,
+      category: t.hero?.slides?.[idx]?.category || slide.category,
+      headline: t.hero?.slides?.[idx]?.headline || slide.headline,
+      tagline: t.hero?.slides?.[idx]?.tagline || slide.tagline,
+      subtitle: t.hero?.slides?.[idx]?.subtitle || slide.subtitle,
+      ctaText: t.hero?.slides?.[idx]?.ctaText || slide.ctaText,
+    }))
+  }, [t])
+
+  const currentSlide = localizedSlides[slideIndex] || localizedSlides[0]
 
   // Synchronize initial reveal: wait for hero image/WebGL to be ready, with a safety fallback
   const handleReady = () => {
@@ -103,7 +128,7 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
           }`}
       >
         <MorphGallery
-          items={HERO_SLIDES}
+          items={localizedSlides}
           index={slideIndex}
           onIndexChange={handleSelectSlide}
           autoplay={0}
@@ -119,24 +144,12 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
       </div>
 
       {/* ========================================================= */}
-      {/* SEPARATE HEADER COMPONENT (Transparent Backdrop)          */}
-      {/* ========================================================= */}
-      <Header
-        activeNav={activeNav}
-        onNavChange={setActiveNav}
-        user={user}
-        onLogout={onLogout}
-        onNavigateToLogin={onNavigateToLogin}
-        isRevealed={isRevealed}
-      />
-
-      {/* ========================================================= */}
       {/* MAIN HERO CONTENT & DYNAMIC DOMAIN SYNCHRONIZATION        */}
       {/* ========================================================= */}
       <main className="relative z-10 flex-1 w-full flex items-center pointer-events-none pt-16 sm:pt-20 lg:pt-24 pb-8">
 
         {/* Left Content Area */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-8 sm:px-14 lg:px-18 py-8 flex flex-col justify-center pointer-events-auto">
+        <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16 py-8 flex flex-col justify-center pointer-events-auto">
           <div className="max-w-2xl">
 
             {/* Master Content: Synchronized with Active Slide & Image Morph */}
@@ -153,7 +166,7 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
               </div>
 
               {/* Subtitle Paragraph: Synchronized with Active Slide */}
-              <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white/90 font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+              <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
                 {currentSlide.subtitle}
               </p>
 
@@ -191,40 +204,45 @@ export default function Hero({ user, onLogout, onNavigateToLogin }) {
       {/* ========================================================= */}
       {/* CORNER DOWN SQUARE THUMBNAILS (Touch & Go, No Text/Line)  */}
       {/* ========================================================= */}
-      <nav
-        aria-label="Hero Slide Navigation"
-        className={`absolute bottom-6 sm:bottom-10 right-6 sm:right-12 lg:right-18 z-20 pointer-events-auto transition-all duration-1000 ${isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-          }`}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-      >
-        <div className="flex items-center gap-3 sm:gap-4">
-          {HERO_SLIDES.map((slide, idx) => {
-            const isActive = idx === slideIndex
-            return (
-              <button
-                key={slide.id}
-                type="button"
-                onClick={() => handleSelectSlide(idx)}
-                className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${isActive
-                    ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
-                    : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
-                  }`}
-                title={`Switch to ${slide.headline}`}
-                aria-label={`Slide ${idx + 1}: ${slide.headline}`}
-                aria-current={isActive}
-              >
-                <img
-                  src={slide.thumb || slide.src}
-                  alt={slide.headline}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                />
-              </button>
-            )
-          })}
+      <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-20 pointer-events-none">
+        <div className="w-full max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16 flex justify-end">
+          <nav
+            aria-label="Hero Slide Navigation"
+            className={`pointer-events-auto transition-all duration-1000 ${isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <div className="flex items-center gap-3 sm:gap-4">
+              {localizedSlides.map((slide, idx) => {
+                const isActive = idx === slideIndex
+                return (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => handleSelectSlide(idx)}
+                    className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${isActive
+                      ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
+                      : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
+                      }`}
+                    title={`Switch to ${slide.headline}`}
+                    aria-label={`Slide ${idx + 1}: ${slide.headline}`}
+                    aria-current={isActive}
+                  >
+                    <img
+                      src={slide.thumb || slide.src}
+                      alt={slide.headline}
+                      style={slide.thumbStyle || {}}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </button>
+                )
+              })}
+            </div>
+          </nav>
         </div>
-      </nav>
+      </div>
 
     </div>
   )

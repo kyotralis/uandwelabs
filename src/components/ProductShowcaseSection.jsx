@@ -13,6 +13,10 @@ export default function ProductShowcaseSection({
   slides,
   carouselConfig = {},
   bgClassName = 'bg-[var(--site-bg)]',
+  categories = null,
+  activeCategory = null,
+  onCategoryChange = null,
+  onButtonClick = null,
 }) {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef(null)
@@ -36,6 +40,10 @@ export default function ProductShowcaseSection({
   }, [])
 
   const handleNextSectionClick = () => {
+    if (onButtonClick) {
+      onButtonClick()
+      return
+    }
     if (!nextSectionId) return
     const target = document.getElementById(nextSectionId)
     if (target) {
@@ -53,8 +61,8 @@ export default function ProductShowcaseSection({
     perspective = 3.2,
     falloff = 0.55,
     fade = 0.15,
-    cardWidth = 'clamp(330px, min(29vw, 58vh), 450px)',
-    gap = -0.13,
+    cardWidth = 'auto',
+    gap = -0.16,
     loop = true,
     showCaption = false,
     showPagination = true,
@@ -65,7 +73,7 @@ export default function ProductShowcaseSection({
     <section
       ref={sectionRef}
       id={id}
-      className={`relative w-full ${bgClassName} text-slate-900 py-6 sm:py-8 lg:py-8 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text`}
+      className={`relative w-full ${bgClassName} text-slate-900 py-6 sm:py-8 lg:py-8 px-4 sm:px-8 lg:px-16 overflow-hidden font-['Inter'] select-text`}
     >
       <div className="max-w-[1560px] w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
@@ -112,6 +120,28 @@ export default function ProductShowcaseSection({
               </h3>
             </div>
 
+            {/* Category Switcher Pills (e.g. Commercial / Residential) */}
+            {categories && categories.length > 0 && (
+              <div className="mb-4 sm:mb-5">
+                <div className="inline-flex p-1 rounded-full bg-slate-200/80 border border-slate-300/80 shadow-xs">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => onCategoryChange && onCategoryChange(cat.id)}
+                      className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-[13px] font-semibold tracking-wider uppercase transition-all duration-300 cursor-pointer ${
+                        activeCategory === cat.id
+                          ? 'bg-black text-white shadow-sm'
+                          : 'text-slate-600 hover:text-black hover:bg-black/5'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Description Paragraph (Word-by-word Cut Reveal) */}
             <div>
               <p className="text-base sm:text-lg text-slate-600 font-sans leading-relaxed select-text max-w-md">
@@ -133,7 +163,7 @@ export default function ProductShowcaseSection({
             </div>
 
             {/* Explore Button */}
-            {buttonText && nextSectionId && (
+            {buttonText && (onButtonClick || nextSectionId) && (
               <div
                 className="overflow-hidden mt-6 sm:mt-8 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 style={{
@@ -163,6 +193,7 @@ export default function ProductShowcaseSection({
           {/* ================= RIGHT SIDE: COVERFLOW CAROUSEL ANIMATION ================= */}
           <div className="lg:col-span-8 w-full">
             <CoverflowCarousel
+              key={`${id}-${activeCategory || 'default'}`}
               isUnrolled={isVisible}
               slides={slides}
               rotate={rotate}

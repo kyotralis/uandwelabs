@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import ProductShowcaseSection from './ProductShowcaseSection'
+import { useTranslation } from '../i18n'
 
-// Geo Spatial 3 Simulation Slides
-export const GEO_SLIDES = [
+// Simulation Slides for Ananda Geo Spatial
+export const SIMULATION_SLIDES = [
   {
     src: '/sunlight_card.jpg?v=2',
     alt: 'Urban Shadow Analysis',
@@ -37,16 +39,41 @@ export const GEO_SLIDES = [
   },
 ]
 
-export default function GeoSpatialSection() {
+export const COMMERCIAL_SLIDES = SIMULATION_SLIDES
+export const RESIDENTIAL_SLIDES = SIMULATION_SLIDES
+export const ANANDA_CATEGORIES = []
+
+export default function GeoSpatialSection({ onNavigateToAnanda }) {
+  const { t } = useTranslation()
+  const g = t.geospatial || {}
+
+  const localizedSlides = useMemo(() => {
+    return SIMULATION_SLIDES.map((slide, idx) => ({
+      ...slide,
+      title: g.slides?.[idx]?.title || slide.title,
+      subtitle: g.slides?.[idx]?.subtitle || slide.subtitle,
+      meta: g.slides?.[idx]?.meta || slide.meta,
+    }))
+  }, [g])
+
   return (
     <ProductShowcaseSection
       id="introduction"
-      title="Ananda"
-      subtitle="Geo Spatial"
-      description="Planetary-scale solar ray-casting, aerodynamic CFD, and hydrological simulation modules calibrated for zero-drift physical performance."
-      buttonText="EXPLORE ANANDA"
+      title={g.title || 'Ananda'}
+      subtitle={g.subtitle || 'Geo Spatial'}
+      description={g.description || 'Planetary-scale solar ray-casting, aerodynamic CFD, and hydrological simulation modules calibrated for towers, campuses, and urban environments.'}
+      buttonText={g.buttonText || 'EXPLORE ANANDA'}
+      onButtonClick={() => {
+        if (onNavigateToAnanda) {
+          onNavigateToAnanda()
+        } else {
+          window.location.hash = 'ananda'
+        }
+      }}
       nextSectionId="healthcare"
-      slides={GEO_SLIDES}
+      slides={localizedSlides}
     />
   )
 }
+
+

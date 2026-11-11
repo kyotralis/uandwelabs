@@ -691,19 +691,19 @@ export default function Header({
                     <div
                       onMouseEnter={() => handleNavMouseEnter('products')}
                       onMouseLeave={handleNavMouseLeave}
-                      className="absolute left-0 top-full pt-7 sm:pt-8 w-[820px] sm:w-[890px] lg:w-[940px] max-w-[calc(100vw-2rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
+                      className="absolute left-0 top-full pt-7 sm:pt-8 w-[680px] sm:w-[720px] lg:w-[750px] xl:w-[780px] max-w-[calc(100vw-2.5rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
                     >
-                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_28px_70px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/90 ring-1 ring-black/[0.04] overflow-hidden p-3.5 sm:p-4.5">
+                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_28px_70px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/90 ring-1 ring-black/[0.04] overflow-hidden p-3.5 sm:p-4">
                       {/* Master-Detail Split Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 min-h-[290px]">
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
                         {/* LEFT COLUMN: 3 Categories (Hover Switcher) */}
-                        <div className="md:col-span-5 flex flex-col justify-between space-y-2 border-b md:border-b-0 md:border-r border-slate-200/80 pb-3 md:pb-0 md:pr-3.5">
+                        <div className="md:col-span-4 flex flex-col justify-center space-y-2 border-b md:border-b-0 md:border-r border-slate-200/80 pb-3 md:pb-0 md:pr-3">
                           <div className="space-y-2">
                             {/* 1. Ananda Tab */}
                             <div
                               onMouseEnter={() => setHoveredProductCategory('ananda')}
                               onClick={() => handleDropdownItemClick('ananda', 'PRODUCTS', false, activePlatform || 'commercial')}
-                              className={`group flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                              className={`group flex items-center justify-between p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
                                 hoveredProductCategory === 'ananda'
                                   ? 'bg-black text-white border-black shadow-md'
                                   : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
@@ -732,7 +732,7 @@ export default function Header({
                             <div
                               onMouseEnter={() => setHoveredProductCategory('physical-ai')}
                               onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
-                              className={`group flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                              className={`group flex items-center justify-between p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
                                 hoveredProductCategory === 'physical-ai'
                                   ? 'bg-black text-white border-black shadow-md'
                                   : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
@@ -761,7 +761,7 @@ export default function Header({
                             <div
                               onMouseEnter={() => setHoveredProductCategory('healthcare')}
                               onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
-                              className={`group flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                              className={`group flex items-center justify-between p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
                                 hoveredProductCategory === 'healthcare'
                                   ? 'bg-black text-white border-black shadow-md'
                                   : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
@@ -789,28 +789,32 @@ export default function Header({
                         </div>
 
                         {/* RIGHT COLUMN: Revealed Content on Hover */}
-                        <div className="md:col-span-7 pl-0 md:pl-2 flex flex-col justify-between">
+                        <div className="md:col-span-8 pl-0 md:pl-2 flex flex-col justify-center">
                           {/* 1. When Hovering ANANDA -> Shows Commercial and Residency */}
                           {hoveredProductCategory === 'ananda' && (
                             <div className="h-full flex flex-col justify-center animate-in fade-in-50 duration-200">
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 items-stretch">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
                                 {/* Commercial Card */}
                                 <div
                                   onClick={() => handleNavigateToLoginWithTarget('commercial')}
-                                  className="group/card p-5 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
+                                  className="group/card p-4 sm:p-4.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
                                 >
                                   <div>
-                                    <div className="flex items-center justify-between gap-1 mb-1.5">
-                                      <h4 className="font-semibold text-slate-900 text-[16px] group-hover/card:text-black transition-colors">
+                                    <div className="flex items-center justify-between gap-1 mb-1">
+                                      <h4 className="font-semibold text-slate-900 text-[15px] sm:text-[16px] group-hover/card:text-black transition-colors">
                                         Commercial
                                       </h4>
                                       <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
                                     </div>
-                                    <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
+                                    <p className="text-[12px] text-slate-600 leading-relaxed font-normal">
                                       Sub-meter solar ray-casting, aerodynamic wind CFD, and flood hydrology for urban masterplans.
                                     </p>
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Solar &amp; Wind</span>
+                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Urban CFD</span>
+                                    </div>
                                   </div>
-                                  <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
+                                  <div className="pt-2.5 mt-2.5 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
                                     <span>Enter Commercial</span>
                                     <span className="group-hover/card:translate-x-1 transition-transform">→</span>
                                   </div>
@@ -819,20 +823,24 @@ export default function Header({
                                 {/* Residency Card */}
                                 <div
                                   onClick={() => handleNavigateToLoginWithTarget('residential')}
-                                  className="group/card p-5 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
+                                  className="group/card p-4 sm:p-4.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
                                 >
                                   <div>
-                                    <div className="flex items-center justify-between gap-1 mb-1.5">
-                                      <h4 className="font-semibold text-slate-900 text-[16px] group-hover/card:text-black transition-colors">
+                                    <div className="flex items-center justify-between gap-1 mb-1">
+                                      <h4 className="font-semibold text-slate-900 text-[15px] sm:text-[16px] group-hover/card:text-black transition-colors">
                                         Residency
                                       </h4>
                                       <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
                                     </div>
-                                    <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
+                                    <p className="text-[12px] text-slate-600 leading-relaxed font-normal">
                                       Passive cross-ventilation breezes, daylight autonomy, and microclimate comfort for estates.
                                     </p>
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Ventilation</span>
+                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Daylight</span>
+                                    </div>
                                   </div>
-                                  <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
+                                  <div className="pt-2.5 mt-2.5 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
                                     <span>Enter Residency</span>
                                     <span className="group-hover/card:translate-x-1 transition-transform">→</span>
                                   </div>
@@ -845,23 +853,28 @@ export default function Header({
                           {hoveredProductCategory === 'physical-ai' && (
                             <div
                               onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
-                              className="group/aura p-6 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between h-full cursor-pointer animate-in fade-in-50 duration-200 shadow-2xs hover:shadow-xs"
+                              className="group/aura p-5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between h-full cursor-pointer animate-in fade-in-50 duration-200 shadow-2xs hover:shadow-xs"
                             >
                               <div>
                                 <div className="mb-1">
-                                  <h4 className="font-semibold text-slate-900 text-[22px] sm:text-[24px] tracking-tight group-hover/aura:text-black transition-colors">
+                                  <h4 className="font-semibold text-slate-900 text-[20px] sm:text-[22px] tracking-tight group-hover/aura:text-black transition-colors">
                                     Aura
                                   </h4>
                                 </div>
-                                <span className="text-[12px] font-medium text-slate-500 block mb-2.5">
+                                <span className="text-[12px] font-medium text-slate-500 block mb-2">
                                   Autonomous Edge Vision &amp; 128-TOPS Silicon
                                 </span>
-                                <p className="text-[13px] text-slate-600 leading-relaxed font-normal">
+                                <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
                                   Deterministic INT8 quantized neural inferencing directly in hardware cache. Sub-millisecond multilane highway LPR at 180 km/h and 350m perimeter tracking with zero cloud egress.
                                 </p>
+                                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">128-TOPS Silicon</span>
+                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">INT8 Cache</span>
+                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Zero Cloud Egress</span>
+                                </div>
                               </div>
 
-                              <div className="pt-3 mt-4 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/aura:text-black">
+                              <div className="pt-2.5 mt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/aura:text-black">
                                 <span>Explore Aura Hardware Node</span>
                                 <span className="group-hover/aura:translate-x-1 transition-transform">→</span>
                               </div>
@@ -872,23 +885,28 @@ export default function Header({
                           {hoveredProductCategory === 'healthcare' && (
                             <div
                               onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
-                              className="group/dara p-6 rounded-xl bg-neutral-50/80 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between h-full cursor-pointer animate-in fade-in-50 duration-200 shadow-2xs hover:shadow-xs"
+                              className="group/dara p-5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between h-full cursor-pointer animate-in fade-in-50 duration-200 shadow-2xs hover:shadow-xs"
                             >
                               <div>
                                 <div className="mb-1">
-                                  <h4 className="font-semibold text-slate-900 text-[22px] sm:text-[24px] tracking-tight group-hover/dara:text-black transition-colors">
+                                  <h4 className="font-semibold text-slate-900 text-[20px] sm:text-[22px] tracking-tight group-hover/dara:text-black transition-colors">
                                     Dara
                                   </h4>
                                 </div>
-                                <span className="text-[12px] font-medium text-slate-500 block mb-2.5">
+                                <span className="text-[12px] font-medium text-slate-500 block mb-2">
                                   Autonomous Senior Dignity &amp; Fall Radar
                                 </span>
-                                <p className="text-[13px] text-slate-600 leading-relaxed font-normal">
+                                <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
                                   Smart assistive device keeping seniors safe and independent. Features 60 GHz contactless wall radar, multi-language talking clock (English, Hindi, Tamil, Kannada, Telugu, Malayalam), and rise-to-wake torch.
                                 </p>
+                                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">60 GHz Wall Radar</span>
+                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Talking Clock</span>
+                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Rise-to-Wake Torch</span>
+                                </div>
                               </div>
 
-                              <div className="pt-3 mt-4 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/dara:text-black">
+                              <div className="pt-2.5 mt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/dara:text-black">
                                 <span>Explore Dara Assistive Platform</span>
                                 <span className="group-hover/dara:translate-x-1 transition-transform">→</span>
                               </div>
@@ -934,7 +952,7 @@ export default function Header({
                     <div
                       onMouseEnter={() => handleNavMouseEnter('solutions')}
                       onMouseLeave={handleNavMouseLeave}
-                      className="absolute left-0 top-full pt-7 sm:pt-8 w-[780px] sm:w-[870px] lg:w-[930px] max-w-[calc(100vw-2rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
+                      className="absolute left-0 -translate-x-12 sm:-translate-x-20 lg:-translate-x-24 top-full pt-7 sm:pt-8 w-[700px] sm:w-[760px] lg:w-[820px] max-w-[calc(100vw-2.5rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
                     >
                     <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_28px_70px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/90 ring-1 ring-black/[0.04] overflow-hidden p-3.5 sm:p-4">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

@@ -815,12 +815,12 @@ export default function AnandaPage({
                   isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
                 }`}
               >
-                {/* Master Headline: Synchronized with Active Slide - (Commented out for now) */}
-                {/* <div className="relative inline-block py-1">
+                {/* Master Headline: Synchronized with Active Slide */}
+                <div className="relative inline-block py-1">
                   <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
                     {heroSlides[activeHeroIndex]?.title || ap.heroDefaultTitle || 'Where Architecture Meets Physics'}
                   </h1>
-                </div> */}
+                </div>
 
                 {/* Subtitle Paragraph: Synchronized with Active Slide - (Commented out for now) */}
                 {/* <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
@@ -830,8 +830,8 @@ export default function AnandaPage({
                   )}
                 </p> */}
 
-                {/* Action Button: SCHEDULE SIMULATION ────○ (Commented out for now) */}
-                {/* <div className="mt-6 sm:mt-8">
+                {/* Action Button: SCHEDULE SIMULATION ────○ */}
+                <div className="mt-6 sm:mt-8">
                   <button
                     type="button"
                     onClick={() => setModalOpen(true)}
@@ -847,7 +847,7 @@ export default function AnandaPage({
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </button>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>

@@ -102,14 +102,14 @@ export function ProductHero({
 
       <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1840px] mx-auto flex flex-col justify-end">
         <div className="max-w-2xl">
-          {/* Hero title (Commented out for now) */}
-          {/* <motion.div initial="hidden" animate="visible" variants={fadeUpVariant}>
+          {/* Hero title */}
+          <motion.div initial="hidden" animate="visible" variants={fadeUpVariant}>
             <div className="relative inline-block py-1">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
                 {title}
               </h1>
             </div>
-          </motion.div> */}
+          </motion.div>
 
           {/* Hero description paragraph (Commented out for now) */}
           {/* {description && (
@@ -118,8 +118,8 @@ export function ProductHero({
             </p>
           )} */}
 
-          {/* Hero CTA button (Commented out for now) */}
-          {/* <div className="mt-7 sm:mt-9">
+          {/* Hero CTA button */}
+          <div className="mt-7 sm:mt-9">
             <button
               onClick={onButtonClick}
               className="group inline-flex items-center gap-4 px-8 py-4 bg-white text-black hover:bg-neutral-900 hover:text-white border border-white transition-all duration-300 font-normal tracking-wide whitespace-nowrap text-sm uppercase cursor-pointer"
@@ -127,7 +127,7 @@ export function ProductHero({
               <span>{buttonText}</span>
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

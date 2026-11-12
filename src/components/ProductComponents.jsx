@@ -106,9 +106,12 @@ export function ProductHero({
             </div>
           </motion.div>
 
-          <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
-            {description}
-          </p>
+          {/* Hero description paragraph (Commented out for now) */}
+          {/* {description && (
+            <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+              {description}
+            </p>
+          )} */}
 
           <div className="mt-7 sm:mt-9">
             <button

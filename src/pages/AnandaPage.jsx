@@ -819,13 +819,13 @@ export default function AnandaPage({
                   </h1>
                 </div>
 
-                {/* Subtitle Paragraph: Synchronized with Active Slide - Exact Hero Page Text Size */}
-                <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                {/* Subtitle Paragraph: Synchronized with Active Slide - (Commented out for now) */}
+                {/* <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
                   {heroSlides[activeHeroIndex]?.desc || (isResidential
                     ? (ap.heroResidentialFallbackDesc || 'Passive cross-ventilation, daylight autonomy, and microclimate comfort for private villas and estates in real time.')
                     : (ap.heroCommercialFallbackDesc || 'Sub-meter solar ray-casting, Lattice Boltzmann aerodynamic wind fields, and 2D Saint-Venant flood hydrology for commercial scale masterplans.')
                   )}
-                </p>
+                </p> */}
 
                 {/* Action Button: SCHEDULE SIMULATION ────○ (Exact Hero Page CTA style & text size) */}
                 <div className="mt-6 sm:mt-8">

@@ -28,7 +28,33 @@ import {
 
 import Footer from '../components/Footer';
 import CommonCta from '../components/CommonCta';
+import MorphGallery from '../components/ui/morph-gallery';
 import { useTranslation } from '../i18n';
+
+// Ananda Hero Images (Indian Modern Architecture & Microclimate CFD)
+import goldenHourWindflow from '../assets/anadha/Golden-Hour Courtyard Windflow.webp';
+import goldenHourRiverside from '../assets/anadha/Golden Hour Skyline by the Riverside.webp';
+import geminiEcoCourtyard from '../assets/anadha/Gemini_Generated_Image_huaymkhuaymkhuay.webp';
+
+// Commercial Bento Physics Simulation Assets
+import modernOfficeStreamlines from '../assets/anadha/Modern Office Campus with Flowing Light Streamlines (1).webp';
+import glowingBlueFlows from '../assets/anadha/Glowing Blue Flows Over Empty City Roads.webp';
+import goldenHourPlazaShadows from '../assets/anadha/Golden Hour Urban Plaza Shadows.webp';
+
+// Residential Bento Physics Simulation Assets
+import sunsetAerialApartments from '../assets/anadha/Sunset Aerial View of Modern Apartments.webp';
+import floodedCourtyardFlow from '../assets/anadha/Flooded Courtyard Flow Simulation.webp';
+import luminousCourtyardAirflow from '../assets/anadha/Luminous Airflow in a Modern Courtyard.webp';
+
+// Real CFD & Urban Physics Simulation Assets
+import cfdComplexStructure from '../assets/anadha/CFD Streamlines Around Complex Structure.webp';
+import cfdGridCavity from '../assets/anadha/Crisp CFD Streamlines in a Grid Cavity.webp';
+import cityBlueWaterways from '../assets/anadha/Pastel Isometric City with Blue Waterways.webp';
+import cfdWireframeGrid from '../assets/anadha/CFD Streamlines Through Wireframe Grid (1).webp';
+import cfdFlowBlocks from '../assets/anadha/CFD Flow Around Building Blocks.webp';
+import cfdVortices from '../assets/anadha/CFD Streamlines Through Vortices.webp';
+import cityMassingModel from '../assets/anadha/Isometric Gray City Massing Model.webp';
+import cfdCityStreamlines from '../assets/anadha/Colorful Streamlines Over a Cityscape.webp';
 
 const CURRENT_YEAR = 2026;
 
@@ -101,52 +127,94 @@ const TESTIMONIALS = [
 const MOSAIC_STUDIES = [
   {
     id: 1,
-    title: "Tokyo Waterfront Spire",
-    desc: "Aerodynamic vortex shedding and boundary layer pedestrian comfort mapping across Tokyo Bay.",
-    image: "/building-3.jpg"
+    title: "Hydro-Morphology & Blue Corridors",
+    desc: "2D Saint-Venant shallow water simulation across urban massing and waterway detention basins.",
+    image: cityBlueWaterways
   },
   {
     id: 2,
-    title: "Zurich Alpine Cantilever",
-    desc: "Sub-zero wind vortex acceleration and passive solar thermal retention along Swiss mountain ridges.",
-    image: "/case_alpine.jpg"
+    title: "Aerodynamic Complex Envelope",
+    desc: "LBM aerodynamic streamlines and vortex wake modeling around high-rise tower geometries.",
+    image: cfdComplexStructure
   },
   {
     id: 3,
-    title: "Singapore Marina Shading",
-    desc: "Bioclimatic canopy solar filtration and natural convective stack cooling for tropical pavilions.",
-    image: "/case_komorebi.jpg"
+    title: "Mesoscale Cityscape Streamlines",
+    desc: "Atmospheric boundary layer CFD flow vectors and convective thermal streamlines across metropolitan sectors.",
+    image: cfdCityStreamlines
   },
   {
     id: 4,
-    title: "Geneva Lakefront Pavilion",
-    desc: "Passive solar thermal absorption through low-E glazed envelopes and evaporative water micro-climates.",
-    image: "/case_helio.jpg"
+    title: "Vortex Cross-Breeze Acceleration",
+    desc: "Corner vortex shedding and convective pressure differential corridors for natural passive ventilation.",
+    image: cfdVortices
   },
   {
     id: 5,
-    title: "Kyoto Courtyard Lightwell",
-    desc: "Zero-energy daylight autonomy across private living quarters via clerestory geometry.",
-    image: "/residential_solar.jpg"
+    title: "Building Blocks Micro-Airflow",
+    desc: "Pedestrian-level aerodynamic comfort and wake diversion across dense modular urban blocks.",
+    image: cfdFlowBlocks
   },
   {
     id: 6,
-    title: "California Coastal Breezeway",
-    desc: "Window-to-window convective cross-ventilation corridors reducing active HVAC consumption by 42%.",
-    image: "/residential_breeze.jpg"
+    title: "Grid Cavity Boundary Layer Flow",
+    desc: "High-resolution microclimate airflow streamlines and recirculating vortex simulation in urban cavities.",
+    image: cfdGridCavity
   },
   {
     id: 7,
-    title: "Metropolitan Transit Masterplan",
-    desc: "Multi-acre urban physics convergence and boundary layer aerodynamic modeling before pouring foundations.",
-    image: "/building-2.jpg"
+    title: "Structural Wireframe CFD Grid",
+    desc: "Sub-meter wind velocity vectors and turbulence kinetic energy solved through structural wireframe matrices.",
+    image: cfdWireframeGrid
+  },
+  {
+    id: 8,
+    title: "Metropolitan Massing Masterplan",
+    desc: "Multi-acre urban physics convergence, solar diurnal ray-casting, and environmental massing analysis.",
+    image: cityMassingModel
   }
 ];
 
 // ==========================================
-// DATA: HERO PERSPECTIVES (COMMERCIAL & RESIDENTIAL)
+// DATA: HERO PERSPECTIVES (ANANDA URBAN PHYSICS)
 // ==========================================
+const ANANDA_HERO_SLIDES = [
+  {
+    id: 'riverside_skyline',
+    src: goldenHourRiverside,
+    thumb: goldenHourRiverside,
+    title: 'Architecture Meets Physics.',
+    desc: 'Diurnal solar ray-casting and microclimate airflow simulation across glass-facade towers.',
+  },
+  {
+    id: 'courtyard_windflow',
+    src: goldenHourWindflow,
+    thumb: goldenHourWindflow,
+    title: 'Built for the Breeze.',
+    desc: 'LBM aerodynamic wind solver and passive cross-ventilation across green courtyards.',
+  },
+  {
+    id: 'waterway_masterplan',
+    src: geminiEcoCourtyard,
+    thumb: geminiEcoCourtyard,
+    title: 'Water Meets Architecture.',
+    desc: '2D shallow water differential hydrology and biophilic cooling for resilient masterplans.',
+  },
+];
+
 const COMMERCIAL_HERO_SLIDES = [
+  {
+    id: 'bangalore_ubcity',
+    src: '/ananda_indian_bangalore_ubcity.jpg',
+    title: 'Bengaluru Commercial Skydeck',
+    desc: 'High-performance diurnal solar ray-casting and microclimate airflow simulation across glass-facade towers'
+  },
+  {
+    id: 'mumbai_one',
+    src: '/ananda_indian_mumbai_one.jpg',
+    title: 'Mumbai Business District Towers',
+    desc: 'LBM aerodynamic boundary layer wind solver and pedestrian vortex mapping in dense urban hubs'
+  },
   {
     id: 'exoskeleton',
     src: '/ananda_hero_exoskeleton.jpg',
@@ -158,22 +226,22 @@ const COMMERCIAL_HERO_SLIDES = [
     src: '/ananda_hero_skybridge_link.jpg',
     title: 'Twin Commercial Towers & Skybridge',
     desc: 'Twin towers linked high above by an aerodynamic cantilevered glass skybridge'
-  },
-  {
-    id: 'waterfront',
-    src: '/ananda_hero_waterfront.jpg',
-    title: 'Waterfront Commercial Spire',
-    desc: 'LBM boundary layer airflow simulations and solar ray-casting across maritime city districts'
-  },
-  {
-    id: 'cantilever',
-    src: '/ananda_hero_cantilever.jpg',
-    title: 'High-Density Structural Envelope',
-    desc: 'Real-time urban morphology and microclimate CFD modeling for commercial masterplans'
   }
 ];
 
 const RESIDENTIAL_HERO_SLIDES = [
+  {
+    id: 'indian_residential_courtyard',
+    src: '/ananda_indian_residential_courtyard.jpg',
+    title: 'Biophilic Indian Courtyard Sanctuary',
+    desc: 'Open-to-sky central aangan with water reflection pool, Burma teakwood louvers, and passive cross-ventilation'
+  },
+  {
+    id: 'indian_goa_villa',
+    src: '/ananda_indian_goa_villa.jpg',
+    title: 'Goa Coastal Pavilion Estate',
+    desc: 'Passive cross-breeze corridors, natural stone terrace, and tropical lap pool for luxury coastal living'
+  },
   {
     id: 'residential_sunset_villa',
     src: '/ananda_residential_sunset_villa.jpg',
@@ -185,12 +253,6 @@ const RESIDENTIAL_HERO_SLIDES = [
     src: '/ananda_residential_estate_pool.jpg',
     title: 'Luxury Residential Estate',
     desc: 'Floor-to-ceiling glass pavilions opening to infinity reflection pool and private courtyard'
-  },
-  {
-    id: 'residential_zen_courtyard',
-    src: '/ananda_residential_zen_courtyard.jpg',
-    title: 'Biophilic Courtyard Sanctuary',
-    desc: 'Natural cross-ventilation sliding glass with reflecting pool and Japanese maple'
   }
 ];
 
@@ -211,7 +273,6 @@ export default function AnandaPage({
 }) {
   // Duality Mode state: false = Commercial Scale, true = Residential Living
   const [isResidential, setIsResidential] = useState(initialCategory === 'residential');
-  const [lightboxItem, setLightboxItem] = useState(null);
 
   // Synchronize category state when prop or navigation changes
   useEffect(() => {
@@ -335,22 +396,48 @@ export default function AnandaPage({
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
 
-  // Active Hero Slides based on current Platform selection
-  const heroSlides = isResidential ? residentialHeroSlides : commercialHeroSlides;
+  // Active Hero Slides (3 requested modern Indian architectural simulation slides)
+  const heroSlides = useMemo(() => {
+    const localized = ap.heroSlides || ANANDA_HERO_SLIDES;
+    return ANANDA_HERO_SLIDES.map((slide, idx) => ({
+      ...slide,
+      title: localized[idx]?.title || slide.title,
+      desc: localized[idx]?.desc || slide.desc,
+    }));
+  }, [ap.heroSlides]);
+
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+  const [isHeroRevealed, setIsHeroRevealed] = useState(false);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
+  const heroReadyTriggered = useRef(false);
 
-  // Reset index when switching between commercial and residential
-  useEffect(() => {
-    setActiveHeroIndex(0);
-  }, [isResidential]);
+  const handleHeroReady = () => {
+    if (heroReadyTriggered.current) return;
+    heroReadyTriggered.current = true;
+    requestAnimationFrame(() => {
+      setIsHeroRevealed(true);
+    });
+  };
 
-  // Auto-rotate hero perspectives
   useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      handleHeroReady();
+    }, 350);
+    return () => clearTimeout(fallbackTimer);
+  }, []);
+
+  // Automatic slide rotation (5s duration, synchronized with noise dissolve WebGL transition)
+  useEffect(() => {
+    if (!isHeroRevealed || isHeroPaused) return;
     const timer = setInterval(() => {
       setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
-  }, [heroSlides.length]);
+  }, [isHeroRevealed, isHeroPaused, heroSlides.length]);
+
+  const handleSelectHeroSlide = (idx) => {
+    setActiveHeroIndex(idx);
+  };
 
   // Persist category selection in sessionStorage and localStorage
   useEffect(() => {
@@ -674,66 +761,136 @@ export default function AnandaPage({
     <div className="bg-white min-h-screen text-neutral-900 w-full selection:bg-black selection:text-white font-sans">
 
       {/* ======================================================== */}
-      {/* 1. IMMERSIVE HERO SECTION                                */}
+      {/* 1. IMMERSIVE HERO SECTION (MorphGallery WebGL Shader)    */}
       {/* ======================================================== */}
-      <div className="relative w-full h-screen min-h-[600px] flex items-end pb-16 sm:pb-20 md:pb-24 pt-28 sm:pt-32 px-[4%] overflow-hidden">
-        {/* Dynamic Image Carousel with smooth crossfade */}
-        <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="sync">
-            <motion.img
-              key={heroSlides[activeHeroIndex]?.id || 'hero'}
-              src={heroSlides[activeHeroIndex]?.src || '/building.jpg'}
-              alt={heroSlides[activeHeroIndex]?.title || 'Ananda GeoSpatial Engineering'}
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 0.9, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 w-full h-full object-cover opacity-90"
-            />
-          </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/20 pointer-events-none" />
+      <div className="min-h-screen relative flex flex-col justify-between overflow-hidden font-['Inter'] text-white select-text">
+        {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition - same as Homepage) */}
+        <div
+          className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${
+            isHeroRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
+          }`}
+        >
+          <MorphGallery
+            items={heroSlides}
+            index={activeHeroIndex}
+            onIndexChange={handleSelectHeroSlide}
+            autoplay={0}
+            duration={1200}
+            height="100%"
+            arrows={false}
+            thumbnails={false}
+            onReady={handleHeroReady}
+          />
+          {/* Cinematic dark scrims from Homepage Hero to ensure pristine typography legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 via-50% to-transparent/10 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-black/15 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 pointer-events-none z-[1]" />
         </div>
 
-        <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col justify-end">
-          <div className="max-w-2xl">
-            <div className="mb-4 sm:mb-6">
-              <button
-                type="button"
-                onClick={() => {
-                  if (onNavigateToHome) onNavigateToHome()
-                  else if (typeof window !== 'undefined') window.location.hash = ''
-                }}
-                aria-label="Back to Home"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
-              >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-            <motion.div initial="hidden" animate="visible" variants={fadeUpVariant}>
-              <div className="relative inline-block py-1">
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-                  {heroSlides[activeHeroIndex]?.title || ap.heroDefaultTitle || 'Where Architecture Meets Physics'}
-                </h1>
+        {/* MAIN HERO CONTENT (Identical layout, positioning & text sizes to Homepage Hero) */}
+        <main className="relative z-10 flex-1 w-full flex items-center pointer-events-none pt-20 sm:pt-24 lg:pt-28 pb-12">
+          <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 py-8 flex flex-col justify-center pointer-events-auto">
+            <div className="max-w-3xl">
+              <div className="mb-4 sm:mb-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onNavigateToHome) onNavigateToHome()
+                    else if (typeof window !== 'undefined') window.location.hash = ''
+                  }}
+                  aria-label="Back to Home"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
+                >
+                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                </button>
               </div>
-            </motion.div>
-            <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
-              {heroSlides[activeHeroIndex]?.desc || (isResidential
-                ? (ap.heroResidentialFallbackDesc || 'Passive cross-ventilation, daylight autonomy, and microclimate comfort for private villas and estates in real time.')
-                : (ap.heroCommercialFallbackDesc || 'Sub-meter solar ray-casting, Lattice Boltzmann aerodynamic wind fields, and 2D Saint-Venant flood hydrology for commercial scale masterplans.')
-              )}
-            </p>
-            <div className="mt-7 sm:mt-9">
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                className="group relative inline-flex items-center gap-4 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-neutral-900 hover:bg-neutral-100 font-['Inter'] font-semibold text-xs sm:text-[13px] tracking-[0.14em] uppercase transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_15px_35px_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+
+              {/* Master Content: Synchronized with Active Slide & Image Morph */}
+              <div
+                key={activeHeroIndex}
+                className={`transition-all duration-1000 ${
+                  isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
+                }`}
               >
-                <span>{ap.scheduleSimulation || 'Schedule Simulation'}</span>
-                <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-neutral-800 group-hover:translate-x-1 transition-all duration-300 shadow-xs">
-                  <ArrowRight className="w-3.5 h-3.5" />
+                {/* Master Headline: Synchronized with Active Slide - Exact Hero Page Text Size */}
+                <div className="relative inline-block py-1">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
+                    {heroSlides[activeHeroIndex]?.title || ap.heroDefaultTitle || 'Where Architecture Meets Physics'}
+                  </h1>
                 </div>
-              </button>
+
+                {/* Subtitle Paragraph: Synchronized with Active Slide - Exact Hero Page Text Size */}
+                <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                  {heroSlides[activeHeroIndex]?.desc || (isResidential
+                    ? (ap.heroResidentialFallbackDesc || 'Passive cross-ventilation, daylight autonomy, and microclimate comfort for private villas and estates in real time.')
+                    : (ap.heroCommercialFallbackDesc || 'Sub-meter solar ray-casting, Lattice Boltzmann aerodynamic wind fields, and 2D Saint-Venant flood hydrology for commercial scale masterplans.')
+                  )}
+                </p>
+
+                {/* Action Button: SCHEDULE SIMULATION ────○ (Exact Hero Page CTA style & text size) */}
+                <div className="mt-6 sm:mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(true)}
+                    className="inline-flex items-center gap-4 group cursor-pointer font-['Inter'] active:scale-[0.98] transition-transform duration-150"
+                  >
+                    <span className="text-[11.5px] font-semibold tracking-[0.2em] uppercase text-white group-hover:text-white/80 transition-colors drop-shadow-sm">
+                      {ap.scheduleSimulation || 'SCHEDULE SIMULATION'}
+                    </span>
+
+                    {/* Horizontal Extension Line */}
+                    <div className="h-[1.5px] w-12 sm:w-16 bg-white/70 group-hover:w-20 sm:group-hover:w-24 transition-all duration-300" />
+
+                    {/* Circular Arrow Button */}
+                    <div className="w-8 h-8 rounded-full border border-white/60 bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-sm text-white">
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
+        </main>
+
+        {/* CORNER DOWN SQUARE THUMBNAILS (Exact same placement & thumbnail styling as Homepage Hero) */}
+        <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-end">
+            <nav
+              aria-label="Ananda Hero Slide Navigation"
+              className={`pointer-events-auto transition-all duration-1000 ${
+                isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+              onMouseEnter={() => setIsHeroPaused(true)}
+              onMouseLeave={() => setIsHeroPaused(false)}
+            >
+              <div className="flex items-center gap-3 sm:gap-4">
+                {heroSlides.map((slide, idx) => {
+                  const isActive = idx === activeHeroIndex;
+                  return (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => handleSelectHeroSlide(idx)}
+                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${
+                        isActive
+                          ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
+                          : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
+                      }`}
+                      title={`Switch to ${slide.title}`}
+                      aria-label={`Slide ${idx + 1}: ${slide.title}`}
+                      aria-current={isActive}
+                    >
+                      <img
+                        src={slide.thumb || slide.src}
+                        alt={slide.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -838,7 +995,7 @@ export default function AnandaPage({
 
               {/* Main Left Card (Col Span 2) - 1st image comes from down */}
               <div
-                className="col-span-1 md:col-span-2 h-[260px] sm:h-[340px] md:h-full min-h-0 relative overflow-hidden bg-neutral-800 group rounded-2xl md:rounded-none"
+                className="col-span-1 md:col-span-2 h-[260px] sm:h-[340px] md:h-full min-h-0 relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
                 style={{
                   transform: dualityVisible ? 'translateY(0)' : 'translateY(160px)',
                   opacity: dualityVisible ? 1 : 0,
@@ -848,17 +1005,10 @@ export default function AnandaPage({
               >
                 <img
                   key={isResidential ? 'res-1' : 'comm-1'}
-                  src={isResidential ? "/residential_solar.jpg" : "/sunlight_card.jpg"}
-                  alt="Main Scale Preview"
-                  className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                  src={isResidential ? sunsetAerialApartments : goldenHourPlazaShadows}
+                  alt={isResidential ? "Residential Apartment Sunset Simulation" : "Commercial Solar Simulation"}
+                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
                 />
-                <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/85 via-black/40 to-transparent">
-                  <h3 className="text-white text-3xl font-normal">
-                    {isResidential 
-                      ? (ap.dualityResidential?.card1 || "Private Villa Daylighting & Courtyards") 
-                      : (ap.dualityCommercial?.card1 || "High-Density Envelope Solar Ray-Caster")}
-                  </h3>
-                </div>
               </div>
 
               {/* Stacked Right Column */}
@@ -866,7 +1016,7 @@ export default function AnandaPage({
 
                 {/* Top Right Card - comes from right side */}
                 <div
-                  className="h-[220px] md:h-auto md:flex-1 min-h-0 relative overflow-hidden bg-neutral-800 group rounded-2xl md:rounded-none"
+                  className="h-[220px] md:h-auto md:flex-1 min-h-0 relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
                   style={{
                     transform: dualityVisible ? 'translateX(0)' : 'translateX(160px)',
                     opacity: dualityVisible ? 1 : 0,
@@ -876,22 +1026,15 @@ export default function AnandaPage({
                 >
                   <img
                     key={isResidential ? 'res-2' : 'comm-2'}
-                    src={isResidential ? "/residential_breeze.jpg" : "/airflow_card.jpg"}
-                    alt="Top Right Scale Preview"
-                    className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                    src={isResidential ? luminousCourtyardAirflow : modernOfficeStreamlines}
+                    alt={isResidential ? "Residential Courtyard Airflow CFD Simulation" : "Commercial Airflow CFD Simulation"}
+                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/85 to-transparent">
-                    <h4 className="text-white text-xl font-normal">
-                      {isResidential 
-                        ? (ap.dualityResidential?.card2 || "Convective Cross-Breeze Corridors") 
-                        : (ap.dualityCommercial?.card2 || "Urban Aerodynamic Wind Fields")}
-                    </h4>
-                  </div>
                 </div>
 
                 {/* Bottom Right Card - comes from right side with stagger */}
                 <div
-                  className="h-[220px] md:h-auto md:flex-1 min-h-0 relative overflow-hidden bg-neutral-800 group rounded-2xl md:rounded-none"
+                  className="h-[220px] md:h-auto md:flex-1 min-h-0 relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
                   style={{
                     transform: dualityVisible ? 'translateX(0)' : 'translateX(160px)',
                     opacity: dualityVisible ? 1 : 0,
@@ -902,17 +1045,10 @@ export default function AnandaPage({
                 >
                   <img
                     key={isResidential ? 'res-3' : 'comm-3'}
-                    src={isResidential ? "/case_komorebi.jpg" : "/flood_card.jpg"}
-                    alt="Bottom Right Scale Preview"
-                    className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                    src={isResidential ? floodedCourtyardFlow : glowingBlueFlows}
+                    alt={isResidential ? "Residential Courtyard Flood Simulation" : "Commercial Flood Hydrology Simulation"}
+                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/85 to-transparent">
-                    <h4 className="text-white text-xl font-normal">
-                      {isResidential 
-                        ? (ap.dualityResidential?.card3 || "Tree Canopy Shading Corridors") 
-                        : (ap.dualityCommercial?.card3 || "2D Stormwater Hydrology Basin")}
-                    </h4>
-                  </div>
                 </div>
 
               </div>
@@ -994,7 +1130,6 @@ export default function AnandaPage({
 
               {/* Study 1: Solar (Square on Left - comes from left side) */}
               <div
-                onClick={() => setLightboxItem(mosaicStudies[0])}
                 className="aspect-square relative group overflow-hidden border-b md:border-b-0 border-r border-black/10 bg-neutral-100 cursor-pointer"
                 style={{
                   transform: caseTopVisible ? 'translateX(0)' : 'translateX(-160px)',
@@ -1006,9 +1141,9 @@ export default function AnandaPage({
                 <img
                   src={mosaicStudies[0].image}
                   alt={mosaicStudies[0].title}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8 pointer-events-none">
                   <h3 className="text-white text-2xl font-normal tracking-tight">{mosaicStudies[0].title}</h3>
                   <p className="text-neutral-300 font-normal mt-2 text-sm">{mosaicStudies[0].desc}</p>
                 </div>
@@ -1018,7 +1153,6 @@ export default function AnandaPage({
               <div className="grid grid-cols-2 aspect-square">
                 {/* Study 2: Airflow - comes from down */}
                 <div
-                  onClick={() => setLightboxItem(mosaicStudies[1])}
                   className="aspect-square relative group overflow-hidden border-b border-r border-black/10 bg-neutral-100 cursor-pointer"
                   style={{
                     transform: caseTopVisible ? 'translateY(0)' : 'translateY(160px)',
@@ -1031,9 +1165,9 @@ export default function AnandaPage({
                   <img
                     src={mosaicStudies[1].image}
                     alt={mosaicStudies[1].title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8 pointer-events-none">
                     <h3 className="text-white text-lg sm:text-xl font-normal tracking-tight">{mosaicStudies[1].title}</h3>
                     <p className="text-neutral-300 text-xs font-normal mt-2">{mosaicStudies[1].desc}</p>
                   </div>
@@ -1041,7 +1175,6 @@ export default function AnandaPage({
 
                 {/* Study 3: Hydrology - comes from down */}
                 <div
-                  onClick={() => setLightboxItem(mosaicStudies[2])}
                   className="aspect-square relative group overflow-hidden border-b border-r border-black/10 bg-neutral-100 cursor-pointer"
                   style={{
                     transform: caseTopVisible ? 'translateY(0)' : 'translateY(160px)',
@@ -1054,9 +1187,9 @@ export default function AnandaPage({
                   <img
                     src={mosaicStudies[2].image}
                     alt={mosaicStudies[2].title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8 pointer-events-none">
                     <h3 className="text-white text-lg sm:text-xl font-normal tracking-tight">{mosaicStudies[2].title}</h3>
                     <p className="text-neutral-300 text-xs font-normal mt-2">{mosaicStudies[2].desc}</p>
                   </div>
@@ -1064,7 +1197,6 @@ export default function AnandaPage({
 
                 {/* Study 4: Helio-Reflective Pavilion - comes from down */}
                 <div
-                  onClick={() => setLightboxItem(mosaicStudies[3])}
                   className="col-span-2 aspect-[2/1] relative group overflow-hidden border-r border-black/10 bg-neutral-100 cursor-pointer"
                   style={{
                     transform: caseTopVisible ? 'translateY(0)' : 'translateY(160px)',
@@ -1077,9 +1209,9 @@ export default function AnandaPage({
                   <img
                     src={mosaicStudies[3].image}
                     alt={mosaicStudies[3].title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8 pointer-events-none">
                     <h3 className="text-white text-xl font-normal tracking-tight">{mosaicStudies[3].title}</h3>
                     <p className="text-neutral-300 text-xs font-normal mt-2">{mosaicStudies[3].desc}</p>
                   </div>
@@ -1088,12 +1220,11 @@ export default function AnandaPage({
 
             </div>
 
-            {/* Bottom 4-Column Row (3 images: all come from down fully) */}
+            {/* Bottom 4-Column Row (4 equal square images: all come from down fully) */}
             <div ref={caseBottomRef} className="grid grid-cols-1 md:grid-cols-4">
 
               {/* Study 5: Villa Daylighting - comes from down fully */}
               <div
-                onClick={() => setLightboxItem(mosaicStudies[4])}
                 className="md:col-span-1 aspect-square relative group overflow-hidden border-b md:border-b-0 border-r border-black/10 bg-neutral-100 cursor-pointer"
                 style={{
                   transform: caseBottomVisible ? 'translateY(0)' : 'translateY(160px)',
@@ -1105,9 +1236,9 @@ export default function AnandaPage({
                 <img
                   src={mosaicStudies[4].image}
                   alt={mosaicStudies[4].title}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8 pointer-events-none">
                   <h3 className="text-white text-xl font-normal tracking-tight">{mosaicStudies[4].title}</h3>
                   <p className="text-neutral-300 text-xs font-normal mt-2">{mosaicStudies[4].desc}</p>
                 </div>
@@ -1115,7 +1246,6 @@ export default function AnandaPage({
 
               {/* Study 6: Bioclimatic Canopy - comes from down fully */}
               <div
-                onClick={() => setLightboxItem(mosaicStudies[5])}
                 className="md:col-span-1 aspect-square relative group overflow-hidden border-b md:border-b-0 border-r border-black/10 bg-neutral-100 cursor-pointer"
                 style={{
                   transform: caseBottomVisible ? 'translateY(0)' : 'translateY(160px)',
@@ -1128,35 +1258,58 @@ export default function AnandaPage({
                 <img
                   src={mosaicStudies[5].image}
                   alt={mosaicStudies[5].title}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8 pointer-events-none">
                   <h3 className="text-white text-xl font-normal tracking-tight">{mosaicStudies[5].title}</h3>
                   <p className="text-neutral-300 text-xs font-normal mt-2">{mosaicStudies[5].desc}</p>
                 </div>
               </div>
 
-              {/* Study 7: Metropolitan Masterplan - comes from down fully */}
+              {/* Study 7: Metropolitan Masterplan - Box 1 */}
               <div
-                onClick={() => setLightboxItem(mosaicStudies[6])}
-                className="md:col-span-2 aspect-[2/1] relative group overflow-hidden border-r border-black/10 bg-neutral-100 cursor-pointer"
+                className="md:col-span-1 aspect-square relative group overflow-hidden border-b md:border-b-0 border-r border-black/10 bg-neutral-100 cursor-pointer"
                 style={{
                   transform: caseBottomVisible ? 'translateY(0)' : 'translateY(160px)',
                   opacity: caseBottomVisible ? 1 : 0,
                   transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1)',
-                  transitionDelay: caseBottomVisible ? '240ms' : '0ms',
+                  transitionDelay: caseBottomVisible ? '200ms' : '0ms',
                   willChange: 'transform, opacity',
                 }}
               >
                 <img
-                  src={mosaicStudies[6].image}
-                  alt={mosaicStudies[6].title}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  src={mosaicStudies[6]?.image}
+                  alt={mosaicStudies[6]?.title}
+                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8 md:p-12">
-                  <h3 className="text-white text-2xl md:text-3xl font-normal tracking-tight">{mosaicStudies[6].title}</h3>
-                  <p className="text-neutral-300 font-normal mt-2 max-w-xl text-sm leading-relaxed">
-                    {mosaicStudies[6].desc}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8 pointer-events-none">
+                  <h3 className="text-white text-xl font-normal tracking-tight">{mosaicStudies[6]?.title}</h3>
+                  <p className="text-neutral-300 text-xs font-normal mt-2 leading-relaxed">
+                    {mosaicStudies[6]?.desc}
+                  </p>
+                </div>
+              </div>
+
+              {/* Study 8: Second Box - Box 2 */}
+              <div
+                className="md:col-span-1 aspect-square relative group overflow-hidden border-r border-black/10 bg-neutral-100 cursor-pointer"
+                style={{
+                  transform: caseBottomVisible ? 'translateY(0)' : 'translateY(160px)',
+                  opacity: caseBottomVisible ? 1 : 0,
+                  transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  transitionDelay: caseBottomVisible ? '280ms' : '0ms',
+                  willChange: 'transform, opacity',
+                }}
+              >
+                <img
+                  src={mosaicStudies[7]?.image || mosaicStudies[6]?.image}
+                  alt={mosaicStudies[7]?.title || 'Metropolitan Massing Masterplan'}
+                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 group-hover:scale-105 transition-all duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 sm:p-8 pointer-events-none">
+                  <h3 className="text-white text-xl font-normal tracking-tight">{mosaicStudies[7]?.title || 'Metropolitan Massing Masterplan'}</h3>
+                  <p className="text-neutral-300 text-xs font-normal mt-2 leading-relaxed">
+                    {mosaicStudies[7]?.desc || 'Multi-acre urban physics convergence, solar diurnal ray-casting, and environmental massing analysis.'}
                   </p>
                 </div>
               </div>
@@ -1200,59 +1353,7 @@ export default function AnandaPage({
 
 
       {/* ======================================================== */}
-      {/* 9. LIGHTBOX PREVIEW MODAL                                */}
-      {/* ======================================================== */}
-      <AnimatePresence>
-        {lightboxItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightboxItem(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 cursor-pointer"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-5xl w-full bg-white border border-black/20 overflow-hidden shadow-2xl cursor-default text-neutral-900 font-sans"
-            >
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setLightboxItem(null)}
-                className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-black/80 text-white hover:bg-black transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-
-              {/* Image */}
-              <div className="relative aspect-[16/10] w-full bg-black">
-                <img
-                  src={lightboxItem.image}
-                  alt={lightboxItem.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Caption */}
-              <div className="p-8">
-                <h3 className="text-2xl font-normal text-neutral-900 tracking-tight mb-2">
-                  {lightboxItem.title}
-                </h3>
-                <p className="text-sm text-neutral-600 leading-relaxed font-normal">
-                  {lightboxItem.desc}
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-
-      {/* ======================================================== */}
-      {/* 10. SIMULATION REQUEST & AGENT CONSULTATION MODAL        */}
+      {/* 9. SIMULATION REQUEST & AGENT CONSULTATION MODAL        */}
       {/* ======================================================== */}
       <AnimatePresence>
         {modalOpen && (

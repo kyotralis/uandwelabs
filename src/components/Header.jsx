@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import {
   Search,
   Globe,
@@ -14,6 +14,9 @@ import {
   Radio,
   Cpu,
   ArrowUpRight,
+  FileText,
+  Briefcase,
+  Info,
 } from 'lucide-react'
 import Logo from '../assets/logo.webp'
 import { useTranslation, GLOBAL_LOCALES } from '../i18n'
@@ -93,6 +96,93 @@ const SOLUTIONS_DATA = [
     targetId: 'aura',
     category: null,
     pills: ['Edge Tensor Silicon', '350m Perimeter Mesh'],
+  },
+]
+
+// Global Search Index (Products, Solutions, Platforms, Sections, Pages)
+const SEARCH_ITEMS = [
+  {
+    id: 'ananda-commercial',
+    title: 'Ananda Commercial',
+    subtitle: 'Urban Physics & Microclimate CFD',
+    description: 'Sub-meter solar ray-casting, aerodynamic wind CFD, and flood hydrology for masterplans.',
+    target: 'ananda',
+    platform: 'commercial',
+    keywords: ['ananda', 'an', 'commercial', 'urban physics', 'cfd', 'wind', 'solar', 'flood', 'simulation', 'fluid'],
+  },
+  {
+    id: 'ananda-residency',
+    title: 'Ananda Residency',
+    subtitle: 'Living Platform & Daylight Autonomy',
+    description: 'Passive cross-ventilation breezes, daylight autonomy, and estate microclimate comfort.',
+    target: 'ananda',
+    platform: 'residential',
+    keywords: ['ananda', 'an', 'residency', 'residential', 'breeze', 'ventilation', 'daylight', 'living', 'passive cooling', 'estates'],
+  },
+  {
+    id: 'dara',
+    title: 'Dara',
+    subtitle: 'Autonomous Senior Dignity & Fall Radar',
+    description: '60 GHz contactless wall radar, multi-language talking clock, and rise-to-wake torch.',
+    target: 'dara',
+    keywords: ['dara', 'da', 'healthcare', 'fall detection', 'radar', 'elder', 'talking clock', 'torch', 'assistive', 'senior', 'longevity'],
+  },
+  {
+    id: 'aura',
+    title: 'Aura',
+    subtitle: 'Autonomous Edge Vision & 128-TOPS Silicon',
+    description: 'Sub-millisecond multilane highway LPR at 180 km/h, 350m perimeter tracking, zero cloud egress.',
+    target: 'aura',
+    keywords: ['aura', 'au', 'physical ai', 'edge vision', 'silicon', 'lpr', 'camera', 'tensor', 'perimeter', '128-tops'],
+  },
+  {
+    id: 'solution-simulation',
+    title: 'Environmental Physics',
+    subtitle: 'Microclimate & Aerodynamics',
+    description: 'Predictive solar radiation, aerodynamic CFD wind flow, and flood risk mapping.',
+    target: 'ananda',
+    platform: 'commercial',
+    keywords: ['environmental', 'physics', 'aerodynamics', 'microclimate', 'solar radiation', 'cfd wind flow', 'flood', 'ananda', 'an'],
+  },
+  {
+    id: 'solution-healthcare',
+    title: 'Assistive Healthcare',
+    subtitle: 'Autonomous Elder Safety',
+    description: 'Sub-300ms contactless fall detection and optical prescription reading with zero wearables.',
+    target: 'dara',
+    keywords: ['healthcare', 'assistive', 'elder', 'safety', 'radar', 'fall', 'dara', 'clinical', 'zero wearables'],
+  },
+  {
+    id: 'solution-tactical',
+    title: 'Edge Computer Vision',
+    subtitle: 'Tactical Defense & Highway LPR',
+    description: 'Multilane highway LPR and 350m perimeter tracking with on-chip edge tensor cores.',
+    target: 'aura',
+    keywords: ['edge vision', 'computer vision', 'aura', 'tactical', 'highway lpr', 'defense', 'perimeter mesh', 'tensor'],
+  },
+  {
+    id: 'blogs',
+    title: 'Technical Blogs & Research',
+    subtitle: 'Mathematical Solvers & Engineering Dispatches',
+    description: 'Real-time Lattice Boltzmann CFD at 60 FPS, 60 GHz radar biomechanics, and edge silicon papers.',
+    target: 'blogs',
+    keywords: ['blogs', 'blog', 'technical', 'research', 'whitepapers', 'dispatches', 'publications', 'lattice boltzmann', 'articles', 'ananda', 'an'],
+  },
+  {
+    id: 'about',
+    title: 'About Us — Vision & Engineering',
+    subtitle: 'Our Purpose, Mandate & Engineering Principles',
+    description: 'From first-principles mathematical physics to sovereign edge silicon and elder-care assistive robotics.',
+    target: 'about',
+    keywords: ['about', 'about us', 'vision', 'engineering', 'principles', 'company', 'mission', 'origin', 'mandate', 'team'],
+  },
+  {
+    id: 'careers',
+    title: 'Careers — Grow With Us',
+    subtitle: 'Open Roles, Engineering Culture & Opportunities',
+    description: 'Join our team of CFD dynamicists, optical architects, and edge silicon hardware designers.',
+    target: 'careers',
+    keywords: ['careers', 'career', 'jobs', 'hiring', 'grow with us', 'opportunities', 'culture', 'open roles', 'work with us'],
   },
 ]
 
@@ -570,6 +660,27 @@ export default function Header({
     }
   }
 
+  // Direct navigation to Ananda platform page (Commercial or Residency) without login requirement
+  const handleNavigateToAnandaPlatform = (targetCategory = 'commercial') => {
+    setActiveDropdown(null)
+    setMobileMenuOpen(false)
+    setSearchOpen(false)
+    setSearchQuery('')
+    setActivePlatform(targetCategory)
+    try {
+      sessionStorage.setItem('ananda_category', targetCategory)
+      localStorage.setItem('uandwe_active_platform', targetCategory)
+    } catch {
+      // ignore
+    }
+    window.dispatchEvent(new CustomEvent('ananda_category_change', { detail: targetCategory }))
+    if (onNavigateToAnanda) {
+      onNavigateToAnanda(targetCategory)
+      return
+    }
+    window.location.hash = targetCategory === 'residential' ? 'ananda-residential' : 'ananda'
+  }
+
   const handleSelectLocale = (locale) => {
     if (globalTimeoutRef.current) {
       clearTimeout(globalTimeoutRef.current)
@@ -578,9 +689,79 @@ export default function Header({
     setGlobalOpen(false)
   }
 
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return []
+
+    return SEARCH_ITEMS.map((item) => {
+      let score = 0
+      const titleLower = item.title.toLowerCase()
+      const subtitleLower = item.subtitle.toLowerCase()
+      const descLower = item.description.toLowerCase()
+
+      // Exact title match or starts with query
+      if (titleLower === q) score += 100
+      else if (titleLower.startsWith(q)) score += 60
+      else if (titleLower.split(' ').some((word) => word.startsWith(q))) score += 40
+      else if (titleLower.includes(q)) score += 25
+
+      // Subtitle match
+      if (subtitleLower.startsWith(q)) score += 30
+      else if (subtitleLower.includes(q)) score += 15
+
+      // Keywords match
+      if (item.keywords?.some((k) => k === q)) score += 50
+      else if (item.keywords?.some((k) => k.startsWith(q))) score += 35
+      else if (item.keywords?.some((k) => k.includes(q))) score += 15
+
+      // Description match
+      if (descLower.includes(q)) score += 10
+
+      return { item, score }
+    })
+      .filter((res) => res.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((res) => res.item)
+  }, [searchQuery])
+
+  const handleSelectSearchResult = (item) => {
+    setSearchOpen(false)
+    setSearchQuery('')
+    if (item.target === 'ananda') {
+      handleNavigateToAnandaPlatform(item.platform || 'commercial')
+      return
+    }
+    if (item.target === 'dara') {
+      handleDropdownItemClick('dara', 'PRODUCTS')
+      return
+    }
+    if (item.target === 'aura') {
+      handleDropdownItemClick('aura', 'PRODUCTS')
+      return
+    }
+    if (item.target === 'blogs') {
+      if (onNavigateToBlogs) onNavigateToBlogs()
+      else handleDropdownItemClick('blogs', 'BLOGS')
+      return
+    }
+    if (item.target === 'about') {
+      if (onNavigateToAbout) onNavigateToAbout()
+      else handleDropdownItemClick('about', 'ABOUT')
+      return
+    }
+    if (item.target === 'careers') {
+      if (onNavigateToCareers) onNavigateToCareers()
+      else handleDropdownItemClick('careers', 'CAREERS')
+      return
+    }
+    handleDropdownItemClick(item.target, 'PRODUCTS')
+  }
+
   const handleSearchSubmit = (e) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
+    if (searchResults.length > 0) {
+      handleSelectSearchResult(searchResults[0])
+    } else if (searchQuery.trim()) {
       const targetEl = document.getElementById('introduction')
       if (targetEl) {
         if (window.__lenis) {
@@ -604,14 +785,10 @@ export default function Header({
         transition: 'opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 450ms cubic-bezier(0.16, 1, 0.3, 1)',
         pointerEvents: isHeaderActive ? undefined : 'none',
       }}
-      className="absolute top-0 left-0 right-0 z-50 w-full px-2 sm:px-6 lg:px-10 xl:px-16 pt-2 sm:pt-4 pointer-events-none font-sans"
+      className="absolute top-0 left-0 right-0 z-50 w-full px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 pt-3 sm:pt-4 pointer-events-none font-sans"
     >
-      <div className="w-full max-w-[1560px] mx-auto flex flex-col items-center">
-
-        {/* ========================================================= */}
-        {/* SLEEK UNIFIED GLASS CAPSULE BAR (Increased Height)        */}
-        {/* Generous 68-74px height for enhanced presence and luxury  */}
-        {/* ========================================================= */}
+      <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto flex flex-col items-center">
+        {/* ================= FLOATING CAPSULE HEADER BAR ================= */}
         <div
           onMouseEnter={handleCapsuleMouseEnter}
           onMouseLeave={handleCapsuleMouseLeave}
@@ -624,7 +801,7 @@ export default function Header({
           {/* ------------------------------------------------------- */}
           <div className="flex items-center gap-1.5 sm:gap-4 lg:gap-5 xl:gap-7 shrink-0">
 
-            {/* Brand Logo & Name - Enlarged & Crisp */}
+            {/* Brand Logo & Name - Crisp & Elegant */}
             <a
               href="#hero"
               onClick={(e) => {
@@ -669,15 +846,17 @@ export default function Header({
                   onClick={() => {
                     setActiveDropdown(activeDropdown === 'products' ? null : 'products')
                   }}
-                  className={`flex items-center gap-1 xl:gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${activeDropdown === 'products' || activeNav?.toLowerCase() === 'products'
+                  className={`flex items-center gap-1 xl:gap-1.5 px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${
+                    activeDropdown === 'products' || activeNav?.toLowerCase() === 'products'
                       ? 'text-black bg-slate-100 font-semibold shadow-xs'
                       : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
-                    }`}
+                  }`}
                 >
                   <span>Products</span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${activeDropdown === 'products' ? 'rotate-180 text-black' : ''
-                      }`}
+                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+                      activeDropdown === 'products' ? 'rotate-180 text-black' : 'group-hover:text-black'
+                    }`}
                   />
                 </button>
                 
@@ -796,7 +975,7 @@ export default function Header({
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
                                 {/* Commercial Card */}
                                 <div
-                                  onClick={() => handleNavigateToLoginWithTarget('commercial')}
+                                  onClick={() => handleNavigateToAnandaPlatform('commercial')}
                                   className="group/card p-4 sm:p-4.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
                                 >
                                   <div>
@@ -822,7 +1001,7 @@ export default function Header({
 
                                 {/* Residency Card */}
                                 <div
-                                  onClick={() => handleNavigateToLoginWithTarget('residential')}
+                                  onClick={() => handleNavigateToAnandaPlatform('residential')}
                                   className="group/card p-4 sm:p-4.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
                                 >
                                   <div>
@@ -931,15 +1110,17 @@ export default function Header({
                   onClick={() => {
                     setActiveDropdown(activeDropdown === 'solutions' ? null : 'solutions')
                   }}
-                  className={`flex items-center gap-1 xl:gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${activeDropdown === 'solutions' || activeNav?.toLowerCase() === 'solutions'
+                  className={`flex items-center gap-1 xl:gap-1.5 px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${
+                    activeDropdown === 'solutions' || activeNav?.toLowerCase() === 'solutions'
                       ? 'text-black bg-slate-100 font-semibold shadow-xs'
                       : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
-                    }`}
+                  }`}
                 >
                   <span>Solutions</span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${activeDropdown === 'solutions' ? 'rotate-180 text-black' : ''
-                      }`}
+                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
+                      activeDropdown === 'solutions' ? 'rotate-180 text-black' : 'group-hover:text-black'
+                    }`}
                   />
                 </button>
 
@@ -963,28 +1144,30 @@ export default function Header({
                             <div
                               key={item.id}
                               onClick={() => handleDropdownItemClick(item.targetId, 'SOLUTIONS', false, item.category)}
-                              className="group relative flex flex-col justify-between p-4 sm:p-4.5 text-left rounded-2xl bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-slate-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer"
+                              className="group relative flex flex-col justify-between p-4 sm:p-4.5 text-left rounded-2xl bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-slate-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer overflow-hidden"
                             >
                               <div>
-                                <div className="flex items-start justify-between gap-1.5 mb-3">
-                                  <div className="flex items-center gap-2.5">
-                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border group-hover:scale-105 transition-transform duration-200 ${item.iconBg}`}>
-                                      <IconComp className="w-4.5 h-4.5" />
-                                    </div>
-                                    <div>
-                                      <div className={`flex items-center gap-1 font-semibold text-[15px] text-slate-900 ${accentHover} transition-colors`}>
-                                        <span>{item.title}</span>
-                                        <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
-                                      </div>
-                                      <span className="text-[11px] font-medium text-slate-500 block leading-tight">
-                                        {item.subtitle}
-                                      </span>
-                                    </div>
+                                {/* Top Row: Icon on Left, Pill Badge on Right */}
+                                <div className="flex items-center justify-between gap-2 mb-3">
+                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border group-hover:scale-105 transition-transform duration-200 ${item.iconBg}`}>
+                                    <IconComp className="w-4.5 h-4.5" />
                                   </div>
-                                  <span className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border shrink-0 ${item.badgeClass}`}>
+                                  <span className={`text-[9.5px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full border shrink-0 shadow-2xs ${item.badgeClass}`}>
                                     {item.tag}
                                   </span>
                                 </div>
+
+                                {/* Title & Subtitle with full card width */}
+                                <div className="mb-2.5">
+                                  <div className={`flex items-center justify-between gap-1 font-semibold text-[15px] text-slate-900 ${accentHover} transition-colors`}>
+                                    <span className="truncate">{item.title}</span>
+                                    <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 shrink-0" />
+                                  </div>
+                                  <span className="text-[11.5px] font-medium text-slate-500 block leading-tight mt-0.5">
+                                    {item.subtitle}
+                                  </span>
+                                </div>
+
                                 <p className="text-[12px] text-slate-500 group-hover:text-slate-700 leading-relaxed font-normal mb-3.5 transition-colors">
                                   {item.description}
                                 </p>
@@ -1038,10 +1221,11 @@ export default function Header({
                   setActiveDropdown(null)
                 }}
                 onClick={() => handleDropdownItemClick('blogs', 'BLOGS')}
-                className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${activeNav?.toLowerCase() === 'blogs'
+                className={`px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${
+                  activeNav?.toLowerCase() === 'blogs'
                     ? 'text-black bg-slate-100 font-semibold shadow-xs'
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
-                  }`}
+                }`}
               >
                 Blogs
               </button>
@@ -1060,10 +1244,11 @@ export default function Header({
                     handleDropdownItemClick('about', 'ABOUT')
                   }
                 }}
-                className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${activeNav?.toLowerCase() === 'about'
+                className={`px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${
+                  activeNav?.toLowerCase() === 'about'
                     ? 'text-black bg-slate-100 font-semibold shadow-xs'
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
-                  }`}
+                }`}
               >
                 About Us
               </button>
@@ -1082,10 +1267,11 @@ export default function Header({
                     handleDropdownItemClick('careers', 'CAREERS')
                   }
                 }}
-                className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${activeNav?.toLowerCase() === 'careers'
+                className={`px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${
+                  activeNav?.toLowerCase() === 'careers'
                     ? 'text-black bg-slate-100 font-semibold shadow-xs'
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
-                  }`}
+                }`}
               >
                 Careers
               </button>
@@ -1137,7 +1323,7 @@ export default function Header({
                 }}
                 className={`flex items-center h-9 sm:h-9.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
                   searchOpen
-                    ? 'w-44 lg:w-44 xl:w-56 px-3 bg-white border border-slate-300/80 shadow-[0_4px_18px_rgba(0,0,0,0.08)] ring-2 ring-black/5'
+                    ? 'w-48 lg:w-56 xl:w-64 px-3 bg-white border border-slate-300/80 shadow-[0_4px_18px_rgba(0,0,0,0.08)] ring-2 ring-black/5'
                     : 'w-9 sm:w-9.5 px-0 bg-transparent hover:bg-slate-100 cursor-pointer justify-center border border-transparent'
                 }`}
               >
@@ -1166,7 +1352,7 @@ export default function Header({
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="Search products, solutions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -1197,6 +1383,53 @@ export default function Header({
                   </button>
                 )}
               </form>
+
+              {/* Desktop Live Search Results Dropdown */}
+              {searchOpen && searchQuery.trim().length > 0 && (
+                <div className="absolute right-0 top-full mt-3 w-[390px] xl:w-[430px] max-w-[calc(100vw-2.5rem)] bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.18),0_4px_14px_rgba(0,0,0,0.06)] border border-slate-200/90 ring-1 ring-black/[0.04] p-2.5 sm:p-3 z-50 origin-top-right animate-in fade-in-0 slide-in-from-top-2 duration-150 overflow-hidden">
+                  <div className="flex items-center justify-between px-2.5 py-1.5 mb-1.5 border-b border-slate-100">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      Search Results
+                    </span>
+                    <span className="text-[10.5px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                      {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'}
+                    </span>
+                  </div>
+
+                  {searchResults.length > 0 ? (
+                    <div className="max-h-[360px] overflow-y-auto pr-0.5 space-y-0.5">
+                      {searchResults.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => handleSelectSearchResult(item)}
+                          className="group px-3 py-2.5 rounded-xl hover:bg-slate-100/80 active:bg-slate-100 transition-colors duration-150 cursor-pointer text-left"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-[13.5px] sm:text-[14px] text-slate-900 group-hover:text-black truncate">
+                              {item.title}
+                            </span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
+                          </div>
+                          <p className="text-[12px] text-slate-500 group-hover:text-slate-700 line-clamp-1 transition-colors mt-0.5 leading-snug">
+                            {item.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-7 px-4 text-center">
+                      <Search className="w-5 h-5 text-slate-300 mx-auto mb-1.5" />
+                      <p className="text-[13px] font-semibold text-slate-700">No results found for "{searchQuery}"</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Try "Ananda", "Dara", "Aura", or "Physics"</p>
+                    </div>
+                  )}
+
+                  <div className="mt-2 pt-2 border-t border-slate-100 px-2 py-1 flex items-center justify-between text-[10.5px] text-slate-400">
+                    <span>Press <kbd className="px-1 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-[9.5px]">Enter</kbd> to select</span>
+                    <span><kbd className="px-1 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-[9.5px]">ESC</kbd> to close</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Subtle Vertical Divider */}
@@ -1615,6 +1848,48 @@ export default function Header({
                 Cancel
               </button>
             </form>
+
+            {/* Mobile Live Search Results Dropdown */}
+            {searchQuery.trim().length > 0 && (
+              <div className="mt-2 w-full bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] border border-slate-200/90 p-2.5 max-h-[360px] overflow-y-auto animate-in fade-in-0 slide-in-from-top-1 duration-150">
+                <div className="flex items-center justify-between px-2.5 py-1 mb-1.5 border-b border-slate-100">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    Search Results
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'}
+                  </span>
+                </div>
+
+                {searchResults.length > 0 ? (
+                  <div className="space-y-0.5">
+                    {searchResults.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => handleSelectSearchResult(item)}
+                        className="px-3 py-2.5 rounded-xl hover:bg-slate-100/80 active:bg-slate-100 transition-colors cursor-pointer text-left"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-[13.5px] text-slate-900 truncate">
+                            {item.title}
+                          </span>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        </div>
+                        <p className="text-[12px] text-slate-500 line-clamp-1 mt-0.5 leading-snug">
+                          {item.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-6 px-4 text-center">
+                    <Search className="w-5 h-5 text-slate-300 mx-auto mb-1.5" />
+                    <p className="text-[13px] font-semibold text-slate-700">No results found for "{searchQuery}"</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Try "Ananda", "Dara", "Aura", or "Physics"</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -1651,7 +1926,7 @@ export default function Header({
                     <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-0.5">
                       <button
                         type="button"
-                        onClick={() => handleNavigateToLoginWithTarget('commercial')}
+                        onClick={() => handleNavigateToAnandaPlatform('commercial')}
                         className="text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -1662,7 +1937,7 @@ export default function Header({
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleNavigateToLoginWithTarget('residential')}
+                        onClick={() => handleNavigateToAnandaPlatform('residential')}
                         className="text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -1858,9 +2133,7 @@ export default function Header({
             </div>
           </div>
         )}
-
       </div>
     </header>
-    
   )
 }

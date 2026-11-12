@@ -34,7 +34,7 @@ export default function Footer({
 
   return (
     <footer className="w-full bg-[var(--site-bg)] text-slate-900 border-t border-[var(--site-border)] font-sans pt-14 sm:pt-16 pb-12 px-6 sm:px-12 lg:px-16">
-      <div className="max-w-[1560px] w-full mx-auto">
+      <div className="max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto">
         
         {/* ================= MAIN FOOTER GRID ================= */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-14 pb-12 border-b border-[var(--site-border)]">

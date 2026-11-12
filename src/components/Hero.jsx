@@ -149,7 +149,7 @@ export default function Hero({
       <main className="relative z-10 flex-1 w-full flex items-center pointer-events-none pt-16 sm:pt-20 lg:pt-24 pb-8">
 
         {/* Left Content Area */}
-        <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16 py-8 flex flex-col justify-center pointer-events-auto">
+        <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 py-8 flex flex-col justify-center pointer-events-auto">
           <div className="max-w-2xl">
 
             {/* Master Content: Synchronized with Active Slide & Image Morph */}
@@ -160,7 +160,7 @@ export default function Hero({
             >
               {/* Master Headline: Synchronized with Active Slide */}
               <div className="relative inline-block py-1">
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text ">
                   {currentSlide.headline}
                 </h1>
               </div>
@@ -205,7 +205,7 @@ export default function Hero({
       {/* CORNER DOWN SQUARE THUMBNAILS (Touch & Go, No Text/Line)  */}
       {/* ========================================================= */}
       <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-20 pointer-events-none">
-        <div className="w-full max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16 flex justify-end">
+        <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-end">
           <nav
             aria-label="Hero Slide Navigation"
             className={`pointer-events-auto transition-all duration-1000 ${isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'

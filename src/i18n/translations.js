@@ -290,6 +290,23 @@ export const TRANSLATIONS = {
     // ANANDA PAGE (GEOSPATIAL & ARCHITECTURAL SIMULATION)
     // ----------------------------------------------------
     anandaPage: {
+      heroSlides: [
+        {
+          id: 'riverside_skyline',
+          title: 'Architecture Meets Physics.',
+          desc: 'Diurnal solar ray-casting and microclimate airflow simulation across glass-facade towers.',
+        },
+        {
+          id: 'courtyard_windflow',
+          title: 'Built for the Breeze.',
+          desc: 'LBM aerodynamic wind solver and passive cross-ventilation across green courtyards.',
+        },
+        {
+          id: 'waterway_masterplan',
+          title: 'Water Meets Architecture.',
+          desc: '2D shallow water differential hydrology and biophilic cooling for resilient masterplans.',
+        },
+      ],
       heroCommercialSlides: [
         {
           id: 'exoskeleton',
@@ -402,38 +419,43 @@ export const TRANSLATIONS = {
       caseStudies: [
         {
           id: 1,
-          title: 'Tokyo Waterfront Spire',
-          desc: 'Aerodynamic vortex shedding and boundary layer pedestrian comfort mapping across Tokyo Bay.',
+          title: 'Hydro-Morphology & Blue Corridors',
+          desc: '2D Saint-Venant shallow water simulation across urban massing and waterway detention basins.',
         },
         {
           id: 2,
-          title: 'Zurich Alpine Cantilever',
-          desc: 'Sub-zero wind vortex acceleration and passive solar thermal retention along Swiss mountain ridges.',
+          title: 'Aerodynamic Complex Envelope',
+          desc: 'LBM aerodynamic streamlines and vortex wake modeling around high-rise tower geometries.',
         },
         {
           id: 3,
-          title: 'Singapore Marina Shading',
-          desc: 'Bioclimatic canopy solar filtration and natural convective stack cooling for tropical pavilions.',
+          title: 'Mesoscale Cityscape Streamlines',
+          desc: 'Atmospheric boundary layer CFD flow vectors and convective thermal streamlines across metropolitan sectors.',
         },
         {
           id: 4,
-          title: 'Geneva Lakefront Pavilion',
-          desc: 'Passive solar thermal absorption through low-E glazed envelopes and evaporative water micro-climates.',
+          title: 'Vortex Cross-Breeze Acceleration',
+          desc: 'Corner vortex shedding and convective pressure differential corridors for natural passive ventilation.',
         },
         {
           id: 5,
-          title: 'Kyoto Courtyard Lightwell',
-          desc: 'Zero-energy daylight autonomy across private living quarters via clerestory geometry.',
+          title: 'Building Blocks Micro-Airflow',
+          desc: 'Pedestrian-level aerodynamic comfort and wake diversion across dense modular urban blocks.',
         },
         {
           id: 6,
-          title: 'California Coastal Breezeway',
-          desc: 'Window-to-window convective cross-ventilation corridors reducing active HVAC consumption by 42%.',
+          title: 'Grid Cavity Boundary Layer Flow',
+          desc: 'High-resolution microclimate airflow streamlines and recirculating vortex simulation in urban cavities.',
         },
         {
           id: 7,
-          title: 'Metropolitan Transit Masterplan',
-          desc: 'Multi-acre urban physics convergence and boundary layer aerodynamic modeling before pouring foundations.',
+          title: 'Structural Wireframe CFD Grid',
+          desc: 'Sub-meter wind velocity vectors and turbulence kinetic energy solved through structural wireframe matrices.',
+        },
+        {
+          id: 8,
+          title: 'Metropolitan Massing Masterplan',
+          desc: 'Multi-acre urban physics convergence, solar diurnal ray-casting, and environmental massing analysis.',
         },
       ],
 
@@ -1702,6 +1724,23 @@ export const TRANSLATIONS = {
     // ANANDA PAGE (GEOSPATIAL & ARCHITECTURAL SIMULATION · 中文)
     // ----------------------------------------------------
     anandaPage: {
+      heroSlides: [
+        {
+          id: 'riverside_skyline',
+          title: '建筑遇上物理法则。',
+          desc: '跨玻璃幕墙塔楼的昼夜太阳光线投射与微气候气流模拟。',
+        },
+        {
+          id: 'courtyard_windflow',
+          title: '为自然清风而设计。',
+          desc: '核心生态庭院LBM空气动力学风场求解与被动式穿堂风走廊。',
+        },
+        {
+          id: 'waterway_masterplan',
+          title: '水系与韧性建筑共生。',
+          desc: '综合片区2D浅水微分水文模拟与生态亲水微气候调节。',
+        },
+      ],
       heroCommercialSlides: [
         {
           id: 'exoskeleton',
@@ -1814,38 +1853,43 @@ export const TRANSLATIONS = {
       caseStudies: [
         {
           id: 1,
-          title: '东京滨海超高层地标塔',
-          desc: '东京湾区空气动力学气流脱落涡与行人层风舒适度空间映射。',
+          title: '水文形态学与蓝色生态廊道',
+          desc: '基于城市体量与水系蓄滞洪区的2D Saint-Venant浅水方程模拟。',
         },
         {
           id: 2,
-          title: '苏黎世高山悬挑综合体',
-          desc: '瑞士阿尔卑斯山脊亚零度强风涡加速与被动式太阳能储热保温。',
+          title: '气动复杂建筑外围护分析',
+          desc: '超高层建筑几何形态周围的LBM空气动力学流线与涡流尾流模拟。',
         },
         {
           id: 3,
-          title: '新加坡滨海湾遮阳天幕',
-          desc: '热带展馆生物气候天幕太阳光线漫射过滤与自然热压拔风降温。',
+          title: '中尺度城市天际气流流线',
+          desc: '跨大都市建筑群的大气边界层CFD风速矢量与对流热羽流流线仿真。',
         },
         {
           id: 4,
-          title: '日内瓦湖畔日光反射展馆',
-          desc: '通过Low-E中空镀膜玻璃围护被动吸收太阳能，融合水面蒸发微气候调节。',
+          title: '涡流穿堂风自然对流通风',
+          desc: '拐角脱落涡与热压差气流走廊，实现零能耗自然对流降温。',
         },
         {
           id: 5,
-          title: '京都院落天窗自然采光井',
-          desc: '利用高侧天窗几何形体，实现私人起居空间全年零能耗自然采光自主。',
+          title: '模块建筑群微气流舒适度',
+          desc: '高密度模块化城市街区行人层空气动力学舒适度与尾流导向分析。',
         },
         {
           id: 6,
-          title: '加州海岸被动对流风道住宅',
-          desc: '窗对窗被动对流穿堂风气流走廊，降低建筑主动空调能耗达42%。',
+          title: '网格腔体边界层流动求解',
+          desc: '城市腔体微气候高分辨率气流流线与循环涡流仿真。',
         },
         {
           id: 7,
-          title: '大都会枢纽综合交通总规',
-          desc: '在浇筑第一方混凝土前，针对百亩城市片区完成全尺度物理收敛与边界层风洞数值建模。',
+          title: '结构线框CFD微尺度网格',
+          desc: '通过结构线框空间矩阵求解亚米级风速矢量与湍流动能分布。',
+        },
+        {
+          id: 8,
+          title: '大都市体量物理收敛规划',
+          desc: '多英亩城市物理场收敛、全天太阳光线投射与环境体量综合分析。',
         },
       ],
 

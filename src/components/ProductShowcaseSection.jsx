@@ -75,7 +75,7 @@ export default function ProductShowcaseSection({
       id={id}
       className={`relative w-full ${bgClassName} text-slate-900 py-6 sm:py-8 lg:py-8 px-4 sm:px-8 lg:px-16 overflow-hidden font-['Inter'] select-text`}
     >
-      <div className="max-w-[1560px] w-full mx-auto">
+      <div className="max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
 
           {/* ================= LEFT SIDE: VERTICAL CUT REVEAL TEXT ANIMATION ================= */}

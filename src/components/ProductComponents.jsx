@@ -84,7 +84,7 @@ export function ProductHero({
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30 pointer-events-none" />
       </div>
 
-      <div className="relative z-10 w-full max-w-[1560px] mx-auto flex flex-col justify-end">
+      <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1840px] mx-auto flex flex-col justify-end">
         <div className="max-w-2xl">
           {onBack && (
             <div className="mb-4 sm:mb-6">
@@ -531,7 +531,7 @@ export function ProductDarkShowcase({
         </div>
       )}
 
-      <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] mx-auto w-full relative z-10">
+      <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] 2xl:max-w-[1840px] mx-auto w-full relative z-10">
         {/* Section Header */}
         <div
           ref={titleRef}
@@ -606,7 +606,7 @@ export function ProductPurposeStatement({
         </div>
       )}
 
-      <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] mx-auto w-full relative z-10 flex flex-col items-center justify-center">
+      <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] 2xl:max-w-[1840px] mx-auto w-full relative z-10 flex flex-col items-center justify-center">
         <div
           className="max-w-4xl mx-auto text-center space-y-6 flex flex-col items-center"
           style={{

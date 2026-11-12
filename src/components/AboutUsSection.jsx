@@ -30,7 +30,7 @@ export default function AboutUsSection() {
       id="about"
       className="relative w-full bg-[var(--site-bg)] text-slate-900 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
     >
-      <div className="relative max-w-[1560px] w-full mx-auto z-10">
+      <div className="relative max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
 
           {/* ================= LEFT SIDE: VERTICAL CUT REVEAL TEXT ANIMATION ================= */}

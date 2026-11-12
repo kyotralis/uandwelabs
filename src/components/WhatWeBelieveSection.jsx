@@ -45,7 +45,7 @@ export default function WhatWeBelieveSection() {
         <div className="absolute top-12 right-0 w-[500px] h-[500px] bg-orange-100/30 rounded-full blur-[140px]" />
       </div>
 
-      <div className="max-w-[1560px] w-full mx-auto">
+      <div className="max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-20 items-start relative">
 
           {/* ================= LEFT COLUMN: STAYS VISIBLE & PINNED (STICKY) ================= */}

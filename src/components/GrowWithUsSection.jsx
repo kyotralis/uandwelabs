@@ -33,7 +33,7 @@ export default function GrowWithUsSection({ onNavigateToCareers }) {
       className="relative w-full bg-[var(--site-bg)] pt-2 sm:pt-4 lg:pt-6 pb-8 sm:pb-10 lg:pb-12 px-6 sm:px-12 lg:px-16 overflow-hidden font-['Inter'] select-text"
       aria-labelledby="grow-with-us-heading"
     >
-      <div className="max-w-[1560px] w-full mx-auto">
+      <div className="max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto">
 
         {/* ================= CINEMATIC FULL-WIDTH CURVED CARD ================= */}
         <div

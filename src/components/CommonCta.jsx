@@ -46,7 +46,7 @@ export default function CommonCta({
 
   return (
     <div className={`w-full pt-8 sm:pt-12 md:pt-16 pb-14 sm:pb-20 md:pb-24 overflow-hidden ${className}`}>
-      <div className="max-w-[1560px] mx-auto px-4 sm:px-8 lg:px-16">
+      <div className="max-w-[1560px] 2xl:max-w-[1840px] mx-auto px-4 sm:px-8 lg:px-16">
         <div
           ref={ctaRef}
           className="w-full bg-neutral-950 text-white p-6 sm:p-10 md:p-14 lg:p-16 xl:p-20 rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 lg:gap-12 relative overflow-hidden"

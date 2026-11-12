@@ -26,6 +26,7 @@ export default function LoginPage({
   const [isEntered, setIsEntered] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [agreeTerms, setAgreeTerms] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -105,6 +106,10 @@ export default function LoginPage({
     }
 
     if (isSignUp) {
+      if (!agreeTerms) {
+        setErrorMessage('Please accept the Terms and Conditions of Service to continue.')
+        return
+      }
       if (formData.password.length < 6) {
         setErrorMessage('Password must be at least 6 characters long.')
         return
@@ -382,497 +387,433 @@ export default function LoginPage({
       )}
 
       {/* Main card wrapper */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 w-full z-10 my-auto py-12 sm:py-16">
-        {/* ================= MAIN ANIMATED FRAMED CARD ================= */}
-        <div className="relative z-10 w-full max-w-5xl rounded-[28px] sm:rounded-[36px] border-2 sm:border-[3px] border-[#0c1017] bg-[#0c1017] shadow-[0_35px_80px_-15px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-700">
-        <div className="flex flex-col md:flex-row min-h-[560px] lg:min-h-[600px] w-full relative">
-          
-          {/* ================= LEFT IMAGE PANEL ================= */}
-          <div
-            className={`relative overflow-hidden bg-slate-900 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-              isEntered
-                ? 'md:w-[42%] lg:w-[40%] min-h-[280px] md:min-h-[600px]'
-                : 'md:w-full min-h-[560px] md:min-h-[600px]'
-            }`}
-          >
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 w-full z-10 my-auto py-10 sm:py-16">
+        {/* ================= CINEMATIC FLOATING MODAL CARD ================= */}
+        <div
+          className={`relative z-10 w-full max-w-5xl rounded-[28px] sm:rounded-[36px] overflow-hidden border border-white/15 bg-slate-950 shadow-[0_35px_100px_rgba(0,0,0,0.85)] transition-all duration-700 ${
+            isEntered ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+          }`}
+        >
+          {/* Full-bleed Bridge Backdrop Image Spanning Entire Card */}
+          <div className="absolute inset-0 z-0 select-none pointer-events-none">
             <img
-              src="/building.jpg"
-              alt="Architecture"
-              className={`w-full h-full object-cover object-center absolute inset-0 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                isEntered ? 'scale-105' : 'scale-115'
-              }`}
+              src="/backdrop.jpg"
+              alt="Bridge Cityscape"
+              className="w-full h-full object-cover object-center scale-105"
             />
-            {/* Subtle Gradient Shade */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-slate-950/30 pointer-events-none" />
+            {/* Gradient shading across the card to ensure high contrast */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-black/75 md:to-transparent" />
+            <div className="absolute inset-0 bg-black/25" />
           </div>
 
-          {/* ================= RIGHT FORM PANEL ================= */}
-          <div
-            className={`bg-white md:rounded-tl-[48px] lg:rounded-tl-[54px] relative z-10 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
-              isEntered
-                ? 'md:w-[58%] lg:w-[60%] opacity-100 translate-x-0'
-                : 'md:w-0 opacity-0 translate-x-20 pointer-events-none'
-            }`}
-          >
-            <div className="w-full min-w-[320px] sm:min-w-[420px] lg:min-w-[480px] p-8 sm:p-10 lg:p-12 flex flex-col justify-between h-full">
-              
-              {/* Header: Back to Home */}
-              <div
-                className={`flex items-center justify-between gap-2 text-xs transition-all duration-700 delay-300 ${
-                  isEntered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'
-                }`}
-              >
+          {/* Card Split Layout */}
+          <div className="relative z-10 flex flex-col md:flex-row min-h-[560px] lg:min-h-[620px] w-full">
+            
+            {/* ================= LEFT HERO PANEL ================= */}
+            <div className="flex-1 p-8 sm:p-12 lg:p-14 flex flex-col justify-between relative z-10">
+              {/* Top Row: Back Navigation & Optional Category Badge */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
                 <button
                   type="button"
                   onClick={onNavigateToHome}
-                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors font-medium text-[12px] cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors font-medium text-xs cursor-pointer group"
                 >
-                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
                   <span>Back to uandwelabs</span>
                 </button>
+
+                {targetCategory && (
+                  <div>
+                    {targetCategory === 'residential' ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[11px] font-semibold backdrop-blur-md">
+                        🏡 Ananda Residency
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-400/40 text-orange-200 text-[11px] font-semibold backdrop-blur-md">
+                        🏢 Ananda Commercial
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Main Content Area */}
-              <div className="my-auto py-4">
-                
-                {showOtpView ? (
-                  /* ================= OTP VERIFICATION SCREEN ================= */
-                  <div className="animate-in fade-in slide-in-from-right-3 duration-300">
+              {/* Center / Hero Typography (Matches Reference Screenshot) */}
+              <div className="my-auto py-10 md:py-8">
+                {isSignUp ? (
+                  <>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-white leading-[1.12] mb-4">
+                      Don&apos;t Have An<br />
+                      <span className="font-semibold">Account?</span>
+                    </h1>
+                    <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed max-w-sm">
+                      Register to access all the features of our service. Manage your business in one place. It&apos;s free!
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-white leading-[1.12] mb-4">
+                      Welcome
+                    </h1>
+                    <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed max-w-sm">
+                      Sign in to access your high-performance simulation platforms, sovereign edge silicon, and workspaces.
+                    </p>
+                  </>
+                )}
+              </div>
+
+            </div>
+
+            {/* ================= RIGHT FROSTED GLASS FORM PANEL ================= */}
+            <div className="w-full md:w-[48%] lg:w-[46%] bg-black/55 md:bg-black/65 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 p-6 sm:p-10 lg:p-12 flex flex-col justify-center items-center relative z-10">
+              
+              {showOtpView ? (
+                /* ================= OTP VERIFICATION VIEW ================= */
+                <div className="w-full max-w-sm mx-auto my-auto flex flex-col justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOtpView(false)
+                      setErrorMessage('')
+                      setSuccessNotice('')
+                      setOtpValues(['', '', '', '', '', ''])
+                    }}
+                    className="inline-flex items-center gap-1.5 text-white/60 hover:text-white transition-colors font-medium text-[11.5px] cursor-pointer mb-6"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Use a different account</span>
+                  </button>
+
+                  <div className="mb-6">
+                    <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-400/30 text-orange-400 flex items-center justify-center mb-3">
+                      <ShieldCheck className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <h2 className="text-2xl font-medium text-white tracking-tight mb-1">
+                      Verify Your Email
+                    </h2>
+                    <p className="text-xs text-white/60 font-light leading-relaxed">
+                      We sent a 6-digit security code to
+                    </p>
+                    <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-white font-medium text-xs border border-white/15">
+                      <Mail className="w-3.5 h-3.5 text-orange-400" />
+                      <span>{pendingEmail}</span>
+                    </div>
+                  </div>
+
+                  {/* Success Notice Banner */}
+                  {successNotice && (
+                    <div className="mb-4 p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>{successNotice}</span>
+                    </div>
+                  )}
+
+                  {/* Error Banner */}
+                  {errorMessage && (
+                    <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-400/30 text-red-200 text-xs flex items-start gap-2.5">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                      <div className="flex-1 leading-snug">
+                        <span className="font-semibold block mb-0.5">Verification Error</span>
+                        <span>{errorMessage}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 6-Digit OTP Form */}
+                  <form onSubmit={handleVerifyOtp} className="space-y-6">
+                    <div>
+                      <label className="block text-[11px] font-medium text-white/70 uppercase tracking-wider mb-3">
+                        Enter 6-Digit Security Code
+                      </label>
+                      <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                        {otpValues.map((digit, idx) => (
+                          <input
+                            key={idx}
+                            ref={(el) => (otpInputRefs.current[idx] = el)}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpChange(idx, e.target.value)}
+                            onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                            className="w-10 h-12 sm:w-11 sm:h-13 text-center font-mono text-xl font-bold rounded-xl border border-white/20 bg-white/5 text-white focus:bg-white/10 focus:border-white transition-all outline-none"
+                            autoFocus={idx === 0}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading || otpValues.join('').length !== 6}
+                      className="w-full rounded-full border border-white/30 bg-white/10 hover:bg-white/20 hover:border-white text-white text-xs font-medium py-3 px-6 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm disabled:opacity-40"
+                    >
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
+                          <span>Verifying code...</span>
+                        </div>
+                      ) : (
+                        <span>Verify & Sign In</span>
+                      )}
+                    </button>
+
+                    <div className="flex items-center justify-between text-xs pt-3 border-t border-white/10">
+                      <span className="text-white/50 text-[11.5px]">
+                        Didn&apos;t receive the code?
+                      </span>
+                      {resending ? (
+                        <div className="inline-flex items-center gap-1.5 text-orange-400 font-medium text-[11.5px]">
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Sending...</span>
+                        </div>
+                      ) : resendTimer > 0 ? (
+                        <span className="text-white/40 font-medium text-[11.5px]">
+                          Resend code in <strong className="text-white/70">{resendTimer}s</strong>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          disabled={loading || resending}
+                          className="inline-flex items-center gap-1 font-medium text-[11.5px] text-orange-400 hover:text-orange-300 hover:underline transition-colors cursor-pointer"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          <span>Resend Code</span>
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                /* ================= SIGN UP / SIGN IN VIEW (MATCHING SCREENSHOT) ================= */
+                <div className="w-full max-w-sm mx-auto my-auto flex flex-col justify-center">
+                  
+                  {/* Sign In / Sign Up Option Switcher */}
+                  <div className="flex items-center p-1 rounded-full bg-white/10 border border-white/15 mb-6 w-full">
                     <button
                       type="button"
                       onClick={() => {
-                        setShowOtpView(false)
+                        setMode('signin')
                         setErrorMessage('')
-                        setSuccessNotice('')
-                        setOtpValues(['', '', '', '', '', ''])
                       }}
-                      className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors font-medium text-[11.5px] cursor-pointer mb-5"
+                      className={`flex-1 py-1.5 px-3 text-xs rounded-full transition-all cursor-pointer text-center ${
+                        !isSignUp
+                          ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                          : 'text-white/70 hover:text-white font-medium'
+                      }`}
                     >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Use a different account</span>
+                      Sign In
                     </button>
-
-                    <div className="mb-6">
-                      <div className="w-11 h-11 rounded-2xl bg-orange-500/10 border border-orange-200/80 text-orange-600 flex items-center justify-center mb-3.5 shadow-2xs">
-                        <ShieldCheck className="w-5 h-5 text-orange-600" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-[#2d323d] tracking-tight mb-1">
-                        Verify Your Email
-                      </h2>
-                      <p className="text-xs text-slate-500 font-normal leading-relaxed">
-                        We sent a 6-digit security code to
-                      </p>
-                      <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-800 font-semibold text-[12px] border border-slate-200/80">
-                        <Mail className="w-3.5 h-3.5 text-orange-600" />
-                        <span>{pendingEmail}</span>
-                      </div>
-                    </div>
-
-                    {/* Success Notice Banner */}
-                    {successNotice && (
-                      <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in duration-200">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>{successNotice}</span>
-                      </div>
-                    )}
-
-                    {/* Error Banner */}
-                    {errorMessage && (
-                      <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200/80 text-red-700 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
-                        <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
-                        <div className="flex-1 leading-snug">
-                          <span className="font-semibold block mb-0.5">Verification Error</span>
-                          <span>{errorMessage}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 6-Digit OTP Boxes */}
-                    <form onSubmit={handleVerifyOtp} className="space-y-5">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2.5">
-                          Enter 6-Digit Security Code
-                        </label>
-                        <div className="flex items-center justify-between gap-1.5 sm:gap-2.5">
-                          {otpValues.map((digit, idx) => (
-                            <input
-                              key={idx}
-                              ref={(el) => (otpInputRefs.current[idx] = el)}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleOtpChange(idx, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                              className="w-10 h-12 sm:w-12 sm:h-14 text-center font-mono text-xl sm:text-2xl font-bold rounded-xl border border-slate-200/90 bg-slate-50/60 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all outline-none shadow-2xs"
-                              autoFocus={idx === 0}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Verify Button */}
-                      <button
-                        type="submit"
-                        disabled={loading || otpValues.join('').length !== 6}
-                        className="w-full bg-[#1b2330] hover:bg-[#0f151f] disabled:opacity-50 text-white font-medium text-xs py-3.5 px-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 active:scale-98 flex items-center justify-center gap-2 group cursor-pointer"
-                      >
-                        {loading ? (
-                          <div className="flex items-center gap-2">
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
-                            <span>Verifying code...</span>
-                          </div>
-                        ) : (
-                          <>
-                            <span>Verify & Sign In</span>
-                            <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                          </>
-                        )}
-                      </button>
-
-                      {/* Resend Timer Row */}
-                      <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-100">
-                        <span className="text-slate-500 text-[11.5px]">
-                          Didn&apos;t receive the code?
-                        </span>
-                        {resending ? (
-                          <div className="inline-flex items-center gap-1.5 text-orange-600 font-semibold text-[11.5px]">
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-orange-600" />
-                            <span>Sending new code...</span>
-                          </div>
-                        ) : resendTimer > 0 ? (
-                          <span className="text-slate-400 font-medium text-[11.5px]">
-                            Resend code in <strong className="text-slate-600 font-semibold">{resendTimer}s</strong>
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={handleResendOtp}
-                            disabled={loading || resending}
-                            className="inline-flex items-center gap-1 font-semibold text-[11.5px] text-orange-600 hover:text-orange-700 hover:underline transition-colors cursor-pointer"
-                          >
-                            <RefreshCw className="w-3 h-3" />
-                            <span>Resend Code</span>
-                          </button>
-                        )}
-                      </div>
-                    </form>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('signup')
+                        setErrorMessage('')
+                      }}
+                      className={`flex-1 py-1.5 px-3 text-xs rounded-full transition-all cursor-pointer text-center ${
+                        isSignUp
+                          ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                          : 'text-white/70 hover:text-white font-medium'
+                      }`}
+                    >
+                      Sign Up
+                    </button>
                   </div>
-                ) : (
-                  /* ================= NORMAL SIGN IN / SIGN UP SCREEN ================= */
-                  <>
-                    {/* Mode Switcher Tabs */}
-                    <div
-                      className={`flex items-center p-1 bg-slate-100/90 rounded-xl mb-5 transition-all duration-700 delay-400 ${
-                        isEntered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMode('signin')
-                          setErrorMessage('')
-                        }}
-                        className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                          !isSignUp ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                        }`}
-                      >
-                        Sign In
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMode('signup')
-                          setErrorMessage('')
-                        }}
-                        className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                          isSignUp ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                        }`}
-                      >
-                        Create Account
-                      </button>
-                    </div>
 
-                    {/* Title & Subtitle */}
-                    <div
-                      className={`mb-5 transition-all duration-700 delay-400 ${
-                        isEntered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                      }`}
-                    >
-                      {targetCategory === 'residential' ? (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold mb-2.5">
-                          <span>🏡 Ananda Residency</span>
-                        </div>
-                      ) : targetCategory === 'commercial' ? (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-semibold mb-2.5">
-                          <span>🏢 Ananda Commercial</span>
-                        </div>
-                      ) : null}
-                      <h1 className="text-2xl sm:text-3xl font-semibold text-[#2d323d] tracking-tight mb-1.5">
-                        {isSignUp ? 'Create Account' : 'Sign In'}
-                      </h1>
-                      <p className="text-xs text-slate-400 font-normal leading-relaxed">
-                        {isSignUp
-                          ? 'Register your email & password to access UandWe Labs platforms.'
-                          : targetCategory === 'residential'
-                          ? 'Sign in to access Ananda Residency Living Platform'
-                          : targetCategory === 'commercial'
-                          ? 'Sign in to access Ananda Commercial Scale Platform'
-                          : 'Welcome back. Access your platform and workspaces.'}
-                      </p>
-                    </div>
+                  {/* Header Title */}
+                  <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-tight mb-6">
+                    {isSignUp ? 'Sign Up' : 'Sign In'}
+                  </h2>
 
-                    {/* Error Banner */}
-                    {errorMessage && (
-                      <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200/80 text-red-700 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
-                        <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
-                        <div className="flex-1 leading-snug">
-                          <span className="font-semibold block mb-0.5">Authentication Notice</span>
-                          <span>{errorMessage}</span>
-                          {!isSignUp && (errorMessage.toLowerCase().includes('invalid') || errorMessage.toLowerCase().includes('not found')) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setMode('signup')
-                                setErrorMessage('')
-                              }}
-                              className="mt-1.5 block text-orange-600 hover:text-orange-700 font-semibold underline cursor-pointer"
-                            >
-                              Don&apos;t have an account or password yet? Click here to Create Account &rarr;
-                            </button>
-                          )}
-                        </div>
+                  {/* Error Banner */}
+                  {errorMessage && (
+                    <div className="mb-5 p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                      <div className="flex-1 leading-snug">
+                        <span>{errorMessage}</span>
                       </div>
-                    )}
-
-                    {/* Option 1: Google Sign In (Password-free) */}
-                    <div
-                      className={`mb-5 transition-all duration-700 delay-500 ${
-                        isEntered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        disabled={loading}
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50/80 disabled:opacity-60 shadow-[0_2px_6px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-slate-300 transition-all text-xs font-semibold text-slate-700 cursor-pointer"
-                      >
-                        <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                          <path
-                            fill="#4285F4"
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                          />
-                          <path
-                            fill="#34A853"
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                          />
-                          <path
-                            fill="#FBBC05"
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                          />
-                          <path
-                            fill="#EA4335"
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                          />
-                        </svg>
-                        <span>{isSignUp ? 'Sign up with Google' : 'Continue with Google'}</span>
-                      </button>
                     </div>
+                  )}
 
-                    {/* Divider Line */}
-                    <div
-                      className={`relative flex items-center justify-center mb-5 transition-all duration-700 delay-500 ${
-                        isEntered ? 'opacity-100' : 'opacity-0'
-                      }`}
-                    >
-                      <div className="border-t border-slate-200/80 w-full" />
-                      <span className="bg-white px-3 text-[10.5px] text-slate-400 font-normal uppercase tracking-wider shrink-0">
-                        {isSignUp ? 'or register with email' : 'or sign in with email'}
-                      </span>
-                      <div className="border-t border-slate-200/80 w-full" />
-                    </div>
-
-                    {/* Form */}
-                    <form onSubmit={handleSubmit}>
-                      <div
-                        className={`space-y-3 mb-4 transition-all duration-700 delay-600 ${
-                          isEntered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                        }`}
-                      >
-                        {/* Full Name field (Sign Up only) */}
-                        {isSignUp && (
-                          <div className="relative flex items-center rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white focus-within:bg-white focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-800/5 transition-all shadow-2xs">
-                            <div className="pl-3.5 text-slate-400">
-                              <UserIcon className="w-4 h-4" />
-                            </div>
-                            <input
-                              type="text"
-                              name="name"
-                              placeholder="Full Name"
-                              value={formData.name}
-                              onChange={handleChange}
-                              className="w-full py-3 px-3 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none bg-transparent"
-                            />
-                          </div>
-                        )}
-
-                        {/* Email Address */}
-                        <div className="relative flex items-center rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white focus-within:bg-white focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-800/5 transition-all shadow-2xs">
-                          <div className="pl-3.5 text-slate-400">
-                            <Mail className="w-4 h-4" />
-                          </div>
+                  {/* Form with Clean Underline Inputs */}
+                  <form onSubmit={handleSubmit}>
+                    <div className="space-y-6">
+                      {/* Email Field */}
+                      <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
+                        <label className="block text-[11px] text-white/60 mb-1 font-light">Email</label>
+                        <div className="flex items-center justify-between">
                           <input
                             type="email"
                             name="email"
-                            placeholder="Email Address"
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full py-3 px-3 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none bg-transparent"
+                            placeholder="name@example.com"
+                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
                           />
+                          <Mail className="w-4 h-4 text-white/50 shrink-0 ml-2" />
                         </div>
+                      </div>
 
-                        {/* Password */}
-                        <div className="relative flex items-center rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white focus-within:bg-white focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-800/5 transition-all shadow-2xs">
-                          <div className="pl-3.5 text-slate-400">
-                            <Lock className="w-4 h-4" />
+                      {/* Username Field (Sign Up Only) */}
+                      {isSignUp && (
+                        <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
+                          <label className="block text-[11px] text-white/60 mb-1 font-light">Username</label>
+                          <div className="flex items-center justify-between">
+                            <input
+                              type="text"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleChange}
+                              placeholder="Your username"
+                              className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
+                            />
+                            <UserIcon className="w-4 h-4 text-white/50 shrink-0 ml-2" />
                           </div>
+                        </div>
+                      )}
+
+                      {/* Password Field */}
+                      <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
+                        <label className="block text-[11px] text-white/60 mb-1 font-light">Password</label>
+                        <div className="flex items-center justify-between">
                           <input
                             type={showPassword ? 'text' : 'password'}
                             name="password"
-                            placeholder={isSignUp ? 'Create Password (min 6 characters)' : 'Password'}
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            className="w-full py-3 px-3 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none bg-transparent"
+                            placeholder={isSignUp ? 'Min 6 characters' : '••••••••'}
+                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
                           />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="pr-3.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                            title={showPassword ? 'Hide password' : 'Show password'}
-                          >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
+                          <div className="flex items-center gap-2 ml-2">
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="text-white/50 hover:text-white transition-colors cursor-pointer"
+                              title={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </button>
+                            <Lock className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                          </div>
                         </div>
+                      </div>
 
-                        {/* Confirm Password (Sign Up only) */}
-                        {isSignUp && (
-                          <div className="relative flex items-center rounded-xl border border-slate-200/90 bg-slate-50/50 hover:bg-white focus-within:bg-white focus-within:border-slate-800 focus-within:ring-2 focus-within:ring-slate-800/5 transition-all shadow-2xs">
-                            <div className="pl-3.5 text-slate-400">
-                              <Lock className="w-4 h-4" />
-                            </div>
+                      {/* Confirm Password (Sign Up Only) */}
+                      {isSignUp && (
+                        <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
+                          <label className="block text-[11px] text-white/60 mb-1 font-light">Confirm Password</label>
+                          <div className="flex items-center justify-between">
                             <input
                               type={showPassword ? 'text' : 'password'}
                               name="confirmPassword"
-                              placeholder="Confirm Password"
                               value={formData.confirmPassword}
                               onChange={handleChange}
                               required
-                              className="w-full py-3 px-3 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none bg-transparent"
+                              placeholder="••••••••"
+                              className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
                             />
+                            <Lock className="w-3.5 h-3.5 text-white/50 shrink-0 ml-2" />
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+                    </div>
 
-                      {/* Remember Me & Forgot Password Row (Sign In only) */}
-                      {!isSignUp && (
-                        <div
-                          className={`flex items-center justify-between text-xs mb-5 transition-all duration-700 delay-650 ${
-                            isEntered ? 'opacity-100' : 'opacity-0'
-                          }`}
-                        >
-                          <label className="flex items-center gap-2 cursor-pointer text-slate-500 hover:text-slate-700 text-[11.5px]">
+                    {/* Checkbox Row: Terms & Conditions or Remember Me */}
+                    <div className="mt-6 mb-7">
+                      {isSignUp ? (
+                        <div className="flex items-center gap-2 text-xs text-white/70">
+                          <input
+                            type="checkbox"
+                            id="terms"
+                            checked={agreeTerms}
+                            onChange={(e) => setAgreeTerms(e.target.checked)}
+                            className="w-3.5 h-3.5 rounded border-white/30 bg-transparent text-white accent-white cursor-pointer"
+                          />
+                          <label htmlFor="terms" className="text-[11.5px] cursor-pointer text-white/75 select-none">
+                            I Agree To <span className="text-white underline">Terms And Conditions</span> Of Service
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between text-xs text-white/70">
+                          <label className="flex items-center gap-2 cursor-pointer text-[11.5px] select-none text-white/75">
                             <input
                               type="checkbox"
                               checked={rememberMe}
                               onChange={() => setRememberMe(!rememberMe)}
-                              className="w-3.5 h-3.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900/20 cursor-pointer accent-slate-900"
+                              className="w-3.5 h-3.5 rounded border-white/30 bg-transparent text-white accent-white cursor-pointer"
                             />
                             <span>Remember me</span>
                           </label>
-
                           <a
                             href="#forgot"
                             onClick={(e) => {
                               e.preventDefault()
                               alert('Password reset link sent to your email!')
                             }}
-                            className="text-[11.5px] font-medium text-slate-500 hover:text-slate-800 transition-colors hover:underline"
+                            className="text-[11.5px] text-white/60 hover:text-white transition-colors hover:underline"
                           >
                             Forgot password?
                           </a>
                         </div>
                       )}
+                    </div>
 
-                      {/* Submit Button Row */}
-                      <div
-                        className={`transition-all duration-700 delay-700 ${
-                          isEntered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                        }`}
+                    {/* Submit Button (Full Width & Centered) */}
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full rounded-full border border-white/30 bg-white/10 hover:bg-white/20 hover:border-white text-white text-xs font-medium py-3 px-6 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm disabled:opacity-50"
                       >
-                        <button
-                          type="submit"
-                          disabled={loading}
-                          className="w-full bg-[#1b2330] hover:bg-[#0f151f] disabled:opacity-50 text-white font-medium text-xs py-3.5 px-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 active:scale-98 flex items-center justify-center gap-2 group cursor-pointer"
-                        >
-                          {loading ? (
-                            <div className="flex items-center gap-2">
-                              <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
-                              <span>{isSignUp ? 'Creating account...' : 'Signing in...'}</span>
-                            </div>
-                          ) : (
-                            <>
-                              <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
-                              <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Bottom Mode Switcher */}
-                      <div className="mt-5 text-center text-xs text-slate-500">
-                        {isSignUp ? (
-                          <span>
-                            Already have an account?{' '}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setMode('signin')
-                                setErrorMessage('')
-                              }}
-                              className="font-semibold text-slate-900 hover:text-orange-600 hover:underline cursor-pointer"
-                            >
-                              Sign In
-                            </button>
-                          </span>
+                        {loading ? (
+                          <div className="flex items-center gap-2">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
+                            <span>Please wait...</span>
+                          </div>
                         ) : (
-                          <span>
-                            Don&apos;t have an account or password?{' '}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setMode('signup')
-                                setErrorMessage('')
-                              }}
-                              className="font-semibold text-slate-900 hover:text-orange-600 hover:underline cursor-pointer"
-                            >
-                              Create Account
-                            </button>
-                          </span>
+                          <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
                         )}
-                      </div>
-                    </form>
-                  </>
-                )}
-              </div>
+                      </button>
+                    </div>
+                  </form>
 
+                  {/* Google OAuth Button */}
+                  <div className="mt-8 pt-5 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={handleGoogleLogin}
+                      disabled={loading}
+                      className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-full border border-white/15 bg-white/5 hover:bg-white/15 text-white text-xs font-medium transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                    >
+                      <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
+                        <path
+                          fill="#4285F4"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                        />
+                      </svg>
+                      <span>{isSignUp ? 'Sign up with Google' : 'Continue with Google'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
-      {/* closes card wrapper */}
       </div>
     </div>
   )

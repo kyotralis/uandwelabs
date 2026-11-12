@@ -979,19 +979,15 @@ export default function Header({
                                   className="group/card p-4 sm:p-4.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
                                 >
                                   <div>
-                                    <div className="flex items-center justify-between gap-1 mb-1">
+                                    <div className="flex items-center justify-between gap-1 mb-1.5">
                                       <h4 className="font-semibold text-slate-900 text-[15px] sm:text-[16px] group-hover/card:text-black transition-colors">
                                         Commercial
                                       </h4>
                                       <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
                                     </div>
                                     <p className="text-[12px] text-slate-600 leading-relaxed font-normal">
-                                      Sub-meter solar ray-casting, aerodynamic wind CFD, and flood hydrology for urban masterplans.
+                                      Large-scale environmental physics, solar ray-casting, and microclimate CFD simulation for commercial towers and urban masterplans.
                                     </p>
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Solar &amp; Wind</span>
-                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Urban CFD</span>
-                                    </div>
                                   </div>
                                   <div className="pt-2.5 mt-2.5 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
                                     <span>Enter Commercial</span>
@@ -1005,19 +1001,15 @@ export default function Header({
                                   className="group/card p-4 sm:p-4.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-black transition-all duration-200 flex flex-col justify-between cursor-pointer shadow-2xs hover:shadow-xs"
                                 >
                                   <div>
-                                    <div className="flex items-center justify-between gap-1 mb-1">
+                                    <div className="flex items-center justify-between gap-1 mb-1.5">
                                       <h4 className="font-semibold text-slate-900 text-[15px] sm:text-[16px] group-hover/card:text-black transition-colors">
                                         Residency
                                       </h4>
                                       <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
                                     </div>
                                     <p className="text-[12px] text-slate-600 leading-relaxed font-normal">
-                                      Passive cross-ventilation breezes, daylight autonomy, and microclimate comfort for estates.
+                                      Passive cross-ventilation, natural daylight autonomy, and microclimate comfort tailored for private residences and luxury estates.
                                     </p>
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Ventilation</span>
-                                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Daylight</span>
-                                    </div>
                                   </div>
                                   <div className="pt-2.5 mt-2.5 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
                                     <span>Enter Residency</span>
@@ -1044,13 +1036,8 @@ export default function Header({
                                   Autonomous Edge Vision &amp; 128-TOPS Silicon
                                 </span>
                                 <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
-                                  Deterministic INT8 quantized neural inferencing directly in hardware cache. Sub-millisecond multilane highway LPR at 180 km/h and 350m perimeter tracking with zero cloud egress.
+                                  Autonomous edge vision systems delivering real-time vehicle analytics, high-speed highway recognition, and 350m perimeter defense.
                                 </p>
-                                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">128-TOPS Silicon</span>
-                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">INT8 Cache</span>
-                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Zero Cloud Egress</span>
-                                </div>
                               </div>
 
                               <div className="pt-2.5 mt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/aura:text-black">
@@ -1076,13 +1063,8 @@ export default function Header({
                                   Autonomous Senior Dignity &amp; Fall Radar
                                 </span>
                                 <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
-                                  Smart assistive device keeping seniors safe and independent. Features 60 GHz contactless wall radar, multi-language talking clock (English, Hindi, Tamil, Kannada, Telugu, Malayalam), and rise-to-wake torch.
+                                  Smart assistive healthcare hardware keeping seniors safe and independent with contactless 60 GHz fall radar and multi-language voice guidance.
                                 </p>
-                                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">60 GHz Wall Radar</span>
-                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Talking Clock</span>
-                                  <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">Rise-to-Wake Torch</span>
-                                </div>
                               </div>
 
                               <div className="pt-2.5 mt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/dara:text-black">

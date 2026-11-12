@@ -787,24 +787,27 @@ export default function AnandaPage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 pointer-events-none z-[1]" />
         </div>
 
+        {/* Top Back Navigation Button (Positioned at the top below header) */}
+        <div className="absolute top-24 sm:top-28 lg:top-32 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-start">
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigateToHome) onNavigateToHome()
+                else if (typeof window !== 'undefined') window.location.hash = ''
+              }}
+              aria-label="Back to Home"
+              className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        </div>
+
         {/* MAIN HERO CONTENT (Identical layout, positioning & text sizes to Homepage Hero) */}
         <main className="relative z-10 flex-1 w-full flex items-center pointer-events-none pt-20 sm:pt-24 lg:pt-28 pb-12">
           <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 py-8 flex flex-col justify-center pointer-events-auto">
             <div className="max-w-3xl">
-              <div className="mb-4 sm:mb-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onNavigateToHome) onNavigateToHome()
-                    else if (typeof window !== 'undefined') window.location.hash = ''
-                  }}
-                  aria-label="Back to Home"
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
-                >
-                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-                </button>
-              </div>
-
               {/* Master Content: Synchronized with Active Slide & Image Morph */}
               <div
                 key={activeHeroIndex}
@@ -812,12 +815,12 @@ export default function AnandaPage({
                   isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
                 }`}
               >
-                {/* Master Headline: Synchronized with Active Slide - Exact Hero Page Text Size */}
-                <div className="relative inline-block py-1">
+                {/* Master Headline: Synchronized with Active Slide - (Commented out for now) */}
+                {/* <div className="relative inline-block py-1">
                   <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
                     {heroSlides[activeHeroIndex]?.title || ap.heroDefaultTitle || 'Where Architecture Meets Physics'}
                   </h1>
-                </div>
+                </div> */}
 
                 {/* Subtitle Paragraph: Synchronized with Active Slide - (Commented out for now) */}
                 {/* <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
@@ -827,8 +830,8 @@ export default function AnandaPage({
                   )}
                 </p> */}
 
-                {/* Action Button: SCHEDULE SIMULATION ────○ (Exact Hero Page CTA style & text size) */}
-                <div className="mt-6 sm:mt-8">
+                {/* Action Button: SCHEDULE SIMULATION ────○ (Commented out for now) */}
+                {/* <div className="mt-6 sm:mt-8">
                   <button
                     type="button"
                     onClick={() => setModalOpen(true)}
@@ -838,15 +841,13 @@ export default function AnandaPage({
                       {ap.scheduleSimulation || 'SCHEDULE SIMULATION'}
                     </span>
 
-                    {/* Horizontal Extension Line */}
                     <div className="h-[1.5px] w-12 sm:w-16 bg-white/70 group-hover:w-20 sm:group-hover:w-24 transition-all duration-300" />
 
-                    {/* Circular Arrow Button */}
                     <div className="w-8 h-8 rounded-full border border-white/60 bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-sm text-white">
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

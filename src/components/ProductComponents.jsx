@@ -84,27 +84,32 @@ export function ProductHero({
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30 pointer-events-none" />
       </div>
 
+      {/* Top Floating Back Button (Positioned at the top below header) */}
+      {onBack && (
+        <div className="absolute top-24 sm:top-28 lg:top-32 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1840px] mx-auto px-6 sm:px-12 lg:px-16 flex justify-start">
+            <button
+              type="button"
+              onClick={onBack}
+              aria-label="Back to Home"
+              className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1840px] mx-auto flex flex-col justify-end">
         <div className="max-w-2xl">
-          {onBack && (
-            <div className="mb-4 sm:mb-6">
-              <button
-                type="button"
-                onClick={onBack}
-                aria-label="Back to Home"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
-              >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-          )}
-          <motion.div initial="hidden" animate="visible" variants={fadeUpVariant}>
+          {/* Hero title (Commented out for now) */}
+          {/* <motion.div initial="hidden" animate="visible" variants={fadeUpVariant}>
             <div className="relative inline-block py-1">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
                 {title}
               </h1>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* Hero description paragraph (Commented out for now) */}
           {/* {description && (
@@ -113,7 +118,8 @@ export function ProductHero({
             </p>
           )} */}
 
-          <div className="mt-7 sm:mt-9">
+          {/* Hero CTA button (Commented out for now) */}
+          {/* <div className="mt-7 sm:mt-9">
             <button
               onClick={onButtonClick}
               className="group inline-flex items-center gap-4 px-8 py-4 bg-white text-black hover:bg-neutral-900 hover:text-white border border-white transition-all duration-300 font-normal tracking-wide whitespace-nowrap text-sm uppercase cursor-pointer"
@@ -121,7 +127,7 @@ export function ProductHero({
               <span>{buttonText}</span>
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

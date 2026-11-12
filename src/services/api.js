@@ -2,7 +2,7 @@
  * API Service for connecting the frontend to the Node.js + Express + Neo4j backend
  */
 
-const API_BASE = 'https://uandwelabs-backend.vercel.app/api';
+const API_BASE ='http://localhost:5000/api';
 
 /**
  * Safely parse HTTP response and handle 502 / non-JSON responses gracefully

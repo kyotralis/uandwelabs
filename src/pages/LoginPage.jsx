@@ -239,16 +239,15 @@ export default function LoginPage({
       const tokenClient = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: 'email profile openid',
-       
-callback: async (tokenResponse) => {
-  console.log("GOOGLE CALLBACK TRIGGERED");
-  console.log("TOKEN RESPONSE:", tokenResponse);
+        callback: async (tokenResponse) => {
+          console.log("GOOGLE CALLBACK TRIGGERED", tokenResponse);
 
-  if (tokenResponse.error) {
-    console.error("GOOGLE TOKEN ERROR:", tokenResponse.error);
-    setLoading(false);
-    return;
-  }
+          if (tokenResponse.error) {
+            console.error("GOOGLE TOKEN ERROR:", tokenResponse.error);
+            setErrorMessage(tokenResponse.error_description || 'Google sign-in was interrupted.')
+            setLoading(false);
+            return;
+          }
 
           try {
             // Fetch genuine profile details directly from Google OAuth userinfo API
@@ -307,23 +306,21 @@ callback: async (tokenResponse) => {
             setLoading(false)
           }
         },
-       
-error_callback: (error) => {
-  console.error('[Google OAuth Popup Error]', {
-    type: error?.type,
-    message: error?.message,
-    error
-  });
+        error_callback: (error) => {
+          console.error('[Google OAuth Popup Error]', {
+            type: error?.type,
+            message: error?.message,
+            error,
+          });
 
-  setErrorMessage(
-    error?.type === 'popup_closed'
-      ? 'Google sign-in popup closed before authentication completed. Please try again.'
-      : 'Google sign-in popup could not be opened. Check browser popup settings.'
-  );
+          setErrorMessage(
+            error?.type === 'popup_closed'
+              ? 'Google sign-in popup closed before authentication completed. Please try again.'
+              : 'Google sign-in popup could not be opened. Check browser popup settings.'
+          );
 
-  setLoading(false);
-}
-
+          setLoading(false);
+        },
       })
 
       // Open Google account selection popup

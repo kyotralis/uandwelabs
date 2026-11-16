@@ -19,7 +19,6 @@ import {
   Radio,
   ExternalLink,
 } from 'lucide-react'
-import Footer from '../components/Footer'
 import CommonCta from '../components/CommonCta'
 import { useTranslation } from '../i18n'
 
@@ -528,10 +527,10 @@ export default function BlogPage({
                   <button
                     type="button"
                     onClick={() => setActiveArticle(null)}
-                    className="p-2 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-black transition-colors cursor-pointer"
+                    className="p-2 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-black transition-colors cursor-pointer group flex items-center justify-center"
                     aria-label="Close reader"
                   >
-                    <X size={18} />
+                    <X size={18} className="transition-transform duration-500 ease-in-out group-hover:rotate-180" />
                   </button>
                 </div>
               </div>
@@ -701,23 +700,6 @@ export default function BlogPage({
             onNavigateToHome()
           }
         }}
-      />
-
-      {/* ======================================================== */}
-      {/* 7. GLOBAL FOOTER                                         */}
-      {/* ======================================================== */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToSecurity={onNavigateToSecurity}
-        onNavigateToTerms={onNavigateToTerms}
-        user={user}
       />
     </div>
   )

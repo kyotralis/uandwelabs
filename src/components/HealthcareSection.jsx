@@ -5,7 +5,7 @@ import { useTranslation } from '../i18n'
 // Healthcare 3 Assistive Elderly Care & Safety Slides
 export const HEALTHCARE_SLIDES = [
   {
-    src: '/dara_assistive_device.jpg',
+    src: '/dara_device_home.jpg',
     alt: 'Dara Assistive Device with Magnifying Glass and Multi-Language Voice Clock',
     title: 'Talking Clock & Magnifier',
     subtitle: 'Multi-Language Voice & Label Reading',

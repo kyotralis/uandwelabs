@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ShieldCheck, Lock, Cpu, Server, Key, AlertTriangle, CheckCircle2, Mail, Terminal, FileCode } from 'lucide-react'
-import Footer from '../components/Footer'
 import { useTranslation } from '../i18n'
 
 export default function SecurityPage({
@@ -323,23 +322,6 @@ export default function SecurityPage({
           </main>
         </div>
       </div>
-
-      {/* ======================================================== */}
-      {/* 3. SITE FOOTER                                           */}
-      {/* ======================================================== */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToSecurity={onNavigateToSecurity}
-        onNavigateToTerms={onNavigateToTerms}
-        user={user}
-      />
     </div>
   )
 }

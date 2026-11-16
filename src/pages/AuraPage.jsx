@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { Camera, Cpu, Shield, Lock, Radio, Zap, Scan, ShieldCheck } from 'lucide-react'
-import Footer from '../components/Footer'
 import { useTranslation } from '../i18n'
 import {
   ProductHero,
@@ -227,26 +226,12 @@ export default function AuraPage({
         onButtonClick={() => setModalOpen(true)}
       />
 
-      {/* GLOBAL FOOTER */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToTerms={onNavigateToTerms}
-        onNavigateToLogin={onNavigateToLogin}
-        user={user}
-      />
-
       {/* CONSULTATION / PILOT MODAL */}
       <ProductConsultModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         user={user}
+        productKey="aura"
         title={ap.modal?.title || "Aura Technical Pilot Consultation"}
         formTitle={ap.modal?.formTitle || "Reserve Pilot Hardware"}
         formSubtitle={ap.modal?.formSubtitle || "Specify deployment criteria to evaluate Aura 128-TOPS edge nodes on your perimeter."}

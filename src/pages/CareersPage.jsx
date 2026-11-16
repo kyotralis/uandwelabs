@@ -8,7 +8,6 @@ import {
   MapPin,
 
 } from 'lucide-react'
-import Footer from '../components/Footer'
 import CommonCta from '../components/CommonCta'
 import { useTranslation } from '../i18n'
 
@@ -628,69 +627,92 @@ export default function CareersPage({
           </div>
 
           {/* Jobs Grid (Continuous 3-Col Desktop / 2-Col Tablet / 1-Col Mobile) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {jobs.map((job, idx) => (
-              <div
-                key={job.id}
-                ref={(el) => (jobCardRefs.current[idx] = el)}
-                onClick={() => handleOpenApplication(job)}
-                className="group border border-black/10 bg-white hover:border-black transition-all duration-300 p-6 sm:p-8 flex flex-col justify-between cursor-pointer rounded-2xl hover:shadow-xl h-full"
-                style={{
-                  transform: jobCardVisible[idx] ? 'translateX(0)' : 'translateX(-60px)',
-                  opacity: jobCardVisible[idx] ? 1 : 0,
-                  transition:
-                    'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms, box-shadow 300ms',
-                  transitionDelay: getJobDelay(idx, jobCardVisible[idx]),
-                  willChange: 'transform, opacity',
-                }}
-              >
-                <div className="flex flex-col flex-1">
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 bg-neutral-100 px-2.5 py-1 rounded">
-                      {job.division}
-                    </span>
-                    <span className="text-xs font-mono text-neutral-400">
-                      {job.type}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 mb-3 group-hover:text-black leading-snug">
-                    {job.title}
-                  </h3>
-
-                  <div className="flex items-center gap-4 text-xs font-mono text-neutral-500 mb-5">
-                    <span className="flex items-center gap-1.5">
-                      <MapPin size={13} />
-                      {job.location}
-                    </span>
-                  </div>
-
-                  <p className="text-neutral-600 text-sm leading-relaxed mb-6">
-                    {job.desc}
-                  </p>
-
-                  {/* Skills tags */}
-                  {job.skills && (
-                    <div className="flex flex-wrap gap-1.5 mb-6 mt-auto">
-                      {job.skills.map((skill, sIdx) => (
-                        <span
-                          key={sIdx}
-                          className="px-2.5 py-1 rounded bg-neutral-50 border border-black/5 text-neutral-600 text-[11px] font-mono"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+          {jobs && jobs.length > 0 ? (
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${jobs.length <= 2 ? 'lg:grid-cols-2 max-w-5xl' : 'lg:grid-cols-3'} gap-6 sm:gap-8`}>
+              {jobs.map((job, idx) => (
+                <div
+                  key={job.id}
+                  ref={(el) => (jobCardRefs.current[idx] = el)}
+                  onClick={() => handleOpenApplication(job)}
+                  className="group border border-black/10 bg-white hover:border-black transition-all duration-300 p-6 sm:p-8 flex flex-col justify-between cursor-pointer rounded-2xl hover:shadow-xl h-full"
+                  style={{
+                    transform: jobCardVisible[idx] ? 'translateX(0)' : 'translateX(-60px)',
+                    opacity: jobCardVisible[idx] ? 1 : 0,
+                    transition:
+                      'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms, box-shadow 300ms',
+                    transitionDelay: getJobDelay(idx, jobCardVisible[idx]),
+                    willChange: 'transform, opacity',
+                  }}
+                >
+                  <div className="flex flex-col flex-1">
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 bg-neutral-100 px-2.5 py-1 rounded">
+                        {job.division}
+                      </span>
+                      <span className="text-xs font-mono text-neutral-400">
+                        {job.type}
+                      </span>
                     </div>
-                  )}
-                </div>
 
-                <div className="pt-5 border-t border-black/10 flex items-center justify-between text-xs font-mono uppercase tracking-wider text-neutral-900 group-hover:translate-x-0.5 transition-transform">
-                  <span className="font-semibold">{cp.applyButton || 'Apply for Bench'}</span>
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 mb-3 group-hover:text-black leading-snug">
+                      {job.title}
+                    </h3>
+
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono text-neutral-500 mb-5">
+                      <span className="flex items-center gap-1.5">
+                        <MapPin size={13} />
+                        {job.location}
+                      </span>
+                      {job.exp && (
+                        <span className="text-neutral-500">
+                          · Exp: {job.exp}
+                        </span>
+                      )}
+                    </div>
+
+                    {job.desc && (
+                      <p className="text-neutral-600 text-sm leading-relaxed mb-6">
+                        {job.desc}
+                      </p>
+                    )}
+
+                    {/* Skills tags */}
+                    {job.skills && (
+                      <div className="flex flex-wrap gap-1.5 mb-6 mt-auto">
+                        {job.skills.map((skill, sIdx) => (
+                          <span
+                            key={sIdx}
+                            className="px-2.5 py-1 rounded bg-neutral-50 border border-black/5 text-neutral-600 text-[11px] font-mono"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-5 border-t border-black/10 flex items-center justify-between text-xs font-mono uppercase tracking-wider text-neutral-900 group-hover:translate-x-0.5 transition-transform">
+                    <span className="font-semibold">{cp.applyButton || 'Apply for Bench'}</span>
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-dashed border-neutral-300 rounded-3xl p-10 sm:p-14 text-center max-w-2xl mx-auto my-4 bg-neutral-50/50">
+              <p className="text-sm sm:text-base text-neutral-600 font-medium mb-5">
+                {cp.noOpeningsMessage || 'Bench openings are currently being updated. You can submit a direct technical dossier to our founding team below.'}
+              </p>
+              <button
+                type="button"
+                onClick={handleOpenGeneralInquiry}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-black text-white text-xs font-mono uppercase tracking-wider hover:bg-neutral-800 transition-colors cursor-pointer"
+              >
+                <span>{cp.spontaneousButton || 'Send Technical Dossier / Inquiry'}</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -778,15 +800,12 @@ export default function CareersPage({
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-2xl bg-white text-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-black/10 my-auto max-h-[92vh] flex flex-col"
+              className="relative w-full max-w-4xl bg-white text-neutral-900 rounded-3xl overflow-hidden shadow-2xl border border-black/10 my-auto max-h-[92vh] flex flex-col"
             >
               {/* Modal Top Bar */}
               <div className="sticky top-0 z-20 px-6 sm:px-8 py-4.5 bg-white/95 backdrop-blur-md border-b border-black/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 block">
-                    {cp.modal?.applyTitle || 'Bench Application'}
-                  </span>
-                  <h3 className="text-base sm:text-lg font-normal tracking-tight text-neutral-950 truncate max-w-sm sm:max-w-md">
+                  <h3 className="text-base sm:text-lg font-normal tracking-tight text-neutral-950 truncate max-w-md sm:max-w-lg">
                     {activeJob.title}
                   </h3>
                 </div>
@@ -794,10 +813,10 @@ export default function CareersPage({
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="p-2 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-black transition-colors cursor-pointer"
+                  className="p-2 rounded-full hover:bg-neutral-100 text-neutral-600 hover:text-black transition-colors cursor-pointer group flex items-center justify-center"
                   aria-label="Close modal"
                 >
-                  <X size={18} />
+                  <X size={18} className="transition-transform duration-500 ease-in-out group-hover:rotate-180" />
                 </button>
               </div>
 
@@ -837,89 +856,97 @@ export default function CareersPage({
                 ) : (
                   /* Application Form */
                   <form onSubmit={handleSubmitApplication} className="space-y-4">
-                    <div className="p-4 bg-neutral-50 border border-black/10 rounded-2xl space-y-2">
-                      <div className="flex items-center justify-between text-xs font-mono text-neutral-500">
-                        <span>{activeJob.division}</span>
-                        <span>{activeJob.location}</span>
+                    <div className="p-4 sm:p-5 bg-neutral-50 border border-black/10 rounded-2xl space-y-3 font-sans">
+                      <div className="flex flex-wrap items-center justify-between text-xs font-mono text-neutral-500 gap-2">
+                        <span className="px-2 py-0.5 rounded bg-black/5 text-neutral-700 font-semibold">{activeJob.division}</span>
+                        <span>{activeJob.location} {activeJob.exp ? `· Exp: ${activeJob.exp}` : ''}</span>
                       </div>
-                      <p className="text-xs text-neutral-600 leading-relaxed">
-                        {activeJob.desc}
-                      </p>
+                      {activeJob.desc && (
+                        <p className="text-xs sm:text-sm text-neutral-700 leading-relaxed font-sans">
+                          {activeJob.desc}
+                        </p>
+                      )}
+                      {activeJob.responsibilities && activeJob.responsibilities.length > 0 && (
+                        <div className="pt-2 border-t border-black/5">
+                          <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold block mb-1.5">
+                            Key Responsibilities:
+                          </span>
+                          <ul className="text-xs text-neutral-600 space-y-1 list-disc list-inside leading-relaxed">
+                            {activeJob.responsibilities.map((r, i) => (
+                              <li key={i}>{r}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {activeJob.qualification && (
+                        <div className="pt-2 border-t border-black/5 text-xs text-neutral-700">
+                          <span className="font-semibold text-neutral-900 font-mono text-[11px] uppercase tracking-wider mr-1.5">Qualification:</span>
+                          <span>{activeJob.qualification}</span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Full Name */}
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
-                        {cp.modal?.fullName || 'Full Name'} *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Maya Lin"
-                        className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Full Name */}
+                      <div>
+                        <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
+                          {cp.modal?.fullName || 'Full Name'} *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="e.g. Maya Lin"
+                          className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
+                        />
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
+                          {cp.modal?.email || 'Email Address'} *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="you@domain.com"
+                          className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
+                        />
+                      </div>
                     </div>
 
-                    {/* Email */}
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
-                        {cp.modal?.email || 'Email Address'} *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="you@domain.com"
-                        className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Phone / WhatsApp */}
+                      <div>
+                        <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
+                          {cp.modal?.phone || 'Phone / WhatsApp (Optional)'}
+                        </label>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="+91 98765 43210"
+                          className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
+                        />
+                      </div>
 
-                    {/* Phone / WhatsApp */}
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
-                        {cp.modal?.phone || 'Phone / WhatsApp (Optional)'}
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+91 98765 43210"
-                        className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
-                      />
-                    </div>
-
-                    {/* Portfolio / GitHub / LinkedIn */}
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
-                        {cp.modal?.portfolio || 'Portfolio / GitHub / LinkedIn URL'} *
-                      </label>
-                      <input
-                        type="url"
-                        required
-                        value={formData.portfolio}
-                        onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
-                        placeholder="https://github.com/... or https://linkedin.com/in/..."
-                        className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
-                      />
-                    </div>
-
-                    {/* Technical Problem Note */}
-                    <div>
-                      <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
-                        {cp.modal?.note ||
-                          'Tell us about a technical problem you solved from first principles...'} *
-                      </label>
-                      <textarea
-                        required
-                        rows={3}
-                        value={formData.note}
-                        onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                        placeholder="Brief overview of an engineering, mathematical, or architectural problem you tackled..."
-                        className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all resize-none"
-                      />
+                      {/* LinkedIn URL */}
+                      <div>
+                        <label className="block text-xs font-mono uppercase tracking-wider text-neutral-700 mb-1.5">
+                          {cp.modal?.portfolio || 'LinkedIn URL'} *
+                        </label>
+                        <input
+                          type="url"
+                          required
+                          value={formData.portfolio}
+                          onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
+                          placeholder="https://linkedin.com/in/..."
+                          className="w-full px-4 py-2.5 bg-neutral-50 focus:bg-white border border-neutral-300 focus:border-black rounded-xl text-sm outline-none transition-all"
+                        />
+                      </div>
                     </div>
 
                     <div className="pt-2">
@@ -945,23 +972,6 @@ export default function CareersPage({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ======================================================== */}
-      {/* 8. GLOBAL SITE FOOTER                                    */}
-      {/* ======================================================== */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToSecurity={onNavigateToSecurity}
-        onNavigateToTerms={onNavigateToTerms}
-        user={user}
-      />
     </div>
   )
 }

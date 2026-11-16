@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Lock, EyeOff, Server, HardDrive, CheckCircle2, ChevronRight, Mail } from 'lucide-react'
-import Footer from '../components/Footer'
 import { useTranslation } from '../i18n'
 
 export default function PrivacyPolicyPage({
@@ -304,23 +303,6 @@ export default function PrivacyPolicyPage({
           </main>
         </div>
       </div>
-
-      {/* ======================================================== */}
-      {/* 3. SITE FOOTER                                           */}
-      {/* ======================================================== */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToSecurity={onNavigateToSecurity}
-        onNavigateToTerms={onNavigateToTerms}
-        user={user}
-      />
     </div>
   )
 }

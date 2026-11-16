@@ -60,46 +60,7 @@ const PRODUCTS_DATA = [
   },
 ]
 
-const SOLUTIONS_DATA = [
-  {
-    id: 'environmental-simulation',
-    title: 'Environmental Physics',
-    subtitle: 'Microclimate & Aerodynamics',
-    description: 'Predictive solar radiation, aerodynamic CFD wind flow, and flood risk mapping.',
-    tag: 'SIMULATION',
-    badgeClass: 'bg-orange-100 text-orange-800 border-orange-200/80',
-    iconBg: 'bg-orange-50 text-orange-600 border-orange-200/60',
-    targetId: 'ananda',
-    category: 'commercial',
-    pills: ['Solar Radiation', 'CFD Wind Flow'],
-  },
-  {
-    id: 'healthcare-assistive-ai',
-    title: 'Assistive Healthcare',
-    subtitle: 'Autonomous Elder Safety',
-    description: 'Sub-300ms contactless fall detection and optical prescription reading with zero wearables.',
-    tag: 'CLINICAL',
-    badgeClass: 'bg-blue-100 text-[#0a192f] border-blue-200/80',
-    iconBg: 'bg-blue-50 text-[#0a192f] border-blue-200/60',
-    targetId: 'dara',
-    category: null,
-    pills: ['Contactless Radar', 'Zero Wearables'],
-  },
-  {
-    id: 'physical-ai-vision',
-    title: 'Edge Computer Vision',
-    subtitle: 'Tactical Defense & Highway LPR',
-    description: 'Multilane highway LPR and 350m perimeter tracking with on-chip edge tensor cores.',
-    tag: 'TACTICAL',
-    badgeClass: 'bg-indigo-100 text-indigo-900 border-indigo-200/80',
-    iconBg: 'bg-indigo-50 text-indigo-600 border-indigo-200/60',
-    targetId: 'aura',
-    category: null,
-    pills: ['Edge Tensor Silicon', '350m Perimeter Mesh'],
-  },
-]
-
-// Global Search Index (Products, Solutions, Platforms, Sections, Pages)
+// Global Search Index (Products, Platforms, Sections, Pages)
 const SEARCH_ITEMS = [
   {
     id: 'ananda-commercial',
@@ -1081,121 +1042,7 @@ export default function Header({
                 )}
               </div>
 
-              {/* 2. Solutions */}
-              <div
-                className="relative"
-                onMouseEnter={() => handleNavMouseEnter('solutions')}
-                onMouseLeave={handleNavMouseLeave}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveDropdown(activeDropdown === 'solutions' ? null : 'solutions')
-                  }}
-                  className={`flex items-center gap-1 xl:gap-1.5 px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-colors duration-150 ease-out active:scale-[0.98] cursor-pointer ${
-                    activeDropdown === 'solutions' || activeNav?.toLowerCase() === 'solutions'
-                      ? 'text-black bg-slate-100 font-semibold shadow-xs'
-                      : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
-                  }`}
-                >
-                  <span>Solutions</span>
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
-                      activeDropdown === 'solutions' ? 'rotate-180 text-black' : 'group-hover:text-black'
-                    }`}
-                  />
-                </button>
-
-                {/* Solutions Dropdown */}
-                {activeDropdown === 'solutions' && (
-                  <>
-                    {/* Narrow hover bridge strictly scoped to Solutions button width */}
-                    <div className="absolute top-full left-0 right-0 h-8 pointer-events-auto z-40" />
-
-                    <div
-                      onMouseEnter={() => handleNavMouseEnter('solutions')}
-                      onMouseLeave={handleNavMouseLeave}
-                      className="absolute left-0 -translate-x-12 sm:-translate-x-20 lg:-translate-x-24 top-full pt-7 sm:pt-8 w-[700px] sm:w-[760px] lg:w-[820px] max-w-[calc(100vw-2.5rem)] z-50 origin-top-left animate-in fade-in-0 slide-in-from-top-2 duration-150"
-                    >
-                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_28px_70px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/90 ring-1 ring-black/[0.04] overflow-hidden p-3.5 sm:p-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {SOLUTIONS_DATA.map((item) => {
-                          const IconComp = item.id === 'environmental-simulation' ? Globe : item.id === 'healthcare-assistive-ai' ? Radio : Cpu
-                          const accentHover = item.id === 'environmental-simulation' ? 'group-hover:text-orange-600' : item.id === 'healthcare-assistive-ai' ? 'group-hover:text-blue-900' : 'group-hover:text-indigo-600'
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={() => handleDropdownItemClick(item.targetId, 'SOLUTIONS', false, item.category)}
-                              className="group relative flex flex-col justify-between p-4 sm:p-4.5 text-left rounded-2xl bg-slate-50/60 hover:bg-white border border-slate-200/80 hover:border-slate-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer overflow-hidden"
-                            >
-                              <div>
-                                {/* Top Row: Icon on Left, Pill Badge on Right */}
-                                <div className="flex items-center justify-between gap-2 mb-3">
-                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border group-hover:scale-105 transition-transform duration-200 ${item.iconBg}`}>
-                                    <IconComp className="w-4.5 h-4.5" />
-                                  </div>
-                                  <span className={`text-[9.5px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full border shrink-0 shadow-2xs ${item.badgeClass}`}>
-                                    {item.tag}
-                                  </span>
-                                </div>
-
-                                {/* Title & Subtitle with full card width */}
-                                <div className="mb-2.5">
-                                  <div className={`flex items-center justify-between gap-1 font-semibold text-[15px] text-slate-900 ${accentHover} transition-colors`}>
-                                    <span className="truncate">{item.title}</span>
-                                    <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 shrink-0" />
-                                  </div>
-                                  <span className="text-[11.5px] font-medium text-slate-500 block leading-tight mt-0.5">
-                                    {item.subtitle}
-                                  </span>
-                                </div>
-
-                                <p className="text-[12px] text-slate-500 group-hover:text-slate-700 leading-relaxed font-normal mb-3.5 transition-colors">
-                                  {item.description}
-                                </p>
-                              </div>
-
-                              {item.pills && (
-                                <div className="flex items-center gap-1.5 mt-auto pt-3 border-t border-slate-200/70">
-                                  {item.pills.map((pill, idx) => (
-                                    <div
-                                      key={idx}
-                                      className="flex-1 py-1.5 px-2 rounded-lg bg-white/90 group-hover:bg-slate-50 text-slate-700 text-[11px] font-medium border border-slate-200/90 text-center truncate shadow-2xs transition-colors"
-                                    >
-                                      {pill}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      {/* Clean Executive Solutions Footer */}
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 bg-slate-50/80 rounded-xl">
-                        <div className="flex items-center gap-2">
-                          <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                          <span className="text-[11px] sm:text-[11.5px] text-slate-600 font-semibold tracking-tight uppercase">
-                            ENTERPRISE &amp; MUNICIPAL DEPLOYMENTS
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDropdownItemClick('beliefs', 'SOLUTIONS')}
-                          className="text-[11.5px] sm:text-[12px] font-semibold text-slate-700 hover:text-black flex items-center gap-1.5 cursor-pointer transition-colors group/foot"
-                        >
-                          <span>Explore All Capabilities</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover/foot:text-black group-hover/foot:translate-x-0.5 transition-all duration-200" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  </>
-                )}
-              </div>
-
-              {/* 3. Blogs */}
+              {/* 2. Blogs */}
               <button
                 type="button"
                 onMouseEnter={() => {
@@ -1212,7 +1059,7 @@ export default function Header({
                 Blogs
               </button>
 
-              {/* 4. About Us */}
+              {/* 3. About Us */}
               <button
                 type="button"
                 onMouseEnter={() => {
@@ -1235,7 +1082,7 @@ export default function Header({
                 About Us
               </button>
 
-              {/* 5. Careers */}
+              {/* 4. Careers */}
               <button
                 type="button"
                 onMouseEnter={() => {
@@ -1640,129 +1487,20 @@ export default function Header({
                 )}
               </div>
             ) : (
-              /* Guest Sign In Button */
-              <div
-                ref={signInMenuRef}
-                className="relative hidden sm:block"
-                onMouseEnter={handleSignInMouseEnter}
-                onMouseLeave={handleSignInMouseLeave}
+              /* Guest Sign In Button - Direct 1-Click Navigation (No Dropdown, No Chevron) */
+              <button
+                type="button"
+                onClick={() => {
+                  if (onNavigateToLogin) {
+                    onNavigateToLogin('signin', null)
+                  } else {
+                    window.location.hash = 'login'
+                  }
+                }}
+                className="hidden sm:inline-flex items-center justify-center px-4 xl:px-5 py-1.5 sm:py-2 rounded-full bg-black text-white hover:bg-orange-500 text-[13px] sm:text-[13.5px] xl:text-[14px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/25 active:scale-95 select-none"
               >
-                <button
-                  type="button"
-                  onClick={() => setSignInMenuOpen((prev) => !prev)}
-                  onMouseEnter={handleSignInMouseEnter}
-                  className={`group inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 xl:px-5 py-1.5 sm:py-2 rounded-full bg-black text-white hover:bg-orange-500 text-[13px] sm:text-[13.5px] xl:text-[14px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/25 active:scale-95 select-none ${signInMenuOpen ? 'ring-2 ring-orange-400/40 bg-orange-500' : ''
-                    }`}
-                  aria-expanded={signInMenuOpen}
-                  aria-haspopup="true"
-                >
-                  <span>Sign In</span>
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${signInMenuOpen ? 'rotate-180 text-white' : 'text-slate-300 group-hover:text-white'
-                      }`}
-                  />
-                </button>
-
-                {signInMenuOpen && (
-                  <div
-                    onMouseEnter={handleSignInMouseEnter}
-                    onMouseLeave={handleSignInMouseLeave}
-                    className="absolute right-0 top-full pt-6 sm:pt-7 w-72 sm:w-80 z-50 animate-in fade-in slide-in-from-top-1 duration-150 before:absolute before:-top-3 before:left-0 before:w-full before:h-3 before:content-['']"
-                  >
-                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2 text-xs divide-y divide-slate-100 ring-1 ring-black/5">
-                      <div
-                        className="p-1 space-y-1"
-                        onMouseEnter={() => setSignInGeoSpatialOpen(true)}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setSignInGeoSpatialOpen((prev) => !prev)}
-                          className="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-slate-100/80 transition-colors cursor-pointer group"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 group-hover:bg-black group-hover:text-white transition-colors">
-                              <Globe className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <p className="font-semibold text-slate-900 text-[13.5px]">
-                                Ananda
-                              </p>
-                              <p className="text-[11px] text-slate-500">
-                                Commercial & Residency
-                              </p>
-                            </div>
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 text-slate-400 group-hover:text-black transition-transform ${
-                              signInGeoSpatialOpen ? 'rotate-180 text-black' : ''
-                            }`}
-                          />
-                        </button>
-
-                        {/* Always visible on hover or toggle */}
-                        {signInGeoSpatialOpen && (
-                          <div className="pl-3 pr-2 py-1.5 space-y-1 bg-slate-50/90 rounded-xl my-1 border border-slate-100 animate-in fade-in-0 duration-150">
-                            <button
-                              type="button"
-                              onClick={() => handleNavigateToLoginWithTarget('commercial')}
-                              className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:text-black hover:bg-white text-[12px] font-medium transition-colors cursor-pointer group"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Building2 className="w-3.5 h-3.5 text-slate-700 group-hover:text-black transition-colors" />
-                                <span>Commercial</span>
-                              </div>
-                              <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black transition-colors" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => handleNavigateToLoginWithTarget('residential')}
-                              className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg text-slate-700 hover:text-black hover:bg-white text-[12px] font-medium transition-colors cursor-pointer group"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Home className="w-3.5 h-3.5 text-slate-700 group-hover:text-black transition-colors" />
-                                <span>Residency</span>
-                              </div>
-                              <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black transition-colors" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-1 pt-1.5 space-y-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSignInMenuOpen(false)
-                            setSignInGeoSpatialOpen(false)
-                            if (onNavigateToLogin) {
-                              onNavigateToLogin('signin', null)
-                            } else {
-                              window.location.hash = 'login'
-                            }
-                          }}
-                          className="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-slate-100/80 transition-colors cursor-pointer group"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-black group-hover:text-white transition-colors">
-                              <UserIcon className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <p className="font-semibold text-slate-900 text-[13.5px]">
-                                Sign In to Account
-                              </p>
-                              <p className="text-[11px] text-slate-500">
-                                Email &amp; Google sign-in
-                              </p>
-                            </div>
-                          </div>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-black transition-all" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+                Sign In
+              </button>
             )}
 
             {/* 4. Mobile Hamburger Menu Button */}
@@ -1968,35 +1706,6 @@ export default function Header({
                 </div>
               </div>
 
-              {/* Solutions Mobile */}
-              <div className="border-b border-slate-100 pb-2">
-                <button
-                  type="button"
-                  onClick={() => handleDropdownItemClick('introduction', 'SOLUTIONS')}
-                  className="w-full flex items-center justify-between py-2 text-[15px] font-semibold text-black hover:opacity-75"
-                >
-                  <span>Solutions</span>
-                  <ArrowRight className="w-4 h-4 text-black" />
-                </button>
-                <div className="pl-1 py-1 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
-                  {SOLUTIONS_DATA.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleDropdownItemClick(item.targetId, 'SOLUTIONS', false, item.category)}
-                      className="w-full text-left p-2.5 sm:p-3 rounded-xl hover:bg-slate-100/80 border border-transparent hover:border-slate-200 transition-colors cursor-pointer"
-                    >
-                      <span className="text-[13.5px] sm:text-[14px] font-semibold text-slate-900 block">
-                        {item.title}
-                      </span>
-                      <p className="text-[11.5px] text-slate-500 leading-snug mt-1">
-                        {item.description}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Navigation Links: Blogs, About Us, Careers */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 border-b border-slate-100 pb-2">
                 {/* Blogs Mobile */}
@@ -2084,33 +1793,16 @@ export default function Header({
                   <span>Sign Out ({user.name})</span>
                 </button>
               ) : (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      if (onNavigateToLogin) onNavigateToLogin('signin', 'introduction')
-                    }}
-                    className="w-full py-2.5 px-4 rounded-2xl bg-black text-white font-semibold text-xs flex items-center justify-between shadow-sm cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4" />
-                      <span>Sign In to Ananda</span>
-                    </div>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      if (onNavigateToLogin) onNavigateToLogin('signin')
-                    }}
-                    className="w-full py-2.5 rounded-2xl border border-slate-200 text-slate-800 font-semibold text-xs text-center hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all cursor-pointer"
-                  >
-                    Sign In to Account
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    if (onNavigateToLogin) onNavigateToLogin('signin')
+                  }}
+                  className="w-full py-2.5 rounded-full bg-black text-white hover:bg-orange-500 font-semibold text-xs text-center transition-colors cursor-pointer"
+                >
+                  Sign In
+                </button>
               )}
             </div>
           </div>

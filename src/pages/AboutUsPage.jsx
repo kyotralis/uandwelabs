@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowRight, ArrowLeft, Quote } from 'lucide-react'
-import Footer from '../components/Footer'
 import CommonCta from '../components/CommonCta'
 import { useTranslation } from '../i18n'
 
@@ -132,7 +131,7 @@ export default function AboutUsPage({
       desc: 'Contactless 60 GHz fall radar, multi-language acoustic talking clock, and rise-to-wake torch engineered for elder independence with zero wearables.',
       linkText: 'Explore Dara Hardware',
       target: 'dara',
-      image: '/dara_assistive_device.jpg',
+      image: '/dara_device_home.jpg',
     },
     {
       tag: 'PHYSICAL AI SILICON',
@@ -507,23 +506,6 @@ export default function AboutUsPage({
             }, 200)
           }
         }}
-      />
-
-      {/* ======================================================== */}
-      {/* 7. GLOBAL SITE FOOTER                                    */}
-      {/* ======================================================== */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToSecurity={onNavigateToSecurity}
-        onNavigateToTerms={onNavigateToTerms}
-        user={user}
       />
     </div>
   )

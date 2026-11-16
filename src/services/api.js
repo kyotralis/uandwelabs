@@ -2,10 +2,7 @@
  * API Service for connecting the frontend to the Node.js + Express + Neo4j backend
  */
 
-const API_BASE =
-  typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000/api'
-    : (import.meta.env.VITE_API_URL || 'https://uandwelabs-backend.vercel.app/api');
+const API_BASE ='https://uandwelabs-backend.vercel.app/api';
 
 /**
  * Safely parse HTTP response and handle 502 / non-JSON responses gracefully
@@ -35,12 +32,12 @@ export const authApi = {
   /**
    * Login user
    */
-  async login(email, password) {
+  async login(email, password, product = 'ananda') {
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, product }),
       });
 
       const data = await parseResponse(res, 'Login failed');
@@ -57,12 +54,12 @@ export const authApi = {
   /**
    * Register new user
    */
-  async register(name, email, password) {
+  async register(name, email, password, product = 'ananda') {
     try {
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, product }),
       });
 
       const data = await parseResponse(res, 'Registration failed');
@@ -105,12 +102,12 @@ export const authApi = {
   /**
    * Verify 6-digit OTP code sent after Google Sign In
    */
-  async verifyOtp(email, otp) {
+  async verifyOtp(email, otp, product = 'ananda') {
     try {
       const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, otp, product }),
       });
 
       const data = await parseResponse(res, 'OTP verification failed');

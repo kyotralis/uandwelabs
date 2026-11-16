@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import {
   Volume2,
   Search,
@@ -13,8 +13,10 @@ import {
   Heart,
   Sun,
   ShieldCheck,
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react'
-import Footer from '../components/Footer'
+import MorphGallery from '../components/ui/morph-gallery'
 import { useTranslation } from '../i18n'
 import {
   ProductHero,
@@ -31,6 +33,42 @@ import {
 // ==========================================
 // DARA DATA SPECIFICATION
 // ==========================================
+const DARA_HERO_SLIDES = [
+  {
+    id: 'dara-living',
+    category: 'ASSISTIVE HEALTHCARE',
+    src: '/dara_hero_living.jpg',
+    thumb: '/dara_hero_living.jpg',
+    alt: 'Senior Care Invisible by Design',
+    headline: 'Senior Care. Invisible by Design.',
+    subtitle:
+      'A smart assistive device that keeps elderly loved ones safe and independent at home. Features a talking clock, night torch light, and automatic fall detection — with zero cameras or wearables.',
+    ctaText: 'REQUEST FREE SAMPLE',
+  },
+  {
+    id: 'dara-wellness',
+    category: 'DAILY WELLNESS & ROUTINE',
+    src: '/dara_hero_wellness.jpg',
+    thumb: '/dara_hero_wellness.jpg',
+    alt: 'Gentle Reminders and Daily Independence',
+    headline: 'Gentle Reminders. Natural Independence.',
+    subtitle:
+      'Acoustic voice alerts and clear display cues guide medication schedules and hydration effortlessly, harmonizing into the morning routine.',
+    ctaText: 'REQUEST FREE SAMPLE',
+  },
+  {
+    id: 'dara-twilight',
+    category: 'NIGHT GUIDANCE & PEACE OF MIND',
+    src: '/dara_hero_twilight.jpg',
+    thumb: '/dara_hero_twilight.jpg',
+    alt: 'Twilight Assurance and Nighttime Protection',
+    headline: 'Twilight Assurance. Nighttime Clarity.',
+    subtitle:
+      'Automatic rise-to-wake torch guidance and continuous radar-based fall sensing provide 24/7 peace of mind in every room without intrusive cameras.',
+    ctaText: 'REQUEST FREE SAMPLE',
+  },
+]
+
 const EQUALIZER_HEIGHTS = [35, 75, 40, 95, 60, 85, 45, 90, 30, 70, 50, 80]
 
 const PREVIEW_LANGUAGES = [
@@ -44,7 +82,7 @@ const PREVIEW_LANGUAGES = [
 
 const DARA_GALLERY = [
   {
-    image: '/dara_assistive_device.jpg',
+    image: '/dara_device_home.jpg',
     title: '60 GHz Contactless Radar',
     desc: 'Continuous fall detection through drywall and shower curtains with zero cameras.',
   },
@@ -160,6 +198,52 @@ export default function DaraPage({
   const [isPlayingVoice, setIsPlayingVoice] = useState(false)
   const [clockRef, clockInView] = useAnandaInView(220)
 
+  // Multi-Slide WebGL Morph Hero States
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0)
+  const [isHeroRevealed, setIsHeroRevealed] = useState(false)
+  const [isHeroPaused, setIsHeroPaused] = useState(false)
+  const heroReadyTriggered = useRef(false)
+
+  const heroSlides = useMemo(() => {
+    return DARA_HERO_SLIDES.map((slide, idx) => ({
+      ...slide,
+      headline: dp.heroSlides?.[idx]?.headline || slide.headline,
+      category: dp.heroSlides?.[idx]?.category || slide.category,
+      subtitle: dp.heroSlides?.[idx]?.subtitle || slide.subtitle,
+      ctaText: dp.heroSlides?.[idx]?.ctaText || slide.ctaText,
+    }))
+  }, [dp.heroSlides])
+
+  const handleHeroReady = () => {
+    if (heroReadyTriggered.current) return
+    heroReadyTriggered.current = true
+    requestAnimationFrame(() => {
+      setIsHeroRevealed(true)
+    })
+  }
+
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      handleHeroReady()
+    }, 350)
+    return () => clearTimeout(fallbackTimer)
+  }, [])
+
+  // Auto-play hero slide rotation (5s duration, synchronized with noise dissolve WebGL transition)
+  useEffect(() => {
+    if (!isHeroRevealed || isHeroPaused) return
+    const timer = setInterval(() => {
+      setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [isHeroRevealed, isHeroPaused, heroSlides.length])
+
+  const handleSelectHeroSlide = (idx) => {
+    setActiveHeroIndex(idx)
+  }
+
+  const currentHeroSlide = heroSlides[activeHeroIndex] || heroSlides[0]
+
   // Localized data structures
   const gallery = useMemo(() => {
     const list = dp.gallery || DARA_GALLERY
@@ -263,16 +347,142 @@ export default function DaraPage({
 
   return (
     <div className="bg-white min-h-screen text-neutral-900 w-full font-sans selection:bg-black selection:text-white">
-      {/* 1. IMMERSIVE HERO */}
-      <ProductHero
-        backgroundImage="/dara_assistive_device.jpg"
-        imageAlt="Dara Hardware Platform"
-        title={<>{dp.heroTitle?.line1 || 'Senior Care.'} <br /><span className="text-white">{dp.heroTitle?.line2 || 'Invisible by Design.'}</span></>}
-        description={dp.heroDesc || "A smart assistive device that keeps elderly loved ones safe and independent at home. Features a talking clock, night torch light, and automatic fall detection — with zero cameras or wearables."}
-        buttonText={dp.heroButtonText || "Schedule Clinical Pilot"}
-        onButtonClick={() => setModalOpen(true)}
-        onBack={onNavigateToHome}
-      />
+      {/* 1. IMMERSIVE HERO SECTION (MorphGallery WebGL Shader) */}
+      <div className="min-h-screen relative flex flex-col justify-between overflow-hidden font-['Inter'] text-white select-text">
+        {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition) */}
+        <div
+          className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${
+            isHeroRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
+          }`}
+        >
+          <MorphGallery
+            items={heroSlides}
+            index={activeHeroIndex}
+            onIndexChange={handleSelectHeroSlide}
+            autoplay={0}
+            duration={1200}
+            height="100%"
+            arrows={false}
+            thumbnails={false}
+            onReady={handleHeroReady}
+          />
+          {/* Cinematic dark scrims to ensure pristine typography legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 via-50% to-transparent/10 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-black/15 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 pointer-events-none z-[1]" />
+        </div>
+
+        {/* Top Back Navigation Button */}
+        <div className="absolute top-24 sm:top-28 lg:top-32 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-start">
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigateToHome) onNavigateToHome()
+                else if (typeof window !== 'undefined') window.location.hash = ''
+              }}
+              aria-label="Back to Home"
+              className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        </div>
+
+        {/* MAIN HERO CONTENT (Identical layout to Homepage & Ananda Hero) */}
+        <main className="relative z-10 flex-1 w-full flex items-center pointer-events-none pt-20 sm:pt-24 lg:pt-28 pb-12">
+          <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 py-8 flex flex-col justify-center pointer-events-auto">
+            <div className="max-w-3xl">
+              <div
+                key={activeHeroIndex}
+                className={`transition-all duration-1000 ${
+                  isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
+                }`}
+              >
+                {/* Category Tag */}
+                <div className="mb-3">
+                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-neutral-300 font-medium">
+                    {currentHeroSlide.category}
+                  </span>
+                </div>
+
+                {/* Master Headline */}
+                <div className="relative inline-block py-1">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
+                    {currentHeroSlide.headline}
+                  </h1>
+                </div>
+
+                {/* Subtitle Paragraph */}
+                <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                  {currentHeroSlide.subtitle}
+                </p>
+
+                {/* Action Button: REQUEST FREE SAMPLE ────○ */}
+                <div className="mt-6 sm:mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(true)}
+                    className="inline-flex items-center gap-4 group cursor-pointer font-['Inter'] active:scale-[0.98] transition-transform duration-150"
+                  >
+                    <span className="text-[11.5px] font-semibold tracking-[0.2em] uppercase text-white group-hover:text-white/80 transition-colors drop-shadow-sm">
+                      {currentHeroSlide.ctaText || dp.heroButtonText || 'REQUEST FREE SAMPLE'}
+                    </span>
+
+                    <div className="h-[1.5px] w-12 sm:w-16 bg-white/70 group-hover:w-20 sm:group-hover:w-24 transition-all duration-300" />
+
+                    <div className="w-8 h-8 rounded-full border border-white/60 bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-sm text-white">
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* CORNER DOWN SQUARE THUMBNAILS (Identical layout to Homepage Hero) */}
+        <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-end">
+            <nav
+              aria-label="Dara Hero Slide Navigation"
+              className={`pointer-events-auto transition-all duration-1000 ${
+                isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+              onMouseEnter={() => setIsHeroPaused(true)}
+              onMouseLeave={() => setIsHeroPaused(false)}
+            >
+              <div className="flex items-center gap-3 sm:gap-4">
+                {heroSlides.map((slide, idx) => {
+                  const isActive = idx === activeHeroIndex;
+                  return (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => handleSelectHeroSlide(idx)}
+                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${
+                        isActive
+                          ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
+                          : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
+                      }`}
+                      title={`Switch to ${slide.headline}`}
+                      aria-label={`Slide ${idx + 1}: ${slide.headline}`}
+                      aria-current={isActive}
+                    >
+                      <img
+                        src={slide.thumb || slide.src}
+                        alt={slide.headline}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
 
       {/* INNER CONTENT WRAPPER */}
       <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] mx-auto">
@@ -408,24 +618,9 @@ export default function DaraPage({
       {/* SECTION G: CLOSING CALL TO ACTION BOX */}
       <ProductCtaBox
         title={dp.cta?.title || "Bring Dignity to Every Room"}
-        subtitle={dp.cta?.subtitle || "Reserve a clinical evaluation unit or schedule a consultation with our geriatric hardware engineering team in Bengaluru."}
-        buttonText={dp.cta?.buttonText || "Request Clinical Pilot"}
+        subtitle={dp.cta?.subtitle || "Request a free evaluation sample unit or schedule a consultation with our geriatric hardware engineering team in Bengaluru."}
+        buttonText={dp.cta?.buttonText || "Request Free Sample"}
         onButtonClick={() => setModalOpen(true)}
-      />
-
-      {/* GLOBAL FOOTER */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToTerms={onNavigateToTerms}
-        onNavigateToLogin={onNavigateToLogin}
-        user={user}
       />
 
       {/* CONSULTATION / PILOT MODAL */}
@@ -433,12 +628,20 @@ export default function DaraPage({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         user={user}
-        title={dp.modal?.title || "Dara Clinical Pilot Consultation"}
-        formTitle={dp.modal?.formTitle || "Reserve Pilot Hardware"}
-        formSubtitle={dp.modal?.formSubtitle || "Specify deployment criteria to evaluate pilot units in your facility."}
-        scopeLabel={dp.modal?.scopeLabel || "Care Setting"}
-        scopeOptions={scopeOptions}
-        notesPlaceholder={dp.modal?.notesPlaceholder || "Add any specific clinical or architectural requirements..."}
+        productKey="dara"
+        title={dp.modal?.title || "Dara Free Sample Request"}
+        formTitle={dp.modal?.formTitle || "Request Free Sample Unit"}
+        formSubtitle={dp.modal?.formSubtitle || "Specify patient and delivery details to receive a free sample evaluation unit."}
+        nameLabel={dp.modal?.nameLabel || "Patient Name"}
+        namePlaceholder="Patient Full Name"
+        emailLabel={dp.modal?.emailLabel || "Patient Email"}
+        emailPlaceholder="patient@health.in"
+        facilityLabel={dp.modal?.facilityLabel || "Care Home / Residence"}
+        facilityPlaceholder="Residence / Care Home / Facility Name"
+        showScope={false}
+        notesLabel={dp.modal?.notesLabel || "Notes"}
+        notesPlaceholder={dp.modal?.notesPlaceholder || "Add any specific requirements or notes..."}
+        submitButtonText={dp.modal?.submitButtonText || "REQUEST FREE SAMPLE"}
         meetingUrl="https://meet.uandwelabs.com/dara-consult-desk"
         departmentTitle={dp.modal?.departmentTitle || "Dara Geriatric Hardware Engineering Desk"}
         departmentSubtitle={dp.modal?.departmentSubtitle || "Clinical Consultation Team · Bengaluru"}

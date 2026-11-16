@@ -11,6 +11,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import SecurityPage from './pages/SecurityPage'
 import TermsPage from './pages/TermsPage'
 import Header from './components/Header'
+import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 
 function App() {
@@ -37,6 +38,12 @@ function App() {
   const [currentPage, setCurrentPage] = useState(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase()
+      if (hash === '#login' || hash === '#signin') {
+        return 'login'
+      }
+      if (hash === '#signup') {
+        return 'login'
+      }
       if (hash === '#ananda' || hash === '#geospatial' || hash === '#ananda-commercial' || hash === '#ananda-residential') {
         return 'ananda'
       }
@@ -67,6 +74,7 @@ function App() {
       try {
         const savedPage = sessionStorage.getItem('uandwe_current_page')
         if (
+          savedPage === 'login' ||
           savedPage === 'ananda' ||
           savedPage === 'dara' ||
           savedPage === 'aura' ||
@@ -93,7 +101,17 @@ function App() {
     }
     return 'commercial'
   })
-  const [loginMode, setLoginMode] = useState('signin')
+  const [loginMode, setLoginMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase()
+      if (hash === '#signup') return 'signup'
+      try {
+        const savedMode = sessionStorage.getItem('uandwe_login_mode')
+        if (savedMode === 'signup' || savedMode === 'signin') return savedMode
+      } catch {}
+    }
+    return 'signin'
+  })
   const [welcomeMessage, setWelcomeMessage] = useState('')
 
   // Persist current page & ananda category in sessionStorage
@@ -101,12 +119,18 @@ function App() {
     try {
       sessionStorage.setItem('uandwe_current_page', currentPage)
       sessionStorage.setItem('ananda_category', anandaCategory)
+      sessionStorage.setItem('uandwe_login_mode', loginMode)
     } catch {}
-  }, [currentPage, anandaCategory])
+  }, [currentPage, anandaCategory, loginMode])
 
   // Maintain correct hash in URL bar when navigating between dedicated pages
   useEffect(() => {
-    if (currentPage === 'ananda') {
+    if (currentPage === 'login') {
+      const currentHash = window.location.hash.toLowerCase()
+      if (currentHash !== '#login' && currentHash !== '#signin' && currentHash !== '#signup') {
+        window.history.replaceState(null, '', loginMode === 'signup' ? '#signup' : '#login')
+      }
+    } else if (currentPage === 'ananda') {
       const currentHash = window.location.hash.toLowerCase()
       if (!currentHash.includes('ananda') && !currentHash.includes('geospatial')) {
         window.history.replaceState(null, '', anandaCategory === 'residential' ? '#ananda-residential' : '#ananda')
@@ -152,23 +176,13 @@ function App() {
         window.history.replaceState(null, '', '#terms')
       }
     }
-  }, [currentPage, anandaCategory])
-
-  // On initial mount, ensure any lingering #login or #signup hash is cleared
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase()
-      if (hash === '#login' || hash === '#signup') {
-        window.history.replaceState(null, '', window.location.pathname)
-      }
-    }
-  }, [])
+  }, [currentPage, anandaCategory, loginMode])
 
   // Hash route listener to allow user-initiated navigation
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.toLowerCase()
-      if (hash === '#login') {
+      if (hash === '#login' || hash === '#signin') {
         setCurrentPage('login')
         setLoginMode('signin')
       } else if (hash === '#signup') {
@@ -216,15 +230,25 @@ function App() {
   const [redirectTarget, setRedirectTarget] = useState(null)
 
   // Called when user completes login / sign up: route to destination or home page
-  const handleLogin = (userData) => {
-    setUser(userData)
+  const handleLogin = (userData, selectedDestination = null) => {
+    const activeProd =
+      userData?.selectedProduct ||
+      (selectedDestination && selectedDestination !== 'all' ? selectedDestination : null) ||
+      sessionStorage.getItem('uandwe_selected_product') ||
+      'ananda'
+    const enrichedUser = {
+      ...userData,
+      selectedProduct: activeProd,
+    }
+    setUser(enrichedUser)
     try {
-      localStorage.setItem('uandwe_user', JSON.stringify(userData))
+      localStorage.setItem('uandwe_user', JSON.stringify(enrichedUser))
+      sessionStorage.setItem('uandwe_selected_product', activeProd)
     } catch (err) {
       console.error('Failed to save session:', err)
     }
 
-    const target = redirectTarget
+    const target = (selectedDestination && selectedDestination !== 'all') ? selectedDestination : redirectTarget
     setRedirectTarget(null)
 
     // Determine target platform category
@@ -334,7 +358,11 @@ function App() {
     setLoginMode(mode)
     setRedirectTarget(target)
     setCurrentPage('login')
-    window.location.hash = 'login'
+    try {
+      sessionStorage.setItem('uandwe_current_page', 'login')
+      sessionStorage.setItem('uandwe_login_mode', mode)
+    } catch {}
+    window.location.hash = mode === 'signup' ? 'signup' : 'login'
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -666,6 +694,23 @@ function App() {
           onDismissWelcome={() => setWelcomeMessage('')}
         />
       )}
+
+      {/* ========================================================= */}
+      {/* UNIFIED GLOBAL FOOTER (Mounted once across entire app)    */}
+      {/* ========================================================= */}
+      <Footer
+        onNavigateToHome={handleNavigateToHome}
+        onNavigateToAnanda={handleNavigateToAnanda}
+        onNavigateToDara={handleNavigateToDara}
+        onNavigateToAura={handleNavigateToAura}
+        onNavigateToBlogs={handleNavigateToBlogs}
+        onNavigateToAbout={handleNavigateToAbout}
+        onNavigateToCareers={handleNavigateToCareers}
+        onNavigateToPrivacy={handleNavigateToPrivacy}
+        onNavigateToSecurity={handleNavigateToSecurity}
+        onNavigateToTerms={handleNavigateToTerms}
+        user={user}
+      />
 
       <ScrollToTop />
     </>

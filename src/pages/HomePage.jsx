@@ -6,7 +6,6 @@ import GeoSpatialSection from '../components/GeoSpatialSection'
 import HealthcareSection from '../components/HealthcareSection'
 import BoardSection from '../components/BoardSection'
 import GrowWithUsSection from '../components/GrowWithUsSection'
-import Footer from '../components/Footer'
 
 const SECTION_IDS = ['hero', 'beliefs', 'introduction', 'healthcare', 'board', 'careers']
 
@@ -233,19 +232,6 @@ export default function HomePage({
 
       {/* Grow With Us Careers Section */}
       <GrowWithUsSection onNavigateToCareers={onNavigateToCareers} />
-
-      {/* Clean Simple Footer */}
-      <Footer
-        onNavigateToAnanda={onNavigateToAnanda}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToSecurity={onNavigateToSecurity}
-        onNavigateToTerms={onNavigateToTerms}
-      />
     </div>
   )
 }

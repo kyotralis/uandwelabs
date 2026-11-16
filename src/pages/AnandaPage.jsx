@@ -26,8 +26,8 @@ import {
   Share2
 } from 'lucide-react';
 
-import Footer from '../components/Footer';
 import CommonCta from '../components/CommonCta';
+import { isUserProductMatch } from '../components/ProductComponents';
 import MorphGallery from '../components/ui/morph-gallery';
 import { useTranslation } from '../i18n';
 
@@ -37,14 +37,14 @@ import goldenHourRiverside from '../assets/anadha/Golden Hour Skyline by the Riv
 import geminiEcoCourtyard from '../assets/anadha/Gemini_Generated_Image_huaymkhuaymkhuay.webp';
 
 // Commercial Bento Physics Simulation Assets
-import modernOfficeStreamlines from '../assets/anadha/Modern Office Campus with Flowing Light Streamlines (1).webp';
-import glowingBlueFlows from '../assets/anadha/Glowing Blue Flows Over Empty City Roads.webp';
-import goldenHourPlazaShadows from '../assets/anadha/Golden Hour Urban Plaza Shadows.webp';
+import airflowModernCampus from '../assets/anadha/Airflow Streamlines Across a Modern Campus.webp';
+import modernCampusPlazaShadows from '../assets/anadha/Modern Campus Plaza with Dramatic Shadows.webp';
+import rainyPlazaFloodModel from '../assets/anadha/Rainy Corporate Plaza Flood Model.webp';
 
 // Residential Bento Physics Simulation Assets
-import sunsetAerialApartments from '../assets/anadha/Sunset Aerial View of Modern Apartments.webp';
-import floodedCourtyardFlow from '../assets/anadha/Flooded Courtyard Flow Simulation.webp';
-import luminousCourtyardAirflow from '../assets/anadha/Luminous Airflow in a Modern Courtyard.webp';
+import goldenHourUrbanShadow from '../assets/anadha/Golden Hour Urban Shadow Analysis.webp';
+import stormFloodedNeighborhood from '../assets/anadha/Storm-Flooded Residential Neighborhood.webp';
+import aerialWindflowResidentialPark from '../assets/anadha/Aerial Windflow Over Residential Park.webp';
 
 // Real CFD & Urban Physics Simulation Assets
 import cfdComplexStructure from '../assets/anadha/CFD Streamlines Around Complex Structure.webp';
@@ -306,25 +306,51 @@ export default function AnandaPage({
   // Multi-Step Modal & Consultation Flow States
   const [modalOpen, setModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState('form'); // 'form' | 'schedule' | 'connect' | 'confirmed'
+  const isAnandaMatch = isUserProductMatch(user, 'ananda');
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: (isAnandaMatch && user?.name) || '',
+    email: (isAnandaMatch && user?.email) || '',
     company: '',
     sector: initialCategory || 'commercial',
     latitude: '12.971599',
     longitude: '77.594566',
   });
 
-  // Pre-fill user details when signed in
+  // Pre-fill user details ONLY when signed in for Ananda
   useEffect(() => {
-    if (user?.email) {
+    if (user && isUserProductMatch(user, 'ananda')) {
       setFormData((prev) => ({
         ...prev,
         name: user.name || prev.name,
-        email: user.email,
+        email: user.email || prev.email,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        name: '',
+        email: '',
       }));
     }
   }, [user]);
+
+  // Synchronize on modal open
+  useEffect(() => {
+    if (modalOpen) {
+      if (user && isUserProductMatch(user, 'ananda')) {
+        setFormData((prev) => ({
+          ...prev,
+          name: user.name || prev.name,
+          email: user.email || prev.email,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          name: '',
+          email: '',
+        }));
+      }
+    }
+  }, [modalOpen, user]);
 
   const [gpsStatus, setGpsStatus] = useState('idle'); // 'idle' | 'detecting' | 'locked' | 'denied'
   const [gpsAccuracy, setGpsAccuracy] = useState(null);
@@ -1006,8 +1032,8 @@ export default function AnandaPage({
               >
                 <img
                   key={isResidential ? 'res-1' : 'comm-1'}
-                  src={isResidential ? sunsetAerialApartments : goldenHourPlazaShadows}
-                  alt={isResidential ? "Residential Apartment Sunset Simulation" : "Commercial Solar Simulation"}
+                  src={isResidential ? goldenHourUrbanShadow : modernCampusPlazaShadows}
+                  alt={isResidential ? "Residential Neighborhood Solar & Shadow Simulation" : "Commercial Solar Simulation"}
                   className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
                 />
               </div>
@@ -1027,8 +1053,8 @@ export default function AnandaPage({
                 >
                   <img
                     key={isResidential ? 'res-2' : 'comm-2'}
-                    src={isResidential ? luminousCourtyardAirflow : modernOfficeStreamlines}
-                    alt={isResidential ? "Residential Courtyard Airflow CFD Simulation" : "Commercial Airflow CFD Simulation"}
+                    src={isResidential ? aerialWindflowResidentialPark : airflowModernCampus}
+                    alt={isResidential ? "Residential Park Windflow CFD Simulation" : "Commercial Airflow CFD Simulation"}
                     className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
                   />
                 </div>
@@ -1046,8 +1072,8 @@ export default function AnandaPage({
                 >
                   <img
                     key={isResidential ? 'res-3' : 'comm-3'}
-                    src={isResidential ? floodedCourtyardFlow : glowingBlueFlows}
-                    alt={isResidential ? "Residential Courtyard Flood Simulation" : "Commercial Flood Hydrology Simulation"}
+                    src={isResidential ? stormFloodedNeighborhood : rainyPlazaFloodModel}
+                    alt={isResidential ? "Residential Neighborhood Storm Flood Simulation" : "Commercial Flood Hydrology Simulation"}
                     className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
                   />
                 </div>
@@ -1335,25 +1361,6 @@ export default function AnandaPage({
       </div> {/* END INNER CONTENT WRAPPER 2 */}
 
       {/* ======================================================== */}
-      {/* 8. GLOBAL SITE FOOTER                                    */}
-      {/* ======================================================== */}
-      <Footer
-        onNavigateToHome={onNavigateToHome}
-        onNavigateToAnanda={(category) => {
-          setIsResidential(category === 'residential');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        onNavigateToDara={onNavigateToDara}
-        onNavigateToAura={onNavigateToAura}
-        onNavigateToBlogs={onNavigateToBlogs}
-        onNavigateToAbout={onNavigateToAbout}
-        onNavigateToCareers={onNavigateToCareers}
-        onNavigateToPrivacy={onNavigateToPrivacy}
-        onNavigateToTerms={onNavigateToTerms}
-      />
-
-
-      {/* ======================================================== */}
       {/* 9. SIMULATION REQUEST & AGENT CONSULTATION MODAL        */}
       {/* ======================================================== */}
       <AnimatePresence>
@@ -1386,10 +1393,11 @@ export default function AnandaPage({
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="p-2 rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer"
+                      className="p-2 rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer group flex items-center justify-center"
                       title={m.close || 'Close'}
+                      aria-label="Close"
                     >
-                      <X size={20} />
+                      <X size={20} className="transition-transform duration-500 ease-in-out group-hover:rotate-180" />
                     </button>
                   </div>
 
@@ -1548,10 +1556,11 @@ export default function AnandaPage({
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="p-1.5 rounded text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer group flex items-center justify-center"
                       title={m.close || 'Close'}
+                      aria-label="Close"
                     >
-                      <X size={20} />
+                      <X size={20} className="transition-transform duration-500 ease-in-out group-hover:rotate-180" />
                     </button>
                   </div>
 
@@ -1806,10 +1815,11 @@ export default function AnandaPage({
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="p-2 rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer"
+                      className="p-2 rounded-full text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer group flex items-center justify-center"
                       title={m.close || 'Close'}
+                      aria-label="Close"
                     >
-                      <X size={20} />
+                      <X size={20} className="transition-transform duration-500 ease-in-out group-hover:rotate-180" />
                     </button>
                   </div>
 

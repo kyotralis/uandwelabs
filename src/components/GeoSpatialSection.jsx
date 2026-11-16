@@ -2,10 +2,14 @@ import { useMemo } from 'react'
 import ProductShowcaseSection from './ProductShowcaseSection'
 import { useTranslation } from '../i18n'
 
+import goldenHourUrbanCampus from '../assets/anadha/Golden Hour Urban Campus.webp'
+import duskCampusAirflow from '../assets/anadha/Dusk Campus Airflow Visualization.webp'
+import stormFloodedCampus from '../assets/anadha/Storm-Flooded Urban Campus at Dusk.webp'
+
 // Simulation Slides for Ananda Geo Spatial
 export const SIMULATION_SLIDES = [
   {
-    src: '/sunlight_card.jpg?v=2',
+    src: goldenHourUrbanCampus,
     alt: 'Urban Shadow Analysis',
     title: 'Urban Shadow Analysis',
     subtitle: 'Solar Ray-Casting & Diurnal Dynamics',
@@ -16,7 +20,7 @@ export const SIMULATION_SLIDES = [
     ],
   },
   {
-    src: '/airflow_card.jpg',
+    src: duskCampusAirflow,
     alt: 'Flow Field Simulation',
     title: 'Flow Field Simulation',
     subtitle: 'Aerodynamic CFD & Micro-Climate',
@@ -27,7 +31,7 @@ export const SIMULATION_SLIDES = [
     ],
   },
   {
-    src: '/flood_card.jpg?v=2',
+    src: stormFloodedCampus,
     alt: 'Urban Flood Simulation',
     title: 'Urban Flood Simulation',
     subtitle: 'Hydrological Resilience & Runoff',

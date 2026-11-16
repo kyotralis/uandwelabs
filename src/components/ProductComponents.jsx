@@ -660,6 +660,39 @@ export function ProductCtaBox({
   )
 }
 
+// Helper to check whether logged-in user selected this product at login
+export function isUserProductMatch(user, productKey) {
+  if (!user || (!user.email && !user.name)) return false;
+
+  let targetProduct = user.selectedProduct;
+  if (!targetProduct && typeof window !== 'undefined') {
+    try {
+      targetProduct = sessionStorage.getItem('uandwe_selected_product') || localStorage.getItem('uandwe_active_platform');
+    } catch {}
+  }
+
+  const normalized = String(targetProduct || '').toLowerCase().trim();
+
+  // If no product is set, default to ananda
+  if (!normalized) {
+    return productKey === 'ananda';
+  }
+
+  if (productKey === 'ananda') {
+    return normalized.includes('ananda');
+  }
+
+  if (productKey === 'dara') {
+    return normalized.includes('dara');
+  }
+
+  if (productKey === 'aura') {
+    return normalized.includes('aura');
+  }
+
+  return false;
+}
+
 // ========================================================
 // 8. PRODUCT CONSULTATION MODAL
 // ========================================================
@@ -667,12 +700,22 @@ export function ProductConsultModal({
   open,
   onClose,
   user,
+  productKey,
   title = 'Hardware Pilot Consultation',
   formTitle = 'Reserve Pilot Hardware',
   formSubtitle = 'Specify deployment criteria to evaluate pilot units in your facility.',
+  nameLabel,
+  namePlaceholder = 'Dr. Anandita Sen',
+  emailLabel,
+  emailPlaceholder = 'anandita@health.in',
+  facilityLabel,
+  facilityPlaceholder = 'Manipal Geriatric Wellness / Private Home',
+  showScope = true,
   scopeLabel = 'Sector',
   scopeOptions = [],
+  notesLabel,
   notesPlaceholder = 'Add any specific clinical or architectural requirements...',
+  submitButtonText,
   meetingUrl = 'https://meet.uandwelabs.com/pilot-desk',
   departmentTitle = 'Hardware Engineering Operations',
   departmentSubtitle = 'Engineering & Clinical Architecture Desk',
@@ -680,10 +723,27 @@ export function ProductConsultModal({
   const { t } = useTranslation()
   const pm = t.productModal || {}
 
+  // Determine whether modal belongs to dara, aura, or ananda
+  const inferredProductKey =
+    productKey ||
+    (String(title).toLowerCase().includes('dara') || meetingUrl.includes('dara')
+      ? 'dara'
+      : String(title).toLowerCase().includes('aura') || meetingUrl.includes('aura')
+      ? 'aura'
+      : 'ananda')
+
+  const matchesProduct = isUserProductMatch(user, inferredProductKey)
+
+  const resolvedNameLabel = nameLabel || pm.yourName || 'Your Name'
+  const resolvedEmailLabel = emailLabel || pm.emailAddress || 'Email Address'
+  const resolvedFacilityLabel = facilityLabel || pm.facilityPractice || 'Facility / Practice'
+  const resolvedNotesLabel = notesLabel || pm.deploymentNotes || 'Deployment Notes'
+  const resolvedSubmitButtonText = submitButtonText || pm.proceedToSchedule || 'PROCEED TO ARCHITECT SCHEDULING'
+
   const [modalStep, setModalStep] = useState('form') // 'form' | 'schedule' | 'connect' | 'confirmed'
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: matchesProduct ? (user?.name || '') : '',
+    email: matchesProduct ? (user?.email || '') : '',
     facility: '',
     sector: scopeOptions[0]?.value || '',
     notes: '',
@@ -706,14 +766,15 @@ export function ProductConsultModal({
       setCopiedLink(false)
       setIsMuted(false)
       setIsVideoOff(false)
+      const matches = isUserProductMatch(user, inferredProductKey)
       setFormData((prev) => ({
         ...prev,
-        name: user?.name || prev.name,
-        email: user?.email || prev.email,
+        name: matches ? (user?.name || '') : '',
+        email: matches ? (user?.email || '') : '',
         sector: scopeOptions[0]?.value || '',
       }))
     }
-  }, [open, user, scopeOptions])
+  }, [open, user, inferredProductKey, scopeOptions])
 
   // Escape key handler
   useEffect(() => {
@@ -783,10 +844,12 @@ export function ProductConsultModal({
               </span>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1 hover:bg-white/10 transition-colors text-white/70 hover:text-white cursor-pointer"
+              className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-white/70 hover:text-white cursor-pointer group flex items-center justify-center"
+              aria-label="Close"
             >
-              <X size={18} />
+              <X size={18} className="transition-transform duration-500 ease-in-out group-hover:rotate-180" />
             </button>
           </div>
 
@@ -820,57 +883,71 @@ export function ProductConsultModal({
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{pm.yourName || 'Your Name'}</label>
+                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{resolvedNameLabel}</label>
                       <input
                         type="text"
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Dr. Anandita Sen"
+                        placeholder={namePlaceholder}
                         className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{pm.emailAddress || 'Email Address'}</label>
+                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{resolvedEmailLabel}</label>
                       <input
                         type="email"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="anandita@health.in"
+                        placeholder={emailPlaceholder}
                         className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {showScope ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{resolvedFacilityLabel}</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.facility}
+                          onChange={(e) => setFormData({ ...formData, facility: e.target.value })}
+                          placeholder={facilityPlaceholder}
+                          className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{scopeLabel}</label>
+                        <select
+                          value={formData.sector}
+                          onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                          className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
+                        >
+                          {scopeOptions.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
                     <div>
-                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{pm.facilityPractice || 'Facility / Practice'}</label>
+                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{resolvedFacilityLabel}</label>
                       <input
                         type="text"
                         required
                         value={formData.facility}
                         onChange={(e) => setFormData({ ...formData, facility: e.target.value })}
-                        placeholder="Manipal Geriatric Wellness / Private Home"
+                        placeholder={facilityPlaceholder}
                         className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                       />
                     </div>
-                    <div>
-                      <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{scopeLabel}</label>
-                      <select
-                        value={formData.sector}
-                        onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
-                        className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
-                      >
-                        {scopeOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
+                  )}
 
                   <div>
-                    <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{pm.deploymentNotes || 'Deployment Notes'}</label>
+                    <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{resolvedNotesLabel}</label>
                     <textarea
                       rows={3}
                       value={formData.notes}
@@ -885,7 +962,7 @@ export function ProductConsultModal({
                       type="submit"
                       className="w-full py-4 bg-black hover:bg-neutral-800 text-white text-xs font-mono uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span>{pm.proceedToSchedule || 'PROCEED TO ARCHITECT SCHEDULING'}</span>
+                      <span>{resolvedSubmitButtonText}</span>
                       <ArrowRight size={14} />
                     </button>
                   </div>

@@ -15,12 +15,42 @@ import {
 } from 'lucide-react'
 import { authApi } from '../services/api'
 
+const PRODUCT_OPTIONS = [
+  { id: 'ananda', name: 'Ananda Commercial', desc: 'Urban Physics & CFD' },
+  { id: 'ananda-residential', name: 'Ananda Residency', desc: 'Living & Daylight' },
+  { id: 'dara', name: 'Dara Healthcare', desc: 'Assistive Fall Radar' },
+  { id: 'aura', name: 'Aura Physical AI', desc: 'Autonomous Edge Vision' },
+]
+
 export default function LoginPage({
   onLogin,
   onNavigateToHome,
   redirectTarget,
   initialMode = 'signin',
 }) {
+  const [selectedProduct, setSelectedProduct] = useState(() => {
+    if (redirectTarget === 'ananda-residential') return 'ananda-residential'
+    if (redirectTarget === 'ananda') return 'ananda'
+    if (redirectTarget === 'dara') return 'dara'
+    if (redirectTarget === 'aura') return 'aura'
+    return 'ananda'
+  })
+  const [productDropdownOpen, setProductDropdownOpen] = useState(false)
+  const productDropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (productDropdownRef.current && !productDropdownRef.current.contains(e.target)) {
+        setProductDropdownOpen(false)
+      }
+    }
+    if (productDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [productDropdownOpen])
   const [mode, setMode] = useState(initialMode === 'signup' ? 'signup' : 'signin')
   const isSignUp = mode === 'signup'
   const [isEntered, setIsEntered] = useState(false)
@@ -131,7 +161,7 @@ export default function LoginPage({
             email: data.user.email || cleanEmail,
             role: data.user.role || 'member',
             isNewAccount: true,
-          })
+          }, selectedProduct)
         }
       } catch (err) {
         setErrorMessage(err.message || 'Registration failed. Please check your connection.')
@@ -150,7 +180,7 @@ export default function LoginPage({
             email: data.user.email,
             role: data.user.role || 'member',
             isNewAccount: false,
-          })
+          }, selectedProduct)
         }
       } catch (err) {
         setErrorMessage(err.message || 'Login failed. Please check your email and password.')
@@ -234,7 +264,7 @@ export default function LoginPage({
                 avatar: data.user.avatar || profile.picture,
                 role: data.user.role || 'member',
                 isNewAccount: false,
-              })
+              }, selectedProduct)
             }
           } catch (err) {
             console.error('[Google Auth Error]:', err)
@@ -243,15 +273,23 @@ export default function LoginPage({
             setLoading(false)
           }
         },
-        error_callback: (error) => {
-          console.error('[Google Auth Popup Error]:', error)
-          if (error?.type === 'popup_closed') {
-            setErrorMessage('')
-          } else {
-            setErrorMessage('Google popup was blocked by browser. Click the site settings icon in your address bar to allow pop-ups.')
-          }
-          setLoading(false)
-        },
+       
+error_callback: (error) => {
+  console.error('[Google OAuth Popup Error]', {
+    type: error?.type,
+    message: error?.message,
+    error
+  });
+
+  setErrorMessage(
+    error?.type === 'popup_closed'
+      ? 'Google sign-in popup closed before authentication completed. Please try again.'
+      : 'Google sign-in popup could not be opened. Check browser popup settings.'
+  );
+
+  setLoading(false);
+}
+
       })
 
       // Open Google account selection popup
@@ -322,7 +360,7 @@ export default function LoginPage({
           avatar: data.user.avatar,
           role: data.user.role || 'member',
           isNewAccount: false,
-        })
+        }, selectedProduct)
       }
     } catch (err) {
       setErrorMessage(err.message || 'Invalid or expired verification code.')
@@ -422,19 +460,19 @@ export default function LoginPage({
                   <span>Back to uandwelabs</span>
                 </button>
 
-                {targetCategory && (
-                  <div>
-                    {targetCategory === 'residential' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[11px] font-semibold backdrop-blur-md">
-                        🏡 Ananda Residency
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-400/40 text-orange-200 text-[11px] font-semibold backdrop-blur-md">
-                        🏢 Ananda Commercial
-                      </span>
-                    )}
-                  </div>
-                )}
+                <div>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[11px] font-semibold tracking-wide backdrop-blur-md">
+                    {selectedProduct === 'ananda'
+                      ? 'Ananda Commercial'
+                      : selectedProduct === 'ananda-residential'
+                      ? 'Ananda Residency'
+                      : selectedProduct === 'dara'
+                      ? 'Dara Healthcare'
+                      : selectedProduct === 'aura'
+                      ? 'Aura Physical AI'
+                      : 'Ananda Commercial'}
+                  </span>
+                </div>
               </div>
 
               {/* Center / Hero Typography (Matches Reference Screenshot) */}
@@ -639,6 +677,51 @@ export default function LoginPage({
                   {/* Form with Clean Underline Inputs */}
                   <form onSubmit={handleSubmit}>
                     <div className="space-y-6">
+                      {/* Target Product Input Dropdown (Clean Underline Style, Zero Icons) */}
+                      <div ref={productDropdownRef} className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
+                        <label className="block text-[11px] text-white/60 mb-1 font-light">Target Workspace</label>
+                        <div
+                          onClick={() => setProductDropdownOpen(!productDropdownOpen)}
+                          className="flex items-center justify-between cursor-pointer py-0.5 select-none"
+                        >
+                          <span className="text-white text-xs font-medium">
+                            {PRODUCT_OPTIONS.find((p) => p.id === selectedProduct)?.name || 'Ananda Commercial'}
+                          </span>
+                          <span className="text-[10px] text-white/50 tracking-wider uppercase font-mono px-2 py-0.5 rounded border border-white/15 bg-white/5 hover:bg-white/10 hover:text-white transition-colors">
+                            {productDropdownOpen ? 'CLOSE' : 'CHANGE'}
+                          </span>
+                        </div>
+
+                        {/* Dropdown Menu (Zero Icons, Pure Typography) */}
+                        {productDropdownOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-slate-950/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] animate-in fade-in-0 duration-150 space-y-1">
+                            {PRODUCT_OPTIONS.map((prod) => {
+                              const isSelected = selectedProduct === prod.id
+                              return (
+                                <button
+                                  key={prod.id}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedProduct(prod.id)
+                                    setProductDropdownOpen(false)
+                                  }}
+                                  className={`w-full text-left px-3 py-2 rounded-xl transition-all text-xs cursor-pointer flex items-center justify-between ${
+                                    isSelected
+                                      ? 'bg-white text-slate-950 font-semibold shadow-xs'
+                                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                                  }`}
+                                >
+                                  <span className="text-[12px]">{prod.name}</span>
+                                  <span className={`text-[10px] ${isSelected ? 'text-slate-600' : 'text-white/45'}`}>
+                                    {prod.desc}
+                                  </span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
                       {/* Email Field */}
                       <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
                         <label className="block text-[11px] text-white/60 mb-1 font-light">Email</label>

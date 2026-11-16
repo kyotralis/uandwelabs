@@ -211,12 +211,16 @@ export default function LoginPage({
       const tokenClient = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: 'email profile openid',
-        callback: async (tokenResponse) => {
-          if (tokenResponse.error) {
-            setErrorMessage(tokenResponse.error_description || tokenResponse.error || 'Google sign-in was cancelled.')
-            setLoading(false)
-            return
-          }
+       
+callback: async (tokenResponse) => {
+  console.log("GOOGLE CALLBACK TRIGGERED");
+  console.log("TOKEN RESPONSE:", tokenResponse);
+
+  if (tokenResponse.error) {
+    console.error("GOOGLE TOKEN ERROR:", tokenResponse.error);
+    setLoading(false);
+    return;
+  }
 
           try {
             // Fetch genuine profile details directly from Google OAuth userinfo API

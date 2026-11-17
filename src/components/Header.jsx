@@ -153,6 +153,11 @@ export default function Header({
   activeNav = 'products',
   onNavChange,
   user,
+  savedAccounts = [],
+  onSwitchAccount,
+  onSwitchProduct,
+  onAddAccount,
+  onRemoveAccount,
   onLogout,
   onNavigateToLogin,
   onNavigateToAnanda,
@@ -180,6 +185,132 @@ export default function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileGeoSpatialOpen, setMobileGeoSpatialOpen] = useState(false)
   const [avatarError, setAvatarError] = useState(false)
+
+  // Compute effective saved accounts (max 2 accounts)
+  const effectiveAccounts = useMemo(() => {
+    if (savedAccounts && Array.isArray(savedAccounts) && savedAccounts.length > 0) {
+      return savedAccounts.slice(0, 2)
+    }
+    if (user && user.email) {
+      return [user]
+    }
+    return []
+  }, [savedAccounts, user])
+
+  // Extract all distinct products this user has logged into
+  const loggedProducts = useMemo(() => {
+    if (!user) return []
+    const userEmail = (user.email || '').toLowerCase()
+    const productSet = new Set()
+
+    // 1. Current active product
+    if (user.selectedProduct) {
+      productSet.add(user.selectedProduct)
+    }
+
+    // 2. Saved accounts with the same email
+    if (Array.isArray(savedAccounts)) {
+      savedAccounts.forEach((acc) => {
+        if (acc?.email?.toLowerCase() === userEmail && acc?.selectedProduct) {
+          productSet.add(acc.selectedProduct)
+        }
+      })
+    }
+
+    // 3. Persistent logged products registry from localStorage
+    try {
+      const stored = localStorage.getItem(`uandwe_products_${userEmail}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) {
+          parsed.forEach((p) => productSet.add(p))
+        }
+      }
+    } catch {}
+
+    // Fallback if empty: default to 'ananda'
+    if (productSet.size === 0) {
+      productSet.add('ananda')
+    }
+
+    return Array.from(productSet)
+  }, [user, savedAccounts])
+
+  // Synchronize localStorage with newly logged products
+  useEffect(() => {
+    if (user?.email && user?.selectedProduct) {
+      const userEmail = user.email.toLowerCase()
+      try {
+        const key = `uandwe_products_${userEmail}`
+        const existing = JSON.parse(localStorage.getItem(key) || '[]')
+        if (!existing.includes(user.selectedProduct)) {
+          const updated = [...existing, user.selectedProduct]
+          localStorage.setItem(key, JSON.stringify(updated))
+        }
+      } catch {}
+    }
+  }, [user?.email, user?.selectedProduct])
+
+  const handleSelectProduct = (prodKey) => {
+    setUserMenuOpen(false)
+    if (onSwitchProduct) {
+      onSwitchProduct(prodKey)
+    } else {
+      if (prodKey === 'ananda-residential') {
+        if (onNavigateToAnanda) onNavigateToAnanda('residential')
+      } else if (prodKey === 'ananda') {
+        if (onNavigateToAnanda) onNavigateToAnanda('commercial')
+      } else if (prodKey === 'dara') {
+        if (onNavigateToDara) onNavigateToDara()
+      } else if (prodKey === 'aura') {
+        if (onNavigateToAura) onNavigateToAura()
+      }
+    }
+  }
+
+  // Helper for workspace styling and tags (all in unified color as requested)
+  const getWorkspaceInfo = (product) => {
+    const unifiedBadge = 'bg-slate-100 text-slate-700 border-slate-200/90'
+    switch (product) {
+      case 'ananda-residential':
+        return {
+          title: 'Ananda Residency',
+          short: 'Residency',
+          desc: 'Living Platform',
+          badgeClass: unifiedBadge,
+          dotClass: 'bg-slate-500',
+          icon: <Home className="w-3.5 h-3.5" />,
+        }
+      case 'dara':
+        return {
+          title: 'Dara Healthcare',
+          short: 'Dara',
+          desc: 'Elder Radar & Health',
+          badgeClass: unifiedBadge,
+          dotClass: 'bg-slate-500',
+          icon: <Radio className="w-3.5 h-3.5" />,
+        }
+      case 'aura':
+        return {
+          title: 'Aura Physical AI',
+          short: 'Aura',
+          desc: 'Edge Vision Silicon',
+          badgeClass: unifiedBadge,
+          dotClass: 'bg-slate-500',
+          icon: <Cpu className="w-3.5 h-3.5" />,
+        }
+      case 'ananda':
+      default:
+        return {
+          title: 'Ananda Commercial',
+          short: 'Commercial',
+          desc: 'Scale & Physics Platform',
+          badgeClass: unifiedBadge,
+          dotClass: 'bg-slate-500',
+          icon: <Building2 className="w-3.5 h-3.5" />,
+        }
+    }
+  }
 
   useEffect(() => {
     setAvatarError(false)
@@ -813,7 +944,7 @@ export default function Header({
                       : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                   }`}
                 >
-                  <span>Products</span>
+                  <span>{t?.products || 'Products'}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
                       activeDropdown === 'products' ? 'rotate-180 text-black' : 'group-hover:text-black'
@@ -856,7 +987,7 @@ export default function Header({
                                     hoveredProductCategory === 'ananda' ? 'text-neutral-400' : 'text-slate-500'
                                   }`}
                                 >
-                                  Urban Physics &amp; CFD
+                                  {t?.anandaCategoryLabel || 'Urban Physics & CFD'}
                                 </span>
                               </div>
                               <ArrowRight
@@ -868,36 +999,7 @@ export default function Header({
                               />
                             </div>
 
-                            {/* 2. Physical AI Tab */}
-                            <div
-                              onMouseEnter={() => setHoveredProductCategory('physical-ai')}
-                              onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
-                              className={`group flex items-center justify-between p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
-                                hoveredProductCategory === 'physical-ai'
-                                  ? 'bg-black text-white border-black shadow-md'
-                                  : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
-                              }`}
-                            >
-                              <div>
-                                <span className="font-semibold text-[15px] tracking-tight block">Physical AI</span>
-                                <span
-                                  className={`text-[11.5px] block leading-tight mt-0.5 ${
-                                    hoveredProductCategory === 'physical-ai' ? 'text-neutral-400' : 'text-slate-500'
-                                  }`}
-                                >
-                                  Autonomous Edge Vision
-                                </span>
-                              </div>
-                              <ArrowRight
-                                className={`w-4 h-4 transition-transform duration-200 ${
-                                  hoveredProductCategory === 'physical-ai'
-                                    ? 'text-white translate-x-1 opacity-100'
-                                    : 'text-slate-400 opacity-40 group-hover:opacity-100'
-                                }`}
-                              />
-                            </div>
-
-                            {/* 3. Healthcare Tab */}
+                            {/* 2. Healthcare Tab */}
                             <div
                               onMouseEnter={() => setHoveredProductCategory('healthcare')}
                               onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
@@ -908,18 +1010,51 @@ export default function Header({
                               }`}
                             >
                               <div>
-                                <span className="font-semibold text-[15px] tracking-tight block">Healthcare</span>
+                                <span className="font-semibold text-[15px] tracking-tight block">
+                                  {t?.healthcare || 'Healthcare'}
+                                </span>
                                 <span
                                   className={`text-[11.5px] block leading-tight mt-0.5 ${
                                     hoveredProductCategory === 'healthcare' ? 'text-neutral-400' : 'text-slate-500'
                                   }`}
                                 >
-                                  Elder Longevity &amp; Fall Radar
+                                  {t?.healthcareLabel || 'Elder Longevity & Fall Radar'}
                                 </span>
                               </div>
                               <ArrowRight
                                 className={`w-4 h-4 transition-transform duration-200 ${
                                   hoveredProductCategory === 'healthcare'
+                                    ? 'text-white translate-x-1 opacity-100'
+                                    : 'text-slate-400 opacity-40 group-hover:opacity-100'
+                                }`}
+                              />
+                            </div>
+
+                            {/* 3. Physical AI Tab */}
+                            <div
+                              onMouseEnter={() => setHoveredProductCategory('physical-ai')}
+                              onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
+                              className={`group flex items-center justify-between p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                hoveredProductCategory === 'physical-ai'
+                                  ? 'bg-black text-white border-black shadow-md'
+                                  : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200/70 hover:border-slate-300'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-semibold text-[15px] tracking-tight block">
+                                  {t?.physicalAi || 'Physical AI'}
+                                </span>
+                                <span
+                                  className={`text-[11.5px] block leading-tight mt-0.5 ${
+                                    hoveredProductCategory === 'physical-ai' ? 'text-neutral-400' : 'text-slate-500'
+                                  }`}
+                                >
+                                  {t?.physicalAiLabel || 'Autonomous Edge Vision'}
+                                </span>
+                              </div>
+                              <ArrowRight
+                                className={`w-4 h-4 transition-transform duration-200 ${
+                                  hoveredProductCategory === 'physical-ai'
                                     ? 'text-white translate-x-1 opacity-100'
                                     : 'text-slate-400 opacity-40 group-hover:opacity-100'
                                 }`}
@@ -942,16 +1077,16 @@ export default function Header({
                                   <div>
                                     <div className="flex items-center justify-between gap-1 mb-1.5">
                                       <h4 className="font-semibold text-slate-900 text-[15px] sm:text-[16px] group-hover/card:text-black transition-colors">
-                                        Commercial
+                                        {t?.commercial || 'Commercial'}
                                       </h4>
                                       <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
                                     </div>
                                     <p className="text-[12px] text-slate-600 leading-relaxed font-normal">
-                                      Large-scale environmental physics, solar ray-casting, and microclimate CFD simulation for commercial towers and urban masterplans.
+                                      {t?.commercialDesc || 'Large-scale environmental physics, solar ray-casting, and microclimate CFD simulation for commercial towers and urban masterplans.'}
                                     </p>
                                   </div>
                                   <div className="pt-2.5 mt-2.5 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
-                                    <span>Enter Commercial</span>
+                                    <span>{t?.enterCommercial || 'Enter Commercial'}</span>
                                     <span className="group-hover/card:translate-x-1 transition-transform">→</span>
                                   </div>
                                 </div>
@@ -964,16 +1099,16 @@ export default function Header({
                                   <div>
                                     <div className="flex items-center justify-between gap-1 mb-1.5">
                                       <h4 className="font-semibold text-slate-900 text-[15px] sm:text-[16px] group-hover/card:text-black transition-colors">
-                                        Residency
+                                        {t?.residency || 'Residency'}
                                       </h4>
                                       <ArrowUpRight className="w-4 h-4 text-slate-400 opacity-60 group-hover/card:opacity-100 group-hover/card:text-black group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5 transition-all" />
                                     </div>
                                     <p className="text-[12px] text-slate-600 leading-relaxed font-normal">
-                                      Passive cross-ventilation, natural daylight autonomy, and microclimate comfort tailored for private residences and luxury estates.
+                                      {t?.residencyDesc || 'Passive cross-ventilation, natural daylight autonomy, and microclimate comfort tailored for private residences and luxury estates.'}
                                     </p>
                                   </div>
                                   <div className="pt-2.5 mt-2.5 border-t border-slate-200 flex items-center justify-between text-[11.5px] font-semibold text-slate-800 group-hover/card:text-black">
-                                    <span>Enter Residency</span>
+                                    <span>{t?.enterResidency || 'Enter Residency'}</span>
                                     <span className="group-hover/card:translate-x-1 transition-transform">→</span>
                                   </div>
                                 </div>
@@ -990,19 +1125,19 @@ export default function Header({
                               <div>
                                 <div className="mb-1">
                                   <h4 className="font-semibold text-slate-900 text-[20px] sm:text-[22px] tracking-tight group-hover/aura:text-black transition-colors">
-                                    Aura
+                                    {t?.auraTitle || 'Aura'}
                                   </h4>
                                 </div>
                                 <span className="text-[12px] font-medium text-slate-500 block mb-2">
-                                  Autonomous Edge Vision &amp; 128-TOPS Silicon
+                                  {t?.auraSubtitle || 'Autonomous Edge Vision & 128-TOPS Silicon'}
                                 </span>
                                 <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
-                                  Autonomous edge vision systems delivering real-time vehicle analytics, high-speed highway recognition, and 350m perimeter defense.
+                                  {t?.auraDesc || 'Autonomous edge vision systems delivering real-time vehicle analytics, high-speed highway recognition, and 350m perimeter defense.'}
                                 </p>
                               </div>
 
                               <div className="pt-2.5 mt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/aura:text-black">
-                                <span>Explore Aura Hardware Node</span>
+                                <span>{t?.exploreAura || 'Explore Aura Hardware Node'}</span>
                                 <span className="group-hover/aura:translate-x-1 transition-transform">→</span>
                               </div>
                             </div>
@@ -1017,19 +1152,19 @@ export default function Header({
                               <div>
                                 <div className="mb-1">
                                   <h4 className="font-semibold text-slate-900 text-[20px] sm:text-[22px] tracking-tight group-hover/dara:text-black transition-colors">
-                                    Dara
+                                    {t?.daraTitle || 'Dara'}
                                   </h4>
                                 </div>
                                 <span className="text-[12px] font-medium text-slate-500 block mb-2">
-                                  Autonomous Senior Dignity &amp; Fall Radar
+                                  {t?.daraSubtitle || 'Autonomous Senior Dignity & Fall Radar'}
                                 </span>
                                 <p className="text-[12.5px] text-slate-600 leading-relaxed font-normal">
-                                  Smart assistive healthcare hardware keeping seniors safe and independent with contactless 60 GHz fall radar and multi-language voice guidance.
+                                  {t?.daraDesc || 'Smart assistive healthcare hardware keeping seniors safe and independent with contactless 60 GHz fall radar and multi-language voice guidance.'}
                                 </p>
                               </div>
 
                               <div className="pt-2.5 mt-3 border-t border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-800 group-hover/dara:text-black">
-                                <span>Explore Dara Assistive Platform</span>
+                                <span>{t?.exploreDara || 'Explore Dara Assistive Platform'}</span>
                                 <span className="group-hover/dara:translate-x-1 transition-transform">→</span>
                               </div>
                             </div>
@@ -1056,7 +1191,7 @@ export default function Header({
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                 }`}
               >
-                Blogs
+                {t?.blogs || 'Blogs'}
               </button>
 
               {/* 3. About Us */}
@@ -1079,7 +1214,7 @@ export default function Header({
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                 }`}
               >
-                About Us
+                {t?.aboutUs || 'About Us'}
               </button>
 
               {/* 4. Careers */}
@@ -1102,7 +1237,7 @@ export default function Header({
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                 }`}
               >
-                Careers
+                {t?.careers || 'Careers'}
               </button>
 
             </nav>
@@ -1181,7 +1316,7 @@ export default function Header({
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search products, solutions..."
+                  placeholder={t?.searchPlaceholder || "Search products, solutions..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -1297,7 +1432,7 @@ export default function Header({
                   <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 text-xs ring-1 ring-black/5">
                     <div className="px-3.5 py-2 border-b border-slate-100 mb-1 flex items-center justify-between">
                       <span className="font-semibold text-slate-500 uppercase tracking-wider text-[11px]">
-                        Select Region & Language
+                        {t?.selectRegionLang || 'Select Region & Language'}
                       </span>
                       <Globe className="w-4 h-4 text-slate-400" />
                     </div>
@@ -1355,7 +1490,7 @@ export default function Header({
                   aria-expanded={userMenuOpen}
                   aria-haspopup="true"
                 >
-                  <div className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs relative overflow-hidden shrink-0 border border-slate-200">
+                  <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs relative overflow-hidden shrink-0 border border-slate-200">
                     {user.avatar && !avatarError ? (
                       <img
                         src={user.avatar}
@@ -1372,7 +1507,7 @@ export default function Header({
                       {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </span>
                   </div>
-                  <span className="text-[13px] sm:text-[14px] xl:text-[14.5px] font-semibold text-black hidden sm:inline max-w-[75px] xl:max-w-[120px] truncate">
+                  <span className="text-[13px] sm:text-[14px] xl:text-[14.5px] font-semibold text-black hidden sm:inline max-w-[85px] xl:max-w-[130px] truncate">
                     {user.name || 'Member'}
                   </span>
                   <ChevronDown
@@ -1385,103 +1520,97 @@ export default function Header({
                   <div
                     onMouseEnter={handleUserMenuMouseEnter}
                     onMouseLeave={handleUserMenuMouseLeave}
-                    className="absolute right-0 top-full pt-6 sm:pt-7 w-64 sm:w-72 z-50 animate-in fade-in slide-in-from-top-1 duration-150 before:absolute before:-top-3 before:left-0 before:w-full before:h-8 before:content-['']"
+                    className="absolute right-0 top-full pt-6 sm:pt-7 w-80 sm:w-88 z-50 animate-in fade-in slide-in-from-top-1 duration-150 before:absolute before:-top-3 before:left-0 before:w-full before:h-8 before:content-['']"
                   >
-                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 text-xs divide-y divide-slate-100 ring-1 ring-black/5">
-                      <div className="px-3.5 py-2.5 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-xs relative overflow-hidden shrink-0 border border-slate-200">
-                          {user.avatar && !avatarError ? (
-                            <img
-                              src={user.avatar}
-                              alt=""
-                              referrerPolicy="no-referrer"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none'
-                                setAvatarError(true)
-                              }}
-                              className="w-full h-full rounded-full object-cover"
-                            />
-                          ) : null}
-                          <span className={user.avatar && !avatarError ? 'hidden' : 'block'}>
-                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                          </span>
-                        </div>
+                    <div className="bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.06)] border border-slate-200/90 p-3.5 text-xs ring-1 ring-black/5 divide-y divide-slate-100">
+                      
+                      {/* Active Account Info Card */}
+                      <div className="pb-3 px-1">
                         <div className="overflow-hidden">
-                          <p className="font-semibold text-slate-900 truncate text-[14px]">
+                          <p className="font-semibold text-slate-900 truncate text-[13.5px] leading-tight">
                             {user.name || 'Member'}
                           </p>
-                          <p className="text-slate-500 truncate text-[12px] mt-0.5">
+                          <p className="text-slate-500 truncate text-[11px] mt-0.5 font-light">
                             {user.email || ''}
                           </p>
                         </div>
                       </div>
 
-                      {/* User Profile Platform Section: ONLY displays Commercial or Residency based on user selection */}
-                      <div className="py-1">
-                        {activePlatform === 'residential' ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUserMenuOpen(false)
-                              handleNavigateToLoginWithTarget('residential')
-                            }}
-                            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-700 hover:text-black hover:bg-slate-100 text-[12.5px] font-medium text-left cursor-pointer transition-colors group"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-800 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Home className="w-3.5 h-3.5" />
+                      {/* Logged Products Section */}
+                      <div className="py-2.5">
+                        <div className="px-1 mb-2">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                            {isZh ? '已登录产品' : 'Logged Products'}
+                          </span>
+                        </div>
+
+                        {/* List of Products Logged In by this user */}
+                        <div className="space-y-1.5">
+                          {loggedProducts.map((prodKey) => {
+                            const isCurrent = (user.selectedProduct || 'ananda') === prodKey
+                            const ws = getWorkspaceInfo(prodKey)
+
+                            return (
+                              <div
+                                key={prodKey}
+                                onClick={() => {
+                                  if (!isCurrent) {
+                                    handleSelectProduct(prodKey)
+                                  }
+                                }}
+                                className={`px-3 py-2.5 rounded-xl border transition-all flex items-center justify-between gap-2.5 select-none ${
+                                  isCurrent
+                                    ? 'bg-emerald-50/20 border-emerald-500 ring-1 ring-emerald-500/25 shadow-xs'
+                                    : 'bg-white hover:bg-slate-50 border-slate-200 hover:border-slate-300 cursor-pointer group'
+                                }`}
+                              >
+                                <div className="overflow-hidden">
+                                  <span className="font-semibold text-slate-900 truncate text-[12.5px] leading-tight block">
+                                    {ws.title}
+                                  </span>
+                                  <p className="text-slate-500 text-[10.5px] truncate mt-0.5">
+                                    {ws.desc}
+                                  </p>
+                                </div>
+
+                                {/* Right Side: Workspace Badge on Right */}
+                                <div className="shrink-0 flex items-center">
+                                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${ws.badgeClass}`}>
+                                    {ws.short}
+                                  </span>
+                                </div>
                               </div>
-                              <div>
-                                <span className="font-semibold text-slate-900 block leading-tight">
-                                  Residency
-                                </span>
-                                <span className="text-[10.5px] text-slate-500 font-medium">
-                                  Living Platform
-                                </span>
-                              </div>
-                            </div>
-                            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-black transition-all" />
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUserMenuOpen(false)
-                              handleNavigateToLoginWithTarget('commercial')
-                            }}
-                            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-700 hover:text-black hover:bg-slate-100 text-[12.5px] font-medium text-left cursor-pointer transition-colors group"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-800 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Building2 className="w-3.5 h-3.5" />
-                              </div>
-                              <div>
-                                <span className="font-semibold text-slate-900 block leading-tight">
-                                  Commercial
-                                </span>
-                                <span className="text-[10.5px] text-slate-500 font-medium">
-                                  Scale Platform
-                                </span>
-                              </div>
-                            </div>
-                            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-black transition-all" />
-                          </button>
-                        )}
+                            )
+                          })}
+                        </div>
                       </div>
 
-                      <div className="pt-1.5">
+                      {/* Footer Actions */}
+                      <div className="pt-2 space-y-1">
                         <button
                           type="button"
                           onClick={() => {
                             setUserMenuOpen(false)
-                            if (onLogout) onLogout()
+                            if (onLogout) onLogout(true)
                           }}
-                          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-red-600 hover:bg-red-50 text-[13px] font-medium text-left cursor-pointer transition-colors"
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 text-[12px] font-medium text-left cursor-pointer transition-colors"
                         >
-                          <LogOut className="w-4 h-4 text-red-500" />
-                          <span>Sign Out</span>
+                          <span>{t?.signOut || 'Sign Out'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false)
+                            if (onAddAccount) onAddAccount()
+                            else if (onNavigateToLogin) onNavigateToLogin('signin')
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-400 hover:text-black hover:bg-slate-100/70 text-[11px] font-medium text-left cursor-pointer transition-colors"
+                        >
+                          <span>{isZh ? '使用其他账户登录' : 'Sign in with different account'}</span>
                         </button>
                       </div>
+
                     </div>
                   </div>
                 )}
@@ -1499,7 +1628,7 @@ export default function Header({
                 }}
                 className="hidden sm:inline-flex items-center justify-center px-4 xl:px-5 py-1.5 sm:py-2 rounded-full bg-black text-white hover:bg-orange-500 text-[13px] sm:text-[13.5px] xl:text-[14px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/25 active:scale-95 select-none"
               >
-                Sign In
+                {t?.signIn || 'Sign In'}
               </button>
             )}
 
@@ -1626,7 +1755,7 @@ export default function Header({
           >
             <div className="space-y-1">
               <span className="text-[11px] font-bold text-black uppercase tracking-widest block mb-2">
-                Navigation
+                {t?.navigation || (isZh ? '导航菜单' : 'Navigation')}
               </span>
 
               {/* Products Mobile */}
@@ -1636,7 +1765,7 @@ export default function Header({
                   onClick={() => handleDropdownItemClick('introduction', 'PRODUCTS')}
                   className="w-full flex items-center justify-between py-2 text-[15px] font-semibold text-black hover:opacity-75"
                 >
-                  <span>Products</span>
+                  <span>{t?.products || 'Products'}</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </button>
                 <div className="pl-1 py-1 space-y-2">
@@ -1651,7 +1780,7 @@ export default function Header({
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
-                          <span>Commercial</span>
+                          <span>{t?.commercial || 'Commercial'}</span>
                         </div>
                         <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
                       </button>
@@ -1662,34 +1791,18 @@ export default function Header({
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
-                          <span>Residency</span>
+                          <span>{t?.residency || 'Residency'}</span>
                         </div>
                         <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Physical AI & Healthcare (Responsive 2-Col on Tablets) */}
+                  {/* Healthcare & Physical AI (Responsive 2-Col on Tablets) */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {/* Physical AI: Aura */}
-                    <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-1.5 flex flex-col justify-between">
-                      <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">Physical AI</span>
-                      <button
-                        type="button"
-                        onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
-                        className="w-full text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
-                      >
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          <Cpu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
-                          <span>Aura — Autonomous Edge Vision</span>
-                        </div>
-                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
-                      </button>
-                    </div>
-
                     {/* Healthcare: Dara */}
                     <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-1.5 flex flex-col justify-between">
-                      <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">Healthcare</span>
+                      <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">{t?.healthcare || 'Healthcare'}</span>
                       <button
                         type="button"
                         onClick={() => handleDropdownItemClick('dara', 'PRODUCTS')}
@@ -1697,7 +1810,23 @@ export default function Header({
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <Radio className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
-                          <span>Dara — Assistive Elder Hardware</span>
+                          <span>{isZh ? 'Dara — 智能辅具看护硬件' : 'Dara — Assistive Elder Hardware'}</span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    </div>
+
+                    {/* Physical AI: Aura */}
+                    <div className="p-2.5 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-1.5 flex flex-col justify-between">
+                      <span className="text-[13px] sm:text-[14px] font-semibold text-slate-900 block">{t?.physicalAi || 'Physical AI'}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDropdownItemClick('aura', 'PRODUCTS')}
+                        className="w-full text-left p-2 sm:p-2.5 rounded-lg bg-white border border-slate-200 hover:border-black active:border-black text-slate-900 font-semibold text-xs sm:text-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 shadow-2xs group"
+                      >
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Cpu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
+                          <span>{isZh ? 'Aura — 边缘自主视觉' : 'Aura — Autonomous Edge Vision'}</span>
                         </div>
                         <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
                       </button>
@@ -1714,7 +1843,7 @@ export default function Header({
                   onClick={() => handleDropdownItemClick('blogs', 'BLOGS')}
                   className="w-full flex items-center justify-between py-2 sm:py-2.5 px-2 rounded-xl text-[14.5px] sm:text-[15px] font-semibold text-black hover:bg-slate-50 transition-colors"
                 >
-                  <span>Blogs</span>
+                  <span>{t?.blogs || 'Blogs'}</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </button>
 
@@ -1731,7 +1860,7 @@ export default function Header({
                   }}
                   className="w-full flex items-center justify-between py-2 sm:py-2.5 px-2 rounded-xl text-[14.5px] sm:text-[15px] font-semibold text-black hover:bg-slate-50 transition-colors"
                 >
-                  <span>About Us</span>
+                  <span>{t?.aboutUs || 'About Us'}</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </button>
 
@@ -1748,7 +1877,7 @@ export default function Header({
                   }}
                   className="w-full flex items-center justify-between py-2 sm:py-2.5 px-2 rounded-xl text-[14.5px] sm:text-[15px] font-semibold text-black hover:bg-slate-50 transition-colors"
                 >
-                  <span>Careers</span>
+                  <span>{t?.careers || 'Careers'}</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </button>
               </div>
@@ -1758,7 +1887,7 @@ export default function Header({
             {/* Global region mobile */}
             <div className="pt-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">
-                Region & Language
+                {t?.regionLanguage || (isZh ? '地区与语言' : 'Region & Language')}
               </span>
               <div className="grid grid-cols-3 gap-2">
                 {GLOBAL_LOCALES.map((locale) => (
@@ -1778,20 +1907,82 @@ export default function Header({
               </div>
             </div>
 
-            {/* Auth options mobile */}
-            <div className="pt-3 border-t border-slate-100">
+            {/* Auth options mobile with 2-Account Switcher */}
+            <div className="pt-3 border-t border-slate-100 space-y-2">
               {user ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false)
-                    if (onLogout) onLogout()
-                  }}
-                  className="w-full py-2.5 rounded-full bg-red-50 text-red-600 font-semibold text-xs flex items-center justify-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out ({user.name})</span>
-                </button>
+                <div className="space-y-2">
+                  <div className="px-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                      {isZh ? '切换账户' : 'Switch Account'}
+                    </span>
+                  </div>
+
+                  {/* Mobile Account Switcher Cards */}
+                  <div className="space-y-1.5">
+                    {effectiveAccounts.map((acc, idx) => {
+                      const isCurrent =
+                        acc.email.toLowerCase() === user.email.toLowerCase() &&
+                        acc.selectedProduct === user.selectedProduct
+                      const ws = getWorkspaceInfo(acc.selectedProduct)
+
+                      return (
+                        <div
+                          key={`mobile_${acc.email}_${acc.selectedProduct || idx}`}
+                          onClick={() => {
+                            if (!isCurrent && onSwitchAccount) {
+                              setMobileMenuOpen(false)
+                              onSwitchAccount(acc)
+                            }
+                          }}
+                          className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 ${
+                            isCurrent
+                              ? 'bg-emerald-50/20 border-emerald-500 ring-1 ring-emerald-500/25 shadow-xs'
+                              : 'bg-white border-slate-200 cursor-pointer active:bg-slate-100'
+                          }`}
+                        >
+                          <div className="overflow-hidden">
+                            <span className="font-semibold text-slate-900 truncate text-xs block">
+                              {acc.name || acc.email.split('@')[0]}
+                            </span>
+                            <p className="text-slate-500 text-[10px] truncate">{acc.email}</p>
+                          </div>
+
+                          <div className="shrink-0 flex items-center">
+                            <span className={`text-[9.5px] font-semibold px-2 py-0.5 rounded-md border ${ws.badgeClass}`}>
+                              {ws.short}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+
+                    {effectiveAccounts.length < 2 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileMenuOpen(false)
+                          if (onAddAccount) onAddAccount()
+                          else if (onNavigateToLogin) onNavigateToLogin('signin')
+                        }}
+                        className="w-full text-left p-2 rounded-xl border border-dashed border-slate-300 text-slate-600 text-xs font-medium flex items-center justify-between"
+                      >
+                        <span>{isZh ? '+ 添加其他账户 / 工作区' : '+ Add another account / workspace'}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sign Out Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      if (onLogout) onLogout(effectiveAccounts.length <= 1)
+                    }}
+                    className="w-full py-2.5 rounded-full bg-red-50 text-red-600 font-semibold text-xs flex items-center justify-center mt-2"
+                  >
+                    <span>{effectiveAccounts.length > 1 ? (isZh ? '退出当前活跃账户' : 'Sign Out of Active Account') : (t?.signOut || (isZh ? '退出登录' : 'Sign Out'))}</span>
+                  </button>
+                </div>
               ) : (
                 <button
                   type="button"
@@ -1801,7 +1992,7 @@ export default function Header({
                   }}
                   className="w-full py-2.5 rounded-full bg-black text-white hover:bg-orange-500 font-semibold text-xs text-center transition-colors cursor-pointer"
                 >
-                  Sign In
+                  {t?.signIn || (isZh ? '登录' : 'Sign In')}
                 </button>
               )}
             </div>

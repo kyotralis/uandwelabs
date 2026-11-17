@@ -29,21 +29,21 @@ export default function CareersPage({
 
   const lifeBenches = cp.lifeBenches || [
     {
-      title: 'First-Principles Numerical Solvers',
-      desc: 'Engineers continuously profile custom mathematical algorithms, large-scale spatial modeling kernels, and real-time physical simulation engines running on dedicated compute infrastructure.',
-      tag: 'COMPUTATIONAL SIMULATION',
+      title: 'From Wild Ideas to Living Cities',
+      desc: 'We explore how breezes flow through neighborhood courtyards, how sunlight naturally warms living rooms, and how future buildings can live in gentle harmony with nature.',
+      tag: 'IMAGINING TOMORROW',
       image: '/ananda_hero.jpg',
     },
     {
-      title: 'Precision Mechanics & Silicon Bring-Up',
-      desc: 'Cross-functional teams design aerospace-grade enclosures, validate low-noise analog signal integrity, and test high-efficiency embedded microcontrollers built to operate for decades.',
-      tag: 'RAPID PROTOTYPING & HARDWARE',
+      title: 'Whiteboards, Warm Chai & Making Things',
+      desc: 'No corporate red tape or endless slide decks. A fresh spark sketched over lunch often turns into a real, working prototype you can hold and test in your hands by Friday afternoon.',
+      tag: 'THE MAKER SPIRIT',
       image: '/about_team_brainstorm.jpg',
     },
     {
-      title: 'Interdisciplinary Synthesis & Field Validation',
-      desc: 'Applied scientists and systems architects collaborate on mathematical models, resilient embedded firmware, and real-world deployment infrastructure with zero cloud dependencies.',
-      tag: 'UANDWE LABS BENCHES',
+      title: 'Tech That Cares Without Getting in the Way',
+      desc: 'From looking out for elders at home without intrusive cameras to creating calmer everyday spaces, we build thoughtful technology that puts human comfort, peace of mind, and dignity first.',
+      tag: 'HUMAN-FIRST IMPACT',
       image: '/about_indian_team_1.jpg',
     },
   ]
@@ -464,29 +464,6 @@ export default function CareersPage({
               {cp.heroSubtitle ||
                 'We are expanding our research and engineering benches in Bengaluru. We bring together curious scientists, hardware craftsmen, and computational engineers building deep technology that truly endures.'}
             </p>
-
-            <div className="mt-7 sm:mt-9">
-              <a
-                href="#openings"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const el = document.getElementById('openings')
-                  if (el) {
-                    if (window.__lenis) {
-                      window.__lenis.scrollTo(el, { duration: 1.2 })
-                    } else {
-                      el.scrollIntoView({ behavior: 'smooth' })
-                    }
-                  }
-                }}
-                className="group relative inline-flex items-center gap-4 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-neutral-900 hover:bg-neutral-100 font-['Inter'] font-semibold text-xs sm:text-[13px] tracking-[0.14em] uppercase transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_15px_35px_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-              >
-                <span>{cp.heroCta || 'Explore Open Positions'}</span>
-                <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-neutral-800 group-hover:translate-x-1 transition-all duration-300 shadow-xs">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -505,13 +482,9 @@ export default function CareersPage({
               willChange: 'transform, opacity',
             }}
           >
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-4">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {cp.cultureTitle || 'How We Work'}
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 font-normal leading-relaxed">
-              {cp.cultureSubtitle ||
-                'Principles that shape our culture, our engineering standards, and the way we build together.'}
-            </p>
           </div>
 
           <div
@@ -562,13 +535,9 @@ export default function CareersPage({
               willChange: 'transform, opacity',
             }}
           >
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-4">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {cp.benchesTitle || 'Life Inside UandWe Labs'}
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 font-normal leading-relaxed">
-              {cp.benchesSubtitle ||
-                'Where theoretical physics converges with aerospace-grade fabrication and real-world deployment.'}
-            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -617,13 +586,9 @@ export default function CareersPage({
       <div id="openings" className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 bg-white overflow-hidden">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div className="mb-10 sm:mb-12 max-w-3xl">
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-4">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {cp.openingsTitle || 'Open Engineering Benches'}
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 font-normal leading-relaxed">
-              {cp.openingsSubtitle ||
-                'Current research and engineering openings across our benches in Bengaluru. Apply directly to our technical desk.'}
-            </p>
           </div>
 
           {/* Jobs Grid (Continuous 3-Col Desktop / 2-Col Tablet / 1-Col Mobile) */}
@@ -730,13 +695,9 @@ export default function CareersPage({
               willChange: 'transform, opacity',
             }}
           >
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-4">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {cp.benefitsTitle || 'The Fellowship Experience'}
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 font-normal leading-relaxed">
-              {cp.benefitsSubtitle ||
-                'What we provide to support foundational research, intellectual sovereignty, and life.'}
-            </p>
           </div>
 
           <div

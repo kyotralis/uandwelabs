@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Camera, Cpu, Shield, Lock, Radio, Zap, Scan, ShieldCheck } from 'lucide-react'
 import { useTranslation } from '../i18n'
+import { openAuthModal } from '../utils/authPrompt'
+import { isUserAuthorizedForProduct } from '../utils/accountManager'
 import {
   ProductHero,
   ProductGallery,
@@ -180,7 +182,18 @@ export default function AuraPage({
         title={<>{ap.heroTitle?.line1 || 'Physical AI.'} <br /><span className="text-white">{ap.heroTitle?.line2 || 'Silicon at the Edge.'}</span></>}
         description={ap.heroDesc || "Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking and perimeter defense with zero cloud egress."}
         buttonText={ap.heroButtonText || "Schedule Node Pilot"}
-        onButtonClick={() => setModalOpen(true)}
+        onButtonClick={() => {
+          if (!isUserAuthorizedForProduct(user, 'aura')) {
+            openAuthModal({
+              title: 'Sign In Required',
+              message: 'Please sign in with your account to request an Aura technical pilot.',
+              productKey: 'aura',
+              actionText: 'Sign In / Register',
+            })
+            return
+          }
+          setModalOpen(true)
+        }}
         onBack={onNavigateToHome}
       />
 
@@ -223,7 +236,18 @@ export default function AuraPage({
         title={ap.cta?.title || "Deploy Edge Silicon on Your Perimeter"}
         subtitle={ap.cta?.subtitle || "Reserve an evaluation kit or schedule a technical architecture review with our hardware engineers in Bengaluru."}
         buttonText={ap.cta?.buttonText || "Request Technical Pilot"}
-        onButtonClick={() => setModalOpen(true)}
+        onButtonClick={() => {
+          if (!isUserAuthorizedForProduct(user, 'aura')) {
+            openAuthModal({
+              title: 'Sign In Required',
+              message: 'Please sign in with your account to request an Aura technical pilot.',
+              productKey: 'aura',
+              actionText: 'Sign In / Register',
+            })
+            return
+          }
+          setModalOpen(true)
+        }}
       />
 
       {/* CONSULTATION / PILOT MODAL */}
@@ -231,6 +255,7 @@ export default function AuraPage({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         user={user}
+        onNavigateToLogin={onNavigateToLogin}
         productKey="aura"
         title={ap.modal?.title || "Aura Technical Pilot Consultation"}
         formTitle={ap.modal?.formTitle || "Reserve Pilot Hardware"}

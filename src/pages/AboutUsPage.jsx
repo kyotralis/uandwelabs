@@ -116,53 +116,50 @@ export default function AboutUsPage({
     }
   }, [])
 
-  const divisions = ap.divisions || [
+  const studioStories = [
     {
-      tag: 'ENVIRONMENTAL SIMULATION',
-      title: 'Ananda GeoSpatial',
-      desc: 'Sub-meter solar ray-casting, Lattice Boltzmann fluid dynamics at 60 FPS, and 2D Saint-Venant flood hydrology for resilient masterplans.',
-      linkText: 'Explore Ananda Platform',
-      target: 'ananda',
-      image: '/building-3.jpg',
+      num: '01',
+      tag: 'THE SPARK IN BENGALURU',
+      title: 'Where Curious Conversations Begin',
+      desc: 'In a quiet corner of Bengaluru, surrounded by sketchbooks and warm cups of filter coffee, we started with a simple belief: technology should not trap people inside screens—it should enrich the physical spaces we live and breathe in.',
+      image: '/about_team_brainstorm.jpg',
     },
     {
-      tag: 'ASSISTIVE HEALTHCARE',
-      title: 'Dara Assistive Health',
-      desc: 'Contactless 60 GHz fall radar, multi-language acoustic talking clock, and rise-to-wake torch engineered for elder independence with zero wearables.',
-      linkText: 'Explore Dara Hardware',
-      target: 'dara',
-      image: '/dara_device_home.jpg',
+      num: '02',
+      tag: 'THE MAKER SPIRIT',
+      title: 'From Napkin Sketches to Working Reality',
+      desc: 'We do not do endless corporate slides. An idea scribbled down over lunch gets shaped into physical models by afternoon, and by the end of the week, becomes a real device you can hold and test in your own hands.',
+      image: '/about_team_discussion.jpg',
     },
     {
-      tag: 'PHYSICAL AI SILICON',
-      title: 'Aura Autonomous Edge',
-      desc: 'Deterministic 128-TOPS neural tensor cores executed in hardware cache. Sub-millisecond multilane highway LPR and 350m perimeter defense with zero cloud egress.',
-      linkText: 'Explore Aura Node',
-      target: 'aura',
-      image: '/hero_compute_board.jpg',
+      num: '03',
+      tag: 'HUMAN COMFORT FIRST',
+      title: 'Crafted for Everyday People & Families',
+      desc: 'From looking out for elderly parents at home without uncomfortable cameras or tags, to designing homes that stay naturally cool in the summer heat, everything we craft is built with genuine love for real human lives.',
+      image: '/about_indian_team_1.jpg',
     },
   ]
 
   const lifecycleSteps = ap.lifecycleSteps || [
     {
       num: '01',
-      title: 'First-Principles Physics',
-      desc: 'Before fabrication begins, every dynamic is modeled with mathematical solvers — from Navier-Stokes fluid aerodynamics to astronomical ephemeris solar ray-casting.',
+      title: 'Curious Exploration',
+      desc: 'Every project begins with a simple question and a blank chalkboard. We explore what people truly need before touching a line of code.',
     },
     {
       num: '02',
-      title: 'Sub-Micron Prototyping',
-      desc: 'Precision optical benches, CNC-milled structural housings, and 60 GHz millimeter-wave radomes engineered to aerospace tolerances in our Bengaluru labs.',
+      title: 'Hands-On Prototyping',
+      desc: 'We cut, shape, and assemble physical models right in our studio. Holding an idea in your hands teaches you what screens never can.',
     },
     {
       num: '03',
-      title: 'Deterministic Edge Silicon',
-      desc: 'INT8 quantized neural networks executed directly within hardware cache. Sub-millisecond compute without internet connectivity or centralized servers.',
+      title: 'Quiet Refinement',
+      desc: 'Stripping away everything unnecessary until only the essential remains. Simple curves, durable materials, and zero confusing clutter.',
     },
     {
       num: '04',
-      title: 'Empirical Field Validation',
-      desc: 'Rigorous real-world stress testing across geriatric elder-care living spaces, multilane transit corridors, and microclimate wind corridors.',
+      title: 'Real-Life Testing',
+      desc: 'We test our creations in real homes, real rooms, and real weather—making sure they bring lasting calm and comfort to daily life.',
     },
   ]
 
@@ -193,16 +190,6 @@ export default function AboutUsPage({
     },
   ]
 
-  const handleDivisionClick = (target) => {
-    if (target === 'ananda' && onNavigateToAnanda) {
-      onNavigateToAnanda()
-    } else if (target === 'dara' && onNavigateToDara) {
-      onNavigateToDara()
-    } else if (target === 'aura' && onNavigateToAura) {
-      onNavigateToAura()
-    }
-  }
-
   return (
     <div className="bg-white min-h-screen text-neutral-900 w-full font-sans selection:bg-black selection:text-white">
       {/* ======================================================== */}
@@ -212,11 +199,11 @@ export default function AboutUsPage({
         {/* Dynamic Image with subtle overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/building-3.jpg"
-            alt="UandWe Labs Vision & Engineering"
-            className="w-full h-full object-cover grayscale opacity-75 scale-100 hover:scale-105 transition-transform duration-1000"
+            src="/about_hero_studio.jpg"
+            alt="UandWe Labs Design and Hardware Innovation Studio"
+            className="w-full h-full object-cover opacity-85 scale-100 hover:scale-105 transition-transform duration-1000"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/30 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/30 pointer-events-none" />
         </div>
 
         <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col justify-end">
@@ -245,29 +232,6 @@ export default function AboutUsPage({
               {ap.heroSubtitle ||
                 'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities that serve humanity with dignity.'}
             </p>
-
-            <div className="mt-7 sm:mt-9">
-              <a
-                href="#mission"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const el = document.getElementById('mission')
-                  if (el) {
-                    if (window.__lenis) {
-                      window.__lenis.scrollTo(el, { duration: 1.2 })
-                    } else {
-                      el.scrollIntoView({ behavior: 'smooth' })
-                    }
-                  }
-                }}
-                className="group relative inline-flex items-center gap-4 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-neutral-900 hover:bg-neutral-100 font-['Inter'] font-semibold text-xs sm:text-[13px] tracking-[0.14em] uppercase transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_15px_35px_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-              >
-                <span>{ap.heroCta || 'Discover Our Mission'}</span>
-                <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-neutral-800 group-hover:translate-x-1 transition-all duration-300 shadow-xs">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -278,20 +242,20 @@ export default function AboutUsPage({
       <div id="mission" className="w-full pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-12 max-w-4xl">
-            {ap.originTitle || 'The Pursuit of Tangible Truth'}
+            {ap.originTitle || 'Technology Made for Real Life'}
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 pt-4 border-t border-black/10">
             <div className="lg:col-span-6">
               <p className="text-base sm:text-lg text-neutral-700 font-normal leading-relaxed">
                 {ap.originParagraph1 ||
-                  'UandWe Labs was established in Bengaluru with a singular mandate: to bridge high-performance computational theory with uncompromising physical precision. In an era dominated by ephemeral software layers, we focus on what endures — deterministic fluid physics, sovereign edge silicon, and non-invasive assistive technology.'}
+                  'UandWe Labs began in Bengaluru with a simple, refreshing idea: what if technology stopped demanding your constant attention and instead quietly made the real world a better place to live? In a world filled with endless notifications, fleeting apps, and digital noise, we fell in love with making things you can actually feel, touch, and trust in daily life.'}
               </p>
             </div>
             <div className="lg:col-span-6">
               <p className="text-base sm:text-lg text-neutral-700 font-normal leading-relaxed">
                 {ap.originParagraph2 ||
-                  'Our multi-disciplinary team brings together computational fluid dynamicists, optical sensor architects, and biophilic system designers. We believe that true technological advancement must preserve personal dignity, foster human independence, and honor environmental boundaries.'}
+                  'Our studio brings together dreamers, architects, craftspeople, and thinkers who care deeply about everyday life. Whether we are designing comfortable spaces where cool breezes flow naturally, or creating gentle devices that keep grandparents safe at home without cameras watching over them, we believe good technology should feel like second nature—protecting your dignity, respecting your peace of mind, and bringing people closer together.'}
               </p>
             </div>
           </div>
@@ -299,12 +263,12 @@ export default function AboutUsPage({
       </div>
 
       {/* ======================================================== */}
-      {/* 3. THREE FRONTIERS OF PHYSICAL REALITY (DIVISIONS BENTO) */}
+      {/* 3. INSIDE OUR STUDIO & OUR JOURNEY                       */}
       {/* ======================================================== */}
-      <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
+      <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-12 sm:pb-16 md:pb-20 overflow-hidden bg-neutral-50/60 border-y border-black/5">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-12"
+            className="mb-12 max-w-3xl"
             style={{
               transform: frontiersVisible ? 'translateX(0)' : 'translateX(-80px)',
               opacity: frontiersVisible ? 1 : 0,
@@ -312,8 +276,8 @@ export default function AboutUsPage({
               willChange: 'transform, opacity',
             }}
           >
-            <h2 className="text-3xl md:text-5xl font-normal tracking-tight text-neutral-900 uppercase font-sans">
-              {ap.divisionsTitle || 'Three Frontiers of Physical Reality'}
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
+              Where Ideas Take Shape
             </h2>
           </div>
 
@@ -321,11 +285,10 @@ export default function AboutUsPage({
             ref={frontiersRef}
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
           >
-            {divisions.map((div, idx) => (
+            {studioStories.map((story, idx) => (
               <div
                 key={idx}
-                onClick={() => handleDivisionClick(div.target)}
-                className="group border border-black/10 bg-white hover:border-black transition-all duration-300 flex flex-col justify-between cursor-pointer rounded-2xl overflow-hidden hover:shadow-xl"
+                className="group border border-black/10 bg-white hover:border-black transition-all duration-300 flex flex-col justify-between rounded-2xl overflow-hidden hover:shadow-xl"
                 style={{
                   transform: frontiersVisible ? 'translateX(0)' : 'translateX(-220px)',
                   opacity: frontiersVisible ? 1 : 0,
@@ -337,27 +300,23 @@ export default function AboutUsPage({
                 <div>
                   <div className="aspect-[16/10] bg-neutral-100 overflow-hidden relative border-b border-black/10">
                     <img
-                      src={div.image}
-                      alt={div.title}
+                      src={story.image}
+                      alt={story.title}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                     />
                   </div>
 
                   <div className="p-7 sm:p-8">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 block mb-2">
+                      {story.tag}
+                    </span>
                     <h3 className="text-2xl font-normal tracking-tight text-neutral-900 mb-3 group-hover:text-black">
-                      {div.title}
+                      {story.title}
                     </h3>
-                    <p className="text-neutral-600 text-sm leading-relaxed mb-6">
-                      {div.desc}
+                    <p className="text-neutral-600 text-sm leading-relaxed">
+                      {story.desc}
                     </p>
                   </div>
-                </div>
-
-                <div className="px-7 sm:px-8 py-4.5 border-t border-black/10 flex items-center justify-between bg-neutral-50/50 group-hover:bg-neutral-100/60 transition-colors">
-                  <span className="text-xs font-mono uppercase tracking-wider text-neutral-900 font-medium">
-                    {div.linkText}
-                  </span>
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             ))}
@@ -371,7 +330,7 @@ export default function AboutUsPage({
       <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-14 max-w-3xl"
+            className="mb-12 max-w-3xl"
             style={{
               transform: lifecycleVisible ? 'translateY(0)' : 'translateY(60px)',
               opacity: lifecycleVisible ? 1 : 0,
@@ -379,12 +338,9 @@ export default function AboutUsPage({
               willChange: 'transform, opacity',
             }}
           >
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-4">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {ap.lifecycleTitle || 'The Engineering Lifecycle'}
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 font-normal leading-relaxed">
-              {ap.lifecycleSubtitle || 'How first-principles computation transforms into durable physical hardware.'}
-            </p>
           </div>
 
           <div
@@ -427,7 +383,7 @@ export default function AboutUsPage({
       <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-14 max-w-3xl"
+            className="mb-12 max-w-3xl"
             style={{
               transform: perspectivesVisible ? 'translateX(0)' : 'translateX(-80px)',
               opacity: perspectivesVisible ? 1 : 0,
@@ -435,12 +391,9 @@ export default function AboutUsPage({
               willChange: 'transform, opacity',
             }}
           >
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-4">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {ap.perspectivesTitle || 'Peer & Partner Perspectives'}
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 font-normal leading-relaxed">
-              {ap.perspectivesSubtitle || 'Reflections from architects, clinical directors, and infrastructure engineers building with UandWe Labs.'}
-            </p>
           </div>
 
           <div

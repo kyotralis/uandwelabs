@@ -28,6 +28,8 @@ import {
 
 import CommonCta from '../components/CommonCta';
 import { isUserProductMatch } from '../components/ProductComponents';
+import { openAuthModal } from '../utils/authPrompt';
+import { isUserAuthorizedForProduct } from '../utils/accountManager';
 import MorphGallery from '../components/ui/morph-gallery';
 import { useTranslation } from '../i18n';
 
@@ -333,9 +335,10 @@ export default function AnandaPage({
     }
   }, [user]);
 
-  // Synchronize on modal open
+  // Synchronize ONLY on modal open transition
+  const wasModalOpenRef = useRef(false);
   useEffect(() => {
-    if (modalOpen) {
+    if (modalOpen && !wasModalOpenRef.current) {
       if (user && isUserProductMatch(user, 'ananda')) {
         setFormData((prev) => ({
           ...prev,
@@ -350,6 +353,7 @@ export default function AnandaPage({
         }));
       }
     }
+    wasModalOpenRef.current = modalOpen;
   }, [modalOpen, user]);
 
   const [gpsStatus, setGpsStatus] = useState('idle'); // 'idle' | 'detecting' | 'locked' | 'denied'
@@ -770,6 +774,17 @@ export default function AnandaPage({
   // Form submit -> proceed to Agent Scheduling
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    const targetKey = isResidential ? 'ananda-residential' : 'ananda';
+    if (!isUserAuthorizedForProduct(user, targetKey)) {
+      handleCloseModal();
+      openAuthModal({
+        title: 'Sign In Required',
+        message: 'Please sign in with your account to schedule a simulation consultation.',
+        productKey: targetKey,
+        actionText: 'Sign In / Register',
+      });
+      return;
+    }
     setModalStep('schedule');
   };
 
@@ -860,7 +875,19 @@ export default function AnandaPage({
                 <div className="mt-6 sm:mt-8">
                   <button
                     type="button"
-                    onClick={() => setModalOpen(true)}
+                    onClick={() => {
+                      const targetKey = isResidential ? 'ananda-residential' : 'ananda';
+                      if (!isUserAuthorizedForProduct(user, targetKey)) {
+                        openAuthModal({
+                          title: 'Sign In Required',
+                          message: 'Please sign in with your account to schedule a simulation consultation.',
+                          productKey: targetKey,
+                          actionText: 'Sign In / Register',
+                        });
+                        return;
+                      }
+                      setModalOpen(true);
+                    }}
                     className="inline-flex items-center gap-4 group cursor-pointer font-['Inter'] active:scale-[0.98] transition-transform duration-150"
                   >
                     <span className="text-[11.5px] font-semibold tracking-[0.2em] uppercase text-white group-hover:text-white/80 transition-colors drop-shadow-sm">
@@ -1354,7 +1381,19 @@ export default function AnandaPage({
           title={ap.ctaTitle || 'Ready to shape the future?'}
           subtitle={ap.ctaDesc || 'Deploy GPU ray-casting, aerodynamic wind CFD, and flood hydrology on your next architectural development with our engineering team.'}
           buttonText={ap.ctaButton || 'Schedule Simulation Consultation'}
-          onButtonClick={() => setModalOpen(true)}
+          onButtonClick={() => {
+            const targetKey = isResidential ? 'ananda-residential' : 'ananda';
+            if (!isUserAuthorizedForProduct(user, targetKey)) {
+              openAuthModal({
+                title: 'Sign In Required',
+                message: 'Please sign in with your account to schedule a simulation consultation.',
+                productKey: targetKey,
+                actionText: 'Sign In / Register',
+              });
+              return;
+            }
+            setModalOpen(true);
+          }}
         />
 
 
@@ -1410,8 +1449,8 @@ export default function AnandaPage({
                         type="text"
                         required
                         placeholder={m.fullNamePlaceholder || 'Your Full Name'}
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        value={formData.name || ''}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                         className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-black outline-none transition-colors font-sans"
                       />
                     </div>
@@ -1424,8 +1463,8 @@ export default function AnandaPage({
                         type="email"
                         required
                         placeholder={m.emailPlaceholder || 'your.email@domain.com'}
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        value={formData.email || ''}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                         className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-black outline-none transition-colors font-sans"
                       />
                     </div>
@@ -1438,8 +1477,8 @@ export default function AnandaPage({
                         <input
                           type="text"
                           placeholder={m.practicePlaceholder || 'Agency Name'}
-                          value={formData.company}
-                          onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                          value={formData.company || ''}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, company: e.target.value }))}
                           className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-black outline-none transition-colors font-sans"
                         />
                       </div>
@@ -1448,8 +1487,8 @@ export default function AnandaPage({
                           {m.scaleLabel || 'Scale'}
                         </label>
                         <select
-                          value={formData.sector}
-                          onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                          value={formData.sector || 'commercial'}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, sector: e.target.value }))}
                           className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm text-neutral-900 focus:border-black outline-none transition-colors cursor-pointer font-sans"
                         >
                           <option value="commercial">{m.commercialScale || 'Commercial Scale'}</option>
@@ -1485,8 +1524,8 @@ export default function AnandaPage({
                             type="text"
                             required
                             placeholder={m.latPlaceholder || 'Latitude (e.g. 12.971599)'}
-                            value={formData.latitude}
-                            onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                            value={formData.latitude || ''}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, latitude: e.target.value }))}
                             className="w-full px-4 py-3 bg-neutral-50 border border-neutral-300 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-black outline-none transition-colors font-sans"
                           />
                         </div>
@@ -1495,8 +1534,8 @@ export default function AnandaPage({
                             type="text"
                             required
                             placeholder={m.lngPlaceholder || 'Longitude (e.g. 77.594566)'}
-                            value={formData.longitude}
-                            onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                            value={formData.longitude || ''}
+                            onChange={(e) => setFormData((prev) => ({ ...prev, longitude: e.target.value }))}
                             className="w-full px-4 py-3 bg-neutral-50 border border-neutral-300 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-black outline-none transition-colors font-sans"
                           />
                         </div>

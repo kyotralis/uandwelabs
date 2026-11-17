@@ -18,6 +18,8 @@ import {
 } from 'lucide-react'
 import MorphGallery from '../components/ui/morph-gallery'
 import { useTranslation } from '../i18n'
+import { openAuthModal } from '../utils/authPrompt'
+import { isUserAuthorizedForProduct } from '../utils/accountManager'
 import {
   ProductHero,
   ProductGallery,
@@ -43,7 +45,7 @@ const DARA_HERO_SLIDES = [
     headline: 'Senior Care. Invisible by Design.',
     subtitle:
       'A smart assistive device that keeps elderly loved ones safe and independent at home. Features a talking clock, night torch light, and automatic fall detection — with zero cameras or wearables.',
-    ctaText: 'REQUEST FREE SAMPLE',
+    ctaText: 'REQUEST DEMO',
   },
   {
     id: 'dara-wellness',
@@ -54,7 +56,7 @@ const DARA_HERO_SLIDES = [
     headline: 'Gentle Reminders. Natural Independence.',
     subtitle:
       'Acoustic voice alerts and clear display cues guide medication schedules and hydration effortlessly, harmonizing into the morning routine.',
-    ctaText: 'REQUEST FREE SAMPLE',
+    ctaText: 'REQUEST DEMO',
   },
   {
     id: 'dara-twilight',
@@ -65,7 +67,7 @@ const DARA_HERO_SLIDES = [
     headline: 'Twilight Assurance. Nighttime Clarity.',
     subtitle:
       'Automatic rise-to-wake torch guidance and continuous radar-based fall sensing provide 24/7 peace of mind in every room without intrusive cameras.',
-    ctaText: 'REQUEST FREE SAMPLE',
+    ctaText: 'REQUEST DEMO',
   },
 ]
 
@@ -418,15 +420,26 @@ export default function DaraPage({
                   {currentHeroSlide.subtitle}
                 </p>
 
-                {/* Action Button: REQUEST FREE SAMPLE ────○ */}
+                {/* Action Button: REQUEST DEMO ────○ */}
                 <div className="mt-6 sm:mt-8">
                   <button
                     type="button"
-                    onClick={() => setModalOpen(true)}
+                    onClick={() => {
+                      if (!isUserAuthorizedForProduct(user, 'dara')) {
+                        openAuthModal({
+                          title: 'Sign In Required',
+                          message: 'Please sign in with your account to request a Dara demo.',
+                          productKey: 'dara',
+                          actionText: 'Sign In / Register',
+                        })
+                        return
+                      }
+                      setModalOpen(true)
+                    }}
                     className="inline-flex items-center gap-4 group cursor-pointer font-['Inter'] active:scale-[0.98] transition-transform duration-150"
                   >
                     <span className="text-[11.5px] font-semibold tracking-[0.2em] uppercase text-white group-hover:text-white/80 transition-colors drop-shadow-sm">
-                      {currentHeroSlide.ctaText || dp.heroButtonText || 'REQUEST FREE SAMPLE'}
+                      {currentHeroSlide.ctaText || dp.heroButtonText || 'REQUEST DEMO'}
                     </span>
 
                     <div className="h-[1.5px] w-12 sm:w-16 bg-white/70 group-hover:w-20 sm:group-hover:w-24 transition-all duration-300" />
@@ -618,9 +631,20 @@ export default function DaraPage({
       {/* SECTION G: CLOSING CALL TO ACTION BOX */}
       <ProductCtaBox
         title={dp.cta?.title || "Bring Dignity to Every Room"}
-        subtitle={dp.cta?.subtitle || "Request a free evaluation sample unit or schedule a consultation with our geriatric hardware engineering team in Bengaluru."}
-        buttonText={dp.cta?.buttonText || "Request Free Sample"}
-        onButtonClick={() => setModalOpen(true)}
+        subtitle={dp.cta?.subtitle || "Request a live hardware demonstration or schedule a consultation with our geriatric engineering team in Bengaluru."}
+        buttonText={dp.cta?.buttonText || "Request Demo"}
+        onButtonClick={() => {
+          if (!isUserAuthorizedForProduct(user, 'dara')) {
+            openAuthModal({
+              title: 'Sign In Required',
+              message: 'Please sign in with your account to request a Dara demo.',
+              productKey: 'dara',
+              actionText: 'Sign In / Register',
+            })
+            return
+          }
+          setModalOpen(true)
+        }}
       />
 
       {/* CONSULTATION / PILOT MODAL */}
@@ -628,10 +652,11 @@ export default function DaraPage({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         user={user}
+        onNavigateToLogin={onNavigateToLogin}
         productKey="dara"
-        title={dp.modal?.title || "Dara Free Sample Request"}
-        formTitle={dp.modal?.formTitle || "Request Free Sample Unit"}
-        formSubtitle={dp.modal?.formSubtitle || "Specify patient and delivery details to receive a free sample evaluation unit."}
+        title={dp.modal?.title || "Dara Demo Request"}
+        formTitle={dp.modal?.formTitle || "Request Hardware Demo"}
+        formSubtitle={dp.modal?.formSubtitle || "Specify patient and delivery details to schedule a live demonstration or evaluation."}
         nameLabel={dp.modal?.nameLabel || "Patient Name"}
         namePlaceholder="Patient Full Name"
         emailLabel={dp.modal?.emailLabel || "Patient Email"}
@@ -641,7 +666,7 @@ export default function DaraPage({
         showScope={false}
         notesLabel={dp.modal?.notesLabel || "Notes"}
         notesPlaceholder={dp.modal?.notesPlaceholder || "Add any specific requirements or notes..."}
-        submitButtonText={dp.modal?.submitButtonText || "REQUEST FREE SAMPLE"}
+        submitButtonText={dp.modal?.submitButtonText || "REQUEST DEMO"}
         meetingUrl="https://meet.uandwelabs.com/dara-consult-desk"
         departmentTitle={dp.modal?.departmentTitle || "Dara Geriatric Hardware Engineering Desk"}
         departmentSubtitle={dp.modal?.departmentSubtitle || "Clinical Consultation Team · Bengaluru"}

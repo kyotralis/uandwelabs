@@ -25,7 +25,12 @@ async function parseResponse(res, defaultError = 'Request failed') {
         'Backend server is not running on port 5000 (502 Bad Gateway). Please run "npm run server" in your terminal.'
       );
     }
-    throw new Error(data?.message || `${defaultError} (${res.status})`);
+    const err = new Error(data?.message || `${defaultError} (${res.status})`);
+    err.status = res.status;
+    err.accountNotFound = Boolean(data?.accountNotFound);
+    err.accountAlreadyExists = Boolean(data?.accountAlreadyExists);
+    err.isGoogleAccount = Boolean(data?.isGoogleAccount);
+    throw err;
   }
 
   return data || {};
@@ -166,6 +171,26 @@ export const authApi = {
     } catch (error) {
       console.warn('[API] Failed to fetch current user:', error.message);
       return null;
+    }
+  },
+
+  /**
+   * Get aggregated login counts per workspace (Commercial, Residency, Dara, Aura)
+   */
+  async getWorkspaceStats() {
+    try {
+      const res = await fetch(`${API_BASE}/auth/workspace-stats`);
+      const data = await parseResponse(res, 'Failed to fetch workspace stats');
+      return data.stats || {};
+    } catch (error) {
+      console.warn('[API] Failed to fetch workspace stats:', error.message);
+      return {
+        totalLogins: 0,
+        commercialLogins: 0,
+        residencyLogins: 0,
+        daraLogins: 0,
+        auraLogins: 0,
+      };
     }
   },
 

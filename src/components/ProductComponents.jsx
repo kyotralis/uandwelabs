@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { useTranslation } from '../i18n'
 import CommonCta from './CommonCta'
+import { openAuthModal } from '../utils/authPrompt'
+import { isUserAuthorizedForProduct } from '../utils/accountManager'
 
 // ========================================================
 // ANANDA-STYLE SCROLL ENTRANCE OBSERVER HOOK
@@ -660,46 +662,21 @@ export function ProductCtaBox({
   )
 }
 
-// Helper to check whether logged-in user selected this product at login
+// Helper to check whether logged-in user is authorized for this product
 export function isUserProductMatch(user, productKey) {
-  if (!user || (!user.email && !user.name)) return false;
-
-  let targetProduct = user.selectedProduct;
-  if (!targetProduct && typeof window !== 'undefined') {
-    try {
-      targetProduct = sessionStorage.getItem('uandwe_selected_product') || localStorage.getItem('uandwe_active_platform');
-    } catch {}
-  }
-
-  const normalized = String(targetProduct || '').toLowerCase().trim();
-
-  // If no product is set, default to ananda
-  if (!normalized) {
-    return productKey === 'ananda';
-  }
-
-  if (productKey === 'ananda') {
-    return normalized.includes('ananda');
-  }
-
-  if (productKey === 'dara') {
-    return normalized.includes('dara');
-  }
-
-  if (productKey === 'aura') {
-    return normalized.includes('aura');
-  }
-
-  return false;
+  return isUserAuthorizedForProduct(user, productKey);
 }
 
 // ========================================================
 // 8. PRODUCT CONSULTATION MODAL
 // ========================================================
+const DEFAULT_SCOPE_OPTIONS = []
+
 export function ProductConsultModal({
   open,
   onClose,
   user,
+  onNavigateToLogin,
   productKey,
   title = 'Hardware Pilot Consultation',
   formTitle = 'Reserve Pilot Hardware',
@@ -712,7 +689,7 @@ export function ProductConsultModal({
   facilityPlaceholder = 'Manipal Geriatric Wellness / Private Home',
   showScope = true,
   scopeLabel = 'Sector',
-  scopeOptions = [],
+  scopeOptions = DEFAULT_SCOPE_OPTIONS,
   notesLabel,
   notesPlaceholder = 'Add any specific clinical or architectural requirements...',
   submitButtonText,
@@ -741,13 +718,13 @@ export function ProductConsultModal({
   const resolvedSubmitButtonText = submitButtonText || pm.proceedToSchedule || 'PROCEED TO ARCHITECT SCHEDULING'
 
   const [modalStep, setModalStep] = useState('form') // 'form' | 'schedule' | 'connect' | 'confirmed'
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     name: matchesProduct ? (user?.name || '') : '',
     email: matchesProduct ? (user?.email || '') : '',
     facility: '',
     sector: scopeOptions[0]?.value || '',
     notes: '',
-  })
+  }))
 
   const availableDates = pm.dates || ['Tomorrow, Nov 4', 'Wed, Nov 5', 'Thu, Nov 6']
   const [selectedDateIndex, setSelectedDateIndex] = useState(0)
@@ -758,23 +735,26 @@ export function ProductConsultModal({
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
 
-  // Reset when opened
+  // Reset ONLY when modal transitions from closed to open
+  const wasOpenRef = useRef(false)
   useEffect(() => {
-    if (open) {
+    if (open && !wasOpenRef.current) {
       setModalStep('form')
       setCallDuration(0)
       setCopiedLink(false)
       setIsMuted(false)
       setIsVideoOff(false)
       const matches = isUserProductMatch(user, inferredProductKey)
-      setFormData((prev) => ({
-        ...prev,
+      setFormData({
         name: matches ? (user?.name || '') : '',
         email: matches ? (user?.email || '') : '',
+        facility: '',
         sector: scopeOptions[0]?.value || '',
-      }))
+        notes: '',
+      })
     }
-  }, [open, user, inferredProductKey, scopeOptions])
+    wasOpenRef.current = open
+  }, [open, user, inferredProductKey])
 
   // Escape key handler
   useEffect(() => {
@@ -877,6 +857,22 @@ export function ProductConsultModal({
                 <form
                   onSubmit={(e) => {
                     e.preventDefault()
+                    if (!isUserAuthorizedForProduct(user, inferredProductKey || 'dara')) {
+                      if (onClose) onClose()
+                      const msg =
+                        inferredProductKey === 'aura'
+                          ? 'Please sign in with your account to request an Aura technical pilot.'
+                          : inferredProductKey === 'ananda'
+                          ? 'Please sign in with your account to schedule a simulation consultation.'
+                          : 'Please sign in with your account to request a Dara demo.'
+                      openAuthModal({
+                        title: 'Sign In Required',
+                        message: msg,
+                        productKey: inferredProductKey || 'dara',
+                        actionText: 'Sign In / Register',
+                      })
+                      return
+                    }
                     setModalStep('schedule')
                   }}
                   className="space-y-4 text-xs font-mono"
@@ -887,8 +883,8 @@ export function ProductConsultModal({
                       <input
                         type="text"
                         required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        value={formData.name || ''}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                         placeholder={namePlaceholder}
                         className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                       />
@@ -898,8 +894,8 @@ export function ProductConsultModal({
                       <input
                         type="email"
                         required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        value={formData.email || ''}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                         placeholder={emailPlaceholder}
                         className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                       />
@@ -913,8 +909,8 @@ export function ProductConsultModal({
                         <input
                           type="text"
                           required
-                          value={formData.facility}
-                          onChange={(e) => setFormData({ ...formData, facility: e.target.value })}
+                          value={formData.facility || ''}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, facility: e.target.value }))}
                           placeholder={facilityPlaceholder}
                           className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                         />
@@ -922,8 +918,8 @@ export function ProductConsultModal({
                       <div>
                         <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{scopeLabel}</label>
                         <select
-                          value={formData.sector}
-                          onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                          value={formData.sector || ''}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, sector: e.target.value }))}
                           className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                         >
                           {scopeOptions.map((opt) => (
@@ -938,8 +934,8 @@ export function ProductConsultModal({
                       <input
                         type="text"
                         required
-                        value={formData.facility}
-                        onChange={(e) => setFormData({ ...formData, facility: e.target.value })}
+                        value={formData.facility || ''}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, facility: e.target.value }))}
                         placeholder={facilityPlaceholder}
                         className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors"
                       />
@@ -950,8 +946,8 @@ export function ProductConsultModal({
                     <label className="block uppercase text-neutral-600 mb-1 tracking-wider text-[11px]">{resolvedNotesLabel}</label>
                     <textarea
                       rows={3}
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      value={formData.notes || ''}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
                       placeholder={notesPlaceholder}
                       className="w-full px-4 py-3 bg-neutral-50 border border-black/15 text-neutral-900 focus:outline-none focus:border-black transition-colors resize-none"
                     />

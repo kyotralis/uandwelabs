@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react'
 import {
   CheckCircle2,
   Mail,
-  Lock,
   Eye,
   EyeOff,
   ArrowRight,
@@ -11,7 +10,6 @@ import {
   AlertCircle,
   ShieldCheck,
   RefreshCw,
-  User as UserIcon,
 } from 'lucide-react'
 import { authApi } from '../services/api'
 
@@ -26,7 +24,7 @@ export default function LoginPage({
   onLogin,
   onNavigateToHome,
   redirectTarget,
-  initialMode = 'signin',
+  initialMode = 'signup',
 }) {
   const [selectedProduct, setSelectedProduct] = useState(() => {
     if (redirectTarget === 'ananda-residential') return 'ananda-residential'
@@ -66,26 +64,54 @@ export default function LoginPage({
   const [mode, setMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase()
-      if (hash === '#signup') return 'signup'
-      if (hash === '#login' || hash === '#signin') return 'signin'
+      if (hash === '#signin' || hash === '#login') return 'signin'
+      if (hash === '#signup' || hash === '#register') return 'signup'
     }
-    return initialMode === 'signup' ? 'signup' : 'signin'
+    return initialMode === 'signin' ? 'signin' : 'signup'
   })
   const isSignUp = mode === 'signup'
   const [isEntered, setIsEntered] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(true)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const [formData, setFormData] = useState(() => {
+    let email = ''
+    try {
+      const activeRaw = localStorage.getItem('uandwe_user')
+      if (activeRaw) {
+        const u = JSON.parse(activeRaw)
+        if (u?.email) email = u.email
+      }
+    } catch {}
+    return {
+      name: '',
+      email,
+      password: '',
+      confirmPassword: '',
+    }
   })
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successNotice, setSuccessNotice] = useState('')
+
+  // Auto-dismiss validation error after 3.5 seconds ("after its needs to go")
+  useEffect(() => {
+    if (!errorMessage) return
+    const timer = setTimeout(() => {
+      setErrorMessage('')
+    }, 3500)
+    return () => clearTimeout(timer)
+  }, [errorMessage])
+
+  // Auto-dismiss success notice after 4 seconds
+  useEffect(() => {
+    if (!successNotice) return
+    const timer = setTimeout(() => {
+      setSuccessNotice('')
+    }, 4000)
+    return () => clearTimeout(timer)
+  }, [successNotice])
 
   useEffect(() => {
     if (initialMode === 'signup' || initialMode === 'signin') {
@@ -156,22 +182,37 @@ export default function LoginPage({
       return
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(cleanEmail)) {
+      setErrorMessage('Please enter a valid email address.')
+      return
+    }
+
+    if (isSignUp && !formData.name?.trim()) {
+      setErrorMessage('Please enter your username.')
+      return
+    }
+
     if (!formData.password) {
       setErrorMessage('Please enter your password.')
       return
     }
 
     if (isSignUp) {
-      if (!agreeTerms) {
-        setErrorMessage('Please accept the Terms and Conditions of Service to continue.')
-        return
-      }
       if (formData.password.length < 6) {
         setErrorMessage('Password must be at least 6 characters long.')
         return
       }
+      if (!formData.confirmPassword) {
+        setErrorMessage('Please confirm your password.')
+        return
+      }
       if (formData.password !== formData.confirmPassword) {
         setErrorMessage('Passwords do not match. Please verify your password.')
+        return
+      }
+      if (!agreeTerms) {
+        setErrorMessage('Please accept the Terms and Conditions of Service to continue.')
         return
       }
 
@@ -191,7 +232,22 @@ export default function LoginPage({
           }, selectedProduct)
         }
       } catch (err) {
-        setErrorMessage(err.message || 'Registration failed. Please check your connection.')
+        const msg = err.message || ''
+        const alreadyExists =
+          err.accountAlreadyExists ||
+          err.status === 409 ||
+          msg.toLowerCase().includes('already exists')
+
+        if (alreadyExists) {
+          setMode('signin')
+          setErrorMessage('An account with this email already exists. Please enter your password to sign in.')
+          try {
+            sessionStorage.setItem('uandwe_login_mode', 'signin')
+            window.history.replaceState(null, '', '#login')
+          } catch {}
+        } else {
+          setErrorMessage(msg || 'Registration failed. Please check your connection.')
+        }
       } finally {
         setLoading(false)
       }
@@ -211,7 +267,25 @@ export default function LoginPage({
           }, selectedProduct)
         }
       } catch (err) {
-        setErrorMessage(err.message || 'Login failed. Please check your email and password.')
+        const msg = err.message || ''
+        const isNotFound =
+          err.accountNotFound ||
+          err.status === 404 ||
+          msg.toLowerCase().includes('no account') ||
+          msg.toLowerCase().includes('not found')
+
+        if (isNotFound) {
+          setMode('signup')
+          setErrorMessage('No account found with this email. Please sign up to create your account.')
+          try {
+            sessionStorage.setItem('uandwe_login_mode', 'signup')
+            window.history.replaceState(null, '', '#signup')
+          } catch {}
+        } else if (err.isGoogleAccount || msg.toLowerCase().includes('created with google')) {
+          setErrorMessage('This account was created with Google Sign-In. Please click "Continue with Google" below.')
+        } else {
+          setErrorMessage(msg || 'Login failed. Please check your email and password.')
+        }
       } finally {
         setLoading(false)
       }
@@ -577,19 +651,8 @@ export default function LoginPage({
                     </div>
                   )}
 
-                  {/* Error Banner */}
-                  {errorMessage && (
-                    <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-400/30 text-red-200 text-xs flex items-start gap-2.5">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
-                      <div className="flex-1 leading-snug">
-                        <span className="font-semibold block mb-0.5">Verification Error</span>
-                        <span>{errorMessage}</span>
-                      </div>
-                    </div>
-                  )}
-
                   {/* 6-Digit OTP Form */}
-                  <form onSubmit={handleVerifyOtp} className="space-y-6">
+                  <form onSubmit={handleVerifyOtp} noValidate className="space-y-6">
                     <div>
                       <label className="block text-[11px] font-medium text-white/70 uppercase tracking-wider mb-3">
                         Enter 6-Digit Security Code
@@ -612,6 +675,13 @@ export default function LoginPage({
                         ))}
                       </div>
                     </div>
+
+                    {/* Validation Error Banner (Down Above Verify Button) */}
+                    {errorMessage && (
+                      <div className="p-3 rounded-xl bg-red-500/20 border border-red-400/30 text-red-200 text-xs animate-in fade-in duration-200 text-center leading-snug">
+                        <span>{errorMessage}</span>
+                      </div>
+                    )}
 
                     <button
                       type="submit"
@@ -659,26 +729,8 @@ export default function LoginPage({
                 /* ================= SIGN UP / SIGN IN VIEW (MATCHING SCREENSHOT) ================= */
                 <div className="w-full max-w-sm mx-auto my-auto flex flex-col justify-center">
                   
-                  {/* Sign In / Sign Up Option Switcher */}
+                  {/* Sign Up / Sign In Option Switcher (Sign Up First, Sign In Second) */}
                   <div className="flex items-center p-1 rounded-full bg-white/10 border border-white/15 mb-6 w-full">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode('signin')
-                        setErrorMessage('')
-                        try {
-                          sessionStorage.setItem('uandwe_login_mode', 'signin')
-                          window.history.replaceState(null, '', '#login')
-                        } catch {}
-                      }}
-                      className={`flex-1 py-1.5 px-3 text-xs rounded-full transition-all cursor-pointer text-center ${
-                        !isSignUp
-                          ? 'bg-white text-slate-900 shadow-sm font-semibold'
-                          : 'text-white/70 hover:text-white font-medium'
-                      }`}
-                    >
-                      Sign In
-                    </button>
                     <button
                       type="button"
                       onClick={() => {
@@ -697,6 +749,24 @@ export default function LoginPage({
                     >
                       Sign Up
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('signin')
+                        setErrorMessage('')
+                        try {
+                          sessionStorage.setItem('uandwe_login_mode', 'signin')
+                          window.history.replaceState(null, '', '#login')
+                        } catch {}
+                      }}
+                      className={`flex-1 py-1.5 px-3 text-xs rounded-full transition-all cursor-pointer text-center ${
+                        !isSignUp
+                          ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                          : 'text-white/70 hover:text-white font-medium'
+                      }`}
+                    >
+                      Sign In
+                    </button>
                   </div>
 
                   {/* Header Title */}
@@ -704,18 +774,8 @@ export default function LoginPage({
                     {isSignUp ? 'Sign Up' : 'Sign In'}
                   </h2>
 
-                  {/* Error Banner */}
-                  {errorMessage && (
-                    <div className="mb-5 p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
-                      <div className="flex-1 leading-snug">
-                        <span>{errorMessage}</span>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Form with Clean Underline Inputs */}
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} noValidate>
                     <div className="space-y-6">
                       {/* Target Product Input Dropdown (Clean Underline Style, Zero Icons) */}
                       <div ref={productDropdownRef} className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
@@ -765,35 +825,28 @@ export default function LoginPage({
                       {/* Email Field */}
                       <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
                         <label className="block text-[11px] text-white/60 mb-1 font-light">Email</label>
-                        <div className="flex items-center justify-between">
-                          <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            placeholder="name@example.com"
-                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
-                          />
-                          <Mail className="w-4 h-4 text-white/50 shrink-0 ml-2" />
-                        </div>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="name@example.com"
+                          className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none py-0.5"
+                        />
                       </div>
 
                       {/* Username Field (Sign Up Only) */}
                       {isSignUp && (
                         <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
                           <label className="block text-[11px] text-white/60 mb-1 font-light">Username</label>
-                          <div className="flex items-center justify-between">
-                            <input
-                              type="text"
-                              name="name"
-                              value={formData.name}
-                              onChange={handleChange}
-                              placeholder="Your username"
-                              className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
-                            />
-                            <UserIcon className="w-4 h-4 text-white/50 shrink-0 ml-2" />
-                          </div>
+                          <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="Your username"
+                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none py-0.5"
+                          />
                         </div>
                       )}
 
@@ -806,21 +859,17 @@ export default function LoginPage({
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            required
                             placeholder={isSignUp ? 'Min 6 characters' : '••••••••'}
-                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
+                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none py-0.5"
                           />
-                          <div className="flex items-center gap-2 ml-2">
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="text-white/50 hover:text-white transition-colors cursor-pointer"
-                              title={showPassword ? 'Hide password' : 'Show password'}
-                            >
-                              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                            </button>
-                            <Lock className="w-3.5 h-3.5 text-white/50 shrink-0" />
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="text-white/50 hover:text-white transition-colors cursor-pointer ml-2"
+                            title={showPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
                         </div>
                       </div>
 
@@ -828,18 +877,14 @@ export default function LoginPage({
                       {isSignUp && (
                         <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
                           <label className="block text-[11px] text-white/60 mb-1 font-light">Confirm Password</label>
-                          <div className="flex items-center justify-between">
-                            <input
-                              type={showPassword ? 'text' : 'password'}
-                              name="confirmPassword"
-                              value={formData.confirmPassword}
-                              onChange={handleChange}
-                              required
-                              placeholder="••••••••"
-                              className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none"
-                            />
-                            <Lock className="w-3.5 h-3.5 text-white/50 shrink-0 ml-2" />
-                          </div>
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="••••••••"
+                            className="w-full bg-transparent text-white text-xs placeholder:text-white/25 focus:outline-none py-0.5"
+                          />
                         </div>
                       )}
                     </div>
@@ -874,7 +919,7 @@ export default function LoginPage({
                             href="#forgot"
                             onClick={(e) => {
                               e.preventDefault()
-                              alert('Password reset link sent to your email!')
+                              setErrorMessage('Password reset instructions have been dispatched to your email.')
                             }}
                             className="text-[11.5px] text-white/60 hover:text-white transition-colors hover:underline"
                           >
@@ -883,6 +928,13 @@ export default function LoginPage({
                         </div>
                       )}
                     </div>
+
+                    {/* Validation Error Banner (Positioned Down Above Submit Button) */}
+                    {errorMessage && (
+                      <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200 text-xs animate-in fade-in duration-200 text-center leading-snug">
+                        <span>{errorMessage}</span>
+                      </div>
+                    )}
 
                     {/* Submit Button (Full Width & Centered) */}
                     <div>

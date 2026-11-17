@@ -13,6 +13,14 @@ import TermsPage from './pages/TermsPage'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import AuthPromptModal from './components/AuthPromptModal'
+import {
+  getSavedAccounts,
+  saveAccount,
+  switchActiveAccount,
+  removeSavedAccount,
+  clearAllSavedAccounts,
+} from './utils/accountManager'
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -33,6 +41,9 @@ function App() {
       return null
     }
   })
+
+  // Multi-Account Sessions (maximum 2 accounts in the switcher)
+  const [savedAccounts, setSavedAccounts] = useState(() => getSavedAccounts())
 
   // Initialize from hash or storage if present
   const [currentPage, setCurrentPage] = useState(() => {
@@ -104,15 +115,56 @@ function App() {
   const [loginMode, setLoginMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase()
-      if (hash === '#signup') return 'signup'
+      if (hash === '#signin' || hash === '#login') return 'signin'
+      if (hash === '#signup' || hash === '#register') return 'signup'
       try {
         const savedMode = sessionStorage.getItem('uandwe_login_mode')
         if (savedMode === 'signup' || savedMode === 'signin') return savedMode
       } catch {}
     }
-    return 'signin'
+    return 'signup'
   })
   const [welcomeMessage, setWelcomeMessage] = useState('')
+
+  // Global In-App Auth Required Prompt Modal
+  const [authModal, setAuthModal] = useState({
+    isOpen: false,
+    title: 'Sign In Required',
+    message: 'Please sign in or create an account to proceed.',
+    productKey: 'dara',
+    actionText: 'Sign In / Register',
+  })
+
+  useEffect(() => {
+    const handleOpenAuth = (e) => {
+      const { title, message, productKey, actionText } = e.detail || {}
+      setAuthModal({
+        isOpen: true,
+        title: title || 'Sign In Required',
+        message: message || 'Please sign in or create an account to proceed.',
+        productKey: productKey || 'dara',
+        actionText: actionText || 'Sign In / Register',
+      })
+    }
+
+    const handleCloseAuth = () => {
+      setAuthModal((prev) => ({ ...prev, isOpen: false }))
+    }
+
+    window.addEventListener('uandwe:open-auth-modal', handleOpenAuth)
+    window.addEventListener('uandwe:close-auth-modal', handleCloseAuth)
+
+    return () => {
+      window.removeEventListener('uandwe:open-auth-modal', handleOpenAuth)
+      window.removeEventListener('uandwe:close-auth-modal', handleCloseAuth)
+    }
+  }, [])
+
+  const handleAuthModalConfirm = () => {
+    const targetProduct = authModal.productKey || 'dara'
+    setAuthModal((prev) => ({ ...prev, isOpen: false }))
+    handleNavigateToLogin('signin', targetProduct)
+  }
 
   // Persist current page & ananda category in sessionStorage
   useEffect(() => {
@@ -240,9 +292,12 @@ function App() {
       ...userData,
       selectedProduct: activeProd,
     }
+
+    // Save into multi-account manager (max 2 accounts kept)
+    const updatedAccounts = saveAccount(enrichedUser)
+    setSavedAccounts(updatedAccounts)
     setUser(enrichedUser)
     try {
-      localStorage.setItem('uandwe_user', JSON.stringify(enrichedUser))
       sessionStorage.setItem('uandwe_selected_product', activeProd)
     } catch (err) {
       console.error('Failed to save session:', err)
@@ -341,20 +396,127 @@ function App() {
     }
   }
 
-  // On logout: clear user session and stay on Home page as a guest (never force sign in page)
-  const handleLogout = () => {
-    setUser(null)
+  // 1-Click Multi-Account Switcher (Swaps between up to 2 saved accounts instantly)
+  const handleSwitchAccount = (targetAccount) => {
+    if (!targetAccount) return
+    const newActive = switchActiveAccount(targetAccount)
+    if (!newActive) return
+
+    setUser(newActive)
+    setSavedAccounts(getSavedAccounts())
+
+    // Update active workspace
+    const targetProd = newActive.selectedProduct || 'ananda'
     try {
-      localStorage.removeItem('uandwe_user')
-      localStorage.removeItem('uandwe_token')
-    } catch (err) {
-      console.error('Failed to clear session:', err)
+      sessionStorage.setItem('uandwe_selected_product', targetProd)
+    } catch {}
+
+    if (targetProd === 'ananda-residential') {
+      setAnandaCategory('residential')
+      setCurrentPage('ananda')
+      window.location.hash = 'ananda-residential'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } else if (targetProd === 'ananda') {
+      setAnandaCategory('commercial')
+      setCurrentPage('ananda')
+      window.location.hash = 'ananda'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } else if (targetProd === 'dara') {
+      setCurrentPage('dara')
+      window.location.hash = 'dara'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } else if (targetProd === 'aura') {
+      setCurrentPage('aura')
+      window.location.hash = 'aura'
+      window.scrollTo({ top: 0, behavior: 'instant' })
     }
+  }
+
+  // Seamless Product Switcher for the Active Logged-In User
+  const handleSwitchProduct = (productKey) => {
+    if (!productKey || !user) return
+    const updatedUser = {
+      ...user,
+      selectedProduct: productKey,
+    }
+    setUser(updatedUser)
+    try {
+      localStorage.setItem('uandwe_user', JSON.stringify(updatedUser))
+      sessionStorage.setItem('uandwe_selected_product', productKey)
+    } catch {}
+
+    // Update in saved accounts
+    const updatedAccounts = saveAccount(updatedUser)
+    setSavedAccounts(updatedAccounts)
+
+    if (productKey === 'ananda-residential') {
+      setAnandaCategory('residential')
+      setCurrentPage('ananda')
+      window.location.hash = 'ananda-residential'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } else if (productKey === 'ananda') {
+      setAnandaCategory('commercial')
+      setCurrentPage('ananda')
+      window.location.hash = 'ananda'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } else if (productKey === 'dara') {
+      setCurrentPage('dara')
+      window.location.hash = 'dara'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } else if (productKey === 'aura') {
+      setCurrentPage('aura')
+      window.location.hash = 'aura'
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
+  }
+
+  // Remove a saved account from the list
+  const handleRemoveAccount = (email, selectedProduct) => {
+    const { remaining, nextActive } = removeSavedAccount(email, selectedProduct)
+    setSavedAccounts(remaining)
+    if (nextActive) {
+      setUser(nextActive)
+      handleSwitchAccount(nextActive)
+    } else {
+      setUser(null)
+      setCurrentPage('home')
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }
+
+  // On logout: can log out of active account or all accounts
+  const handleLogout = (all = false) => {
+    if (all) {
+      clearAllSavedAccounts()
+      setSavedAccounts([])
+      setUser(null)
+      setCurrentPage('home')
+      window.history.replaceState(null, '', window.location.pathname)
+      return
+    }
+
+    if (user) {
+      const { remaining, nextActive } = removeSavedAccount(user.email, user.selectedProduct)
+      setSavedAccounts(remaining)
+      if (nextActive) {
+        setUser(nextActive)
+        handleSwitchAccount(nextActive)
+        return
+      }
+    }
+
+    clearAllSavedAccounts()
+    setSavedAccounts([])
+    setUser(null)
     setCurrentPage('home')
     window.history.replaceState(null, '', window.location.pathname)
   }
 
-  const handleNavigateToLogin = (mode = 'signin', target = null) => {
+  const handleAddAccount = () => {
+    handleNavigateToLogin('signin')
+  }
+
+  const handleNavigateToLogin = (mode = 'signup', target = null) => {
     setLoginMode(mode)
     setRedirectTarget(target)
     setCurrentPage('login')
@@ -494,6 +656,11 @@ function App() {
       <Header
         activeNav={activeNav}
         user={user}
+        savedAccounts={savedAccounts}
+        onSwitchAccount={handleSwitchAccount}
+        onSwitchProduct={handleSwitchProduct}
+        onAddAccount={handleAddAccount}
+        onRemoveAccount={handleRemoveAccount}
         onLogout={handleLogout}
         onNavigateToLogin={handleNavigateToLogin}
         onNavigateToHome={handleNavigateToHome}
@@ -710,6 +877,19 @@ function App() {
         onNavigateToSecurity={handleNavigateToSecurity}
         onNavigateToTerms={handleNavigateToTerms}
         user={user}
+      />
+
+      {/* ========================================================= */}
+      {/* GLOBAL LUXURY IN-APP AUTH REQUIRED PROMPT MODAL            */}
+      {/* ========================================================= */}
+      <AuthPromptModal
+        open={authModal.isOpen}
+        onClose={() => setAuthModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={handleAuthModalConfirm}
+        title={authModal.title}
+        message={authModal.message}
+        productKey={authModal.productKey}
+        actionText={authModal.actionText}
       />
 
       <ScrollToTop />

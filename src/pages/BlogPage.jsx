@@ -271,29 +271,6 @@ export default function BlogPage({
               {bp.heroSubtitle ||
                 'Notes, design thinking, and engineering breakdowns from our team — exploring environmental physics, autonomous edge silicon, and assistive human care.'}
             </p>
-
-            <div className="mt-7 sm:mt-9">
-              <a
-                href="#dispatches"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const el = document.getElementById('dispatches')
-                  if (el) {
-                    if (window.__lenis) {
-                      window.__lenis.scrollTo(el, { duration: 1.2 })
-                    } else {
-                      el.scrollIntoView({ behavior: 'smooth' })
-                    }
-                  }
-                }}
-                className="group relative inline-flex items-center gap-4 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-neutral-900 hover:bg-neutral-100 font-['Inter'] font-semibold text-xs sm:text-[13px] tracking-[0.14em] uppercase transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_15px_35px_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-              >
-                <span>{bp.heroButtonText || 'Explore Articles'}</span>
-                <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-neutral-800 group-hover:translate-x-1 transition-all duration-300 shadow-xs">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </a>
-            </div>
           </div>
         </div>
       </div>

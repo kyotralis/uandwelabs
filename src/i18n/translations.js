@@ -542,7 +542,7 @@ export const TRANSLATIONS = {
         line2: 'Invisible by Design.',
       },
       heroDesc: 'A smart assistive device that keeps elderly loved ones safe and independent at home. Features a talking clock, night torch light, and automatic fall detection — with zero cameras or wearables.',
-      heroButtonText: 'Request Free Sample',
+      heroButtonText: 'Request Demo',
 
       clockSectionTitle: 'Talking Clock & Built-In Speaker',
       clockSectionDesc: 'Displays the current time clearly on a high-contrast screen. Press the button to announce the exact time aloud via the built-in speaker in multiple regional languages.',
@@ -645,20 +645,20 @@ export const TRANSLATIONS = {
 
       cta: {
         title: 'Bring Dignity to Every Room',
-        subtitle: 'Request a free evaluation sample unit or schedule a consultation with our geriatric hardware engineering team in Bengaluru.',
-        buttonText: 'Request Free Sample',
+        subtitle: 'Request a live hardware demonstration or schedule a consultation with our geriatric engineering team in Bengaluru.',
+        buttonText: 'Request Demo',
       },
 
       modal: {
-        title: 'Dara Free Sample Request',
-        formTitle: 'Request Free Sample Unit',
-        formSubtitle: 'Specify patient and delivery details to receive a free sample evaluation unit.',
+        title: 'Dara Demo Request',
+        formTitle: 'Request Hardware Demo',
+        formSubtitle: 'Specify patient and delivery details to schedule a live demonstration or evaluation.',
         nameLabel: 'Patient Name',
         emailLabel: 'Patient Email',
         facilityLabel: 'Care Home / Residence',
         notesLabel: 'Notes',
         notesPlaceholder: 'Add any specific requirements or notes...',
-        submitButtonText: 'REQUEST FREE SAMPLE',
+        submitButtonText: 'REQUEST DEMO',
         departmentTitle: 'Dara Geriatric Hardware Engineering Desk',
         departmentSubtitle: 'Clinical Consultation Team · Bengaluru',
       },
@@ -1038,12 +1038,12 @@ export const TRANSLATIONS = {
       heroSubtitle:
         'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities that serve humanity with dignity.',
       heroCta: 'Discover Our Mission',
-      originBadge: 'ORIGIN & CONVICTION',
-      originTitle: 'The Pursuit of Tangible Truth',
+      originBadge: 'OUR STORY & PURPOSE',
+      originTitle: 'Technology Made for Real Life',
       originParagraph1:
-        'UandWe Labs was established in Bengaluru with a singular mandate: to bridge high-performance computational theory with uncompromising physical precision. In an era dominated by ephemeral software layers, we focus on what endures — deterministic fluid physics, sovereign edge silicon, and non-invasive assistive technology.',
+        'UandWe Labs began in Bengaluru with a simple, refreshing idea: what if technology stopped demanding your constant attention and instead quietly made the real world a better place to live? In a world filled with endless notifications, fleeting apps, and digital noise, we fell in love with making things you can actually feel, touch, and trust in daily life.',
       originParagraph2:
-        'Our multi-disciplinary team brings together computational fluid dynamicists, optical sensor architects, and biophilic system designers. We believe that true technological advancement must preserve personal dignity, foster human independence, and honor environmental boundaries.',
+        'Our studio brings together dreamers, architects, craftspeople, and thinkers who care deeply about everyday life. Whether we are designing comfortable spaces where cool breezes flow naturally, or creating gentle devices that keep grandparents safe at home without cameras watching over them, we believe good technology should feel like second nature—protecting your dignity, respecting your peace of mind, and bringing people closer together.',
       principlesTitle: 'What We Believe In',
       principlesSubtitle: 'Core Engineering Principles',
       principlesIntro:
@@ -1234,24 +1234,24 @@ export const TRANSLATIONS = {
         },
       ],
       benchesTitle: 'Life Inside UandWe Labs',
-      benchesSubtitle: 'Where theoretical physics converges with aerospace-grade fabrication and real-world deployment.',
+      benchesSubtitle: 'Where curious minds, warm conversations, and bold experiments turn into technology that touches everyday lives.',
       lifeBenches: [
         {
-          title: 'First-Principles Numerical Solvers',
-          desc: 'Engineers continuously profile custom mathematical algorithms, large-scale spatial modeling kernels, and real-time physical simulation engines running on dedicated compute infrastructure.',
-          tag: 'COMPUTATIONAL SIMULATION',
+          title: 'From Wild Ideas to Living Cities',
+          desc: 'We explore how breezes flow through neighborhood courtyards, how sunlight naturally warms living rooms, and how future buildings can live in gentle harmony with nature.',
+          tag: 'IMAGINING TOMORROW',
           image: '/ananda_hero.jpg',
         },
         {
-          title: 'Precision Mechanics & Silicon Bring-Up',
-          desc: 'Cross-functional teams design aerospace-grade enclosures, validate low-noise analog signal integrity, and test high-efficiency embedded microcontrollers built to operate for decades.',
-          tag: 'RAPID PROTOTYPING & HARDWARE',
+          title: 'Whiteboards, Warm Chai & Making Things',
+          desc: 'No corporate red tape or endless slide decks. A fresh spark sketched over lunch often turns into a real, working prototype you can hold and test in your hands by Friday afternoon.',
+          tag: 'THE MAKER SPIRIT',
           image: '/about_team_brainstorm.jpg',
         },
         {
-          title: 'Interdisciplinary Synthesis & Field Validation',
-          desc: 'Applied scientists and systems architects collaborate on mathematical models, resilient embedded firmware, and real-world deployment infrastructure with zero cloud dependencies.',
-          tag: 'UANDWE LABS BENCHES',
+          title: 'Tech That Cares Without Getting in the Way',
+          desc: 'From looking out for elders at home without intrusive cameras to creating calmer everyday spaces, we build thoughtful technology that puts human comfort, peace of mind, and dignity first.',
+          tag: 'HUMAN-FIRST IMPACT',
           image: '/about_indian_team_1.jpg',
         },
       ],
@@ -1905,7 +1905,7 @@ export const TRANSLATIONS = {
         line2: '大巧无形，润物无声。',
       },
       heroDesc: '守护居家老人安全与独立自主的智能辅助终端。集语音报时时钟、夜间应急手电与毫米波跌倒主动检测于一体——零摄像头入侵，零穿戴束缚。',
-      heroButtonText: '申请免费样品',
+      heroButtonText: '申请演示',
 
       clockSectionTitle: '多语种语音报时钟与内置扬声器',
       clockSectionDesc: '在高对比度屏幕上清晰显示当前时间。轻按实体按键，即可通过内置声学扬声器以多种母语方言清晰朗读当前精准时间。',
@@ -2008,22 +2008,22 @@ export const TRANSLATIONS = {
 
       cta: {
         title: '让体面与尊严走进每一个居所',
-        subtitle: '申请免费样品评估原型机，或与我们在班加罗尔的老年康养硬件工程专家团队进行技术会商。',
-        buttonText: '申请免费样品',
+        subtitle: '预约现场硬件演示，或与我们在班加罗尔的老年康养硬件工程专家团队进行技术会商。',
+        buttonText: '申请演示',
       },
 
       modal: {
-        title: 'Dara 免费样品申请',
-        formTitle: '申请免费样品硬件',
-        formSubtitle: '填写患者与递送信息，以便在您的机构或家庭环境中接收免费样品评估。',
+        title: 'Dara 硬件演示申请',
+        formTitle: '申请硬件演示',
+        formSubtitle: '填写患者与机构信息，以便为您安排现场设备演示与评估。',
         nameLabel: '患者姓名',
         emailLabel: '患者电子邮箱',
         facilityLabel: '照护机构 / 居所地址',
         notesLabel: '备注',
         notesPlaceholder: '请输入具体照护或递送要求...',
-        submitButtonText: '申请免费样品',
+        submitButtonText: '申请演示',
         departmentTitle: 'Dara 老年康养硬件工程研发台',
-        departmentSubtitle: '免费样品递送与咨询团队 · 班加罗尔',
+        departmentSubtitle: '技术会商与演示团队 · 班加罗尔',
       },
     },
 
@@ -2401,12 +2401,12 @@ export const TRANSLATIONS = {
       heroSubtitle:
         '我们融合生成式智能、环境物理学与精密硬件工程，构建可持续、面向未来的实体科技，以尊严与科技造福生命。',
       heroCta: '探索我们的使命',
-      originBadge: '起源与信念',
-      originTitle: '对确凿物理真理的执着探索',
+      originBadge: '初心与愿景',
+      originTitle: '为真实生活而创造的科技',
       originParagraph1:
-        'UandWe Labs 诞生于印度班加罗尔，怀揣着坚定的使命：将顶尖前沿的计算理论与严苛的物理实体精密制造紧密交融。在虚浮软件泛滥的时代，我们专注投身于能够真正经久不衰的核心领域——确定性流体物理学、主权级边缘AI计算芯片，以及无感非侵入式长者智能辅具。',
+        'UandWe Labs 诞生于班加罗尔，源于一个质朴而坚定的想法：如果科技不再一味争夺你的注意力，而是悄无声息地让真实世界变得更美好，那该有多好？在这个充斥着无数弹窗、浮躁软件和数字杂音的时代，我们专注于打造那些你可以在日常生活中真正看得见、摸得着、安心信赖的真实事物。',
       originParagraph2:
-        '我们的跨学科发明团队汇聚了计算流体力学专家、高精度光学传感器架构师以及人居环境生物亲和设计先锋。我们坚信，真正的科技进步必须守护个人尊严、促进人的独立自立，并敬畏自然环境的边界。',
+        '我们的工作室汇聚了充满热情的创作者、建筑师、工匠与思考者。无论是设计让清风自然吹拂的惬意居所，还是打造无需任何摄像头就能默默守护长辈安康的温情智能，我们坚信真正的科技应当如呼吸般自然——守护尊严、带来安心，让人们的心贴得更近。',
       principlesTitle: '我们的核心信念',
       principlesSubtitle: '基石工程准则',
       principlesIntro:
@@ -2597,24 +2597,24 @@ export const TRANSLATIONS = {
         },
       ],
       benchesTitle: '走进 UandWe 研发实验室',
-      benchesSubtitle: '理论物理学与航空级精密制造及实体落地的交汇之地。',
+      benchesSubtitle: '好奇心、灵感碰撞与大胆探索在此交织，化为温暖人心的真实科技。',
       lifeBenches: [
         {
-          title: '第一性原理数值求解与并行算力台',
-          desc: '研发工程师专注攻坚自研数学算法、大规模空间几何建模内核与毫秒级实时物理仿真引擎，在自建算力架构上实现突破。',
-          tag: '高性能计算与物理仿真',
+          title: '从天马行空的想象到有温度的城市',
+          desc: '我们探寻微风如何轻拂街区院落、阳光如何自然照亮客厅，以及未来的建筑如何与自然草木温柔共生。',
+          tag: '畅想未来生活',
           image: '/ananda_hero.jpg',
         },
         {
-          title: '精密机械加工与低功耗硅片试验室',
-          desc: '跨学科团队研制航空级精密结构封装，验证超低噪声模拟信号完整性，并对设计寿命达数十年的高能效嵌入式微控制器进行全工况测试。',
-          tag: '精密硬件试制与超净间',
+          title: '白板、热奶茶与动手的创造精神',
+          desc: '这里没有繁文缛节与漫长会议。午后在玻璃板上写下的一个灵感火花，周五就能变成可以握在手中的真实物理原型。',
+          tag: '工匠精神与探索',
           image: '/about_team_brainstorm.jpg',
         },
         {
-          title: '跨学科系统集成与真实工况实证',
-          desc: '应用科学家与系统架构师紧密协同，将抽象数学理论、高鲁棒性嵌入式固件与无云依赖的本地闭环系统在真实物理场景中全面实证。',
-          tag: 'UANDWE 研发协同中心',
+          title: '温暖守护，却不打扰生活本真',
+          desc: '无论是无需摄像头的非接触式长辈居家守护，还是让居所更加宁静安然，我们致力于打造守护尊严、润物细无声的科技。',
+          tag: '以人为本的温度',
           image: '/about_indian_team_1.jpg',
         },
       ],

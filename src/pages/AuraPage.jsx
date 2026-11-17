@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react'
-import { Camera, Cpu, Shield, Lock, Radio, Zap, Scan, ShieldCheck } from 'lucide-react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { Camera, Cpu, Shield, Lock, Radio, Zap, Scan, ShieldCheck, ArrowRight, ArrowLeft } from 'lucide-react'
+import MorphGallery from '../components/ui/morph-gallery'
 import { useTranslation } from '../i18n'
 import { openAuthModal } from '../utils/authPrompt'
 import { isUserAuthorizedForProduct } from '../utils/accountManager'
 import {
-  ProductHero,
   ProductGallery,
   ProductArchitectureGrid,
   ProductPillarsGrid,
@@ -13,6 +13,45 @@ import {
   ProductCtaBox,
   ProductConsultModal,
 } from '../components/ProductComponents'
+
+// ==========================================
+// AURA HERO SLIDES (MorphGallery WebGL)
+// ==========================================
+export const AURA_HERO_SLIDES = [
+  {
+    id: 'highway-lpr',
+    category: 'Autonomous Highway Edge Vision',
+    src: '/hero_aura_highway_lpr.jpg',
+    thumb: '/hero_aura_highway_lpr.jpg',
+    alt: 'Aura LPR - Multilane Expressway Vehicle Perception & License Plate Recognition',
+    headline: 'Physical AI. Silicon at the Edge.',
+    subtitle:
+      'Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking across 6 expressway lanes with zero cloud egress.',
+    ctaText: 'Schedule Node Pilot',
+  },
+  {
+    id: 'perimeter-mesh',
+    category: 'Critical Infrastructure Defense',
+    src: '/hero_aura_perimeter_mesh.jpg',
+    thumb: '/hero_aura_perimeter_mesh.jpg',
+    alt: 'Aura Sentinel - 350M Coordinated Perimeter Mesh & Threat Tracking',
+    headline: 'Coordinated Perimeter Mesh.',
+    subtitle:
+      'Autonomous multi-node target handoff tracks human and vehicular vectors over 350 meters with zero blind spots, micro-lux night optics, and predictive intrusion alerts.',
+    ctaText: 'Schedule Node Pilot',
+  },
+  {
+    id: 'campus-checkpoint',
+    category: 'Mission-Critical Access Intelligence',
+    src: '/hero_aura_campus_checkpoint.jpg',
+    thumb: '/hero_aura_campus_checkpoint.jpg',
+    alt: 'Aura Vision - Smart Campus & High-Security Architectural Checkpoint',
+    headline: 'Air-Gapped Autonomous Vision.',
+    subtitle:
+      'Raw video never exits the camera node. FIPS 140-2 Level 3 armored cryptography and hardware root-of-trust ensure permanent physical security and absolute data sovereignty.',
+    ctaText: 'Schedule Node Pilot',
+  },
+]
 
 // ==========================================
 // AURA DATA SPECIFICATION
@@ -24,7 +63,7 @@ const AURA_GALLERY = [
     desc: 'Real-time optical character and vehicle identification at speeds up to 180 km/h with sub-millisecond precision.',
   },
   {
-    image: '/aura_sentinel_dusk.jpg',
+    image: '/aura_350m_perimeter_mesh.jpg',
     title: '350M Perimeter Mesh',
     desc: 'Multi-camera spatial target handoff detects and tracks perimeter vectors across 350 meters with zero blind spots.',
   },
@@ -131,6 +170,52 @@ export default function AuraPage({
 
   const [modalOpen, setModalOpen] = useState(false)
 
+  // Multi-Slide WebGL Morph Hero States (Identical to Homepage Hero)
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0)
+  const [isHeroRevealed, setIsHeroRevealed] = useState(false)
+  const [isHeroPaused, setIsHeroPaused] = useState(false)
+  const heroReadyTriggered = useRef(false)
+
+  const heroSlides = useMemo(() => {
+    return AURA_HERO_SLIDES.map((slide, idx) => ({
+      ...slide,
+      headline: ap.heroSlides?.[idx]?.headline || slide.headline,
+      category: ap.heroSlides?.[idx]?.category || slide.category,
+      subtitle: ap.heroSlides?.[idx]?.subtitle || slide.subtitle,
+      ctaText: ap.heroSlides?.[idx]?.ctaText || slide.ctaText,
+    }))
+  }, [ap.heroSlides])
+
+  const handleHeroReady = () => {
+    if (heroReadyTriggered.current) return
+    heroReadyTriggered.current = true
+    requestAnimationFrame(() => {
+      setIsHeroRevealed(true)
+    })
+  }
+
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      handleHeroReady()
+    }, 350)
+    return () => clearTimeout(fallbackTimer)
+  }, [])
+
+  // Auto-play hero slide rotation (5s duration, synchronized with noise dissolve WebGL transition)
+  useEffect(() => {
+    if (!isHeroRevealed || isHeroPaused) return
+    const timer = setInterval(() => {
+      setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [isHeroRevealed, isHeroPaused, heroSlides.length])
+
+  const handleSelectHeroSlide = (idx) => {
+    setActiveHeroIndex(idx)
+  }
+
+  const currentHeroSlide = heroSlides[activeHeroIndex] || heroSlides[0]
+
   // Localized data structures
   const gallery = useMemo(() => {
     const list = ap.gallery || AURA_GALLERY
@@ -175,27 +260,155 @@ export default function AuraPage({
 
   return (
     <div className="bg-white min-h-screen text-neutral-900 w-full font-sans selection:bg-black selection:text-white">
-      {/* 1. IMMERSIVE HERO */}
-      <ProductHero
-        backgroundImage="/aura_sentinel_dusk.jpg"
-        imageAlt="Aura Physical AI"
-        title={<>{ap.heroTitle?.line1 || 'Physical AI.'} <br /><span className="text-white">{ap.heroTitle?.line2 || 'Silicon at the Edge.'}</span></>}
-        description={ap.heroDesc || "Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking and perimeter defense with zero cloud egress."}
-        buttonText={ap.heroButtonText || "Schedule Node Pilot"}
-        onButtonClick={() => {
-          if (!isUserAuthorizedForProduct(user, 'aura')) {
-            openAuthModal({
-              title: 'Sign In Required',
-              message: 'Please sign in with your account to request an Aura technical pilot.',
-              productKey: 'aura',
-              actionText: 'Sign In / Register',
-            })
-            return
-          }
-          setModalOpen(true)
-        }}
-        onBack={onNavigateToHome}
-      />
+      {/* 1. IMMERSIVE HERO SECTION (MorphGallery WebGL Shader & Homepage Hero Animation) */}
+      <div className="min-h-screen relative flex flex-col justify-between overflow-hidden font-['Inter'] text-white select-text">
+        {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition) */}
+        <div
+          className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${
+            isHeroRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
+          }`}
+        >
+          <MorphGallery
+            items={heroSlides}
+            index={activeHeroIndex}
+            onIndexChange={handleSelectHeroSlide}
+            autoplay={0}
+            duration={1200}
+            height="100%"
+            arrows={false}
+            thumbnails={false}
+            onReady={handleHeroReady}
+          />
+          {/* Cinematic dark scrims to ensure pristine typography legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 via-50% to-transparent/10 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-black/15 pointer-events-none z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 pointer-events-none z-[1]" />
+        </div>
+
+        {/* Top Back Navigation Button */}
+        <div className="absolute top-24 sm:top-28 lg:top-32 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-start">
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigateToHome) onNavigateToHome()
+                else if (typeof window !== 'undefined') window.location.hash = ''
+              }}
+              aria-label="Back to Home"
+              className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        </div>
+
+        {/* MAIN HERO CONTENT (Identical layout to Homepage Hero) */}
+        <main className="relative z-10 flex-1 w-full flex items-center pointer-events-none pt-20 sm:pt-24 lg:pt-28 pb-12">
+          <div className="relative z-10 w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 py-8 flex flex-col justify-center pointer-events-auto">
+            <div className="max-w-3xl">
+              <div
+                key={activeHeroIndex}
+                className={`transition-all duration-1000 ${
+                  isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
+                }`}
+              >
+                {/* Category Tag */}
+                <div className="mb-3">
+                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-neutral-300 font-medium">
+                    {currentHeroSlide.category}
+                  </span>
+                </div>
+
+                {/* Master Headline: Synchronized with Active Slide */}
+                <div className="relative inline-block py-1">
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text">
+                    {currentHeroSlide.headline}
+                  </h1>
+                </div>
+
+                {/* Subtitle Paragraph */}
+                <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                  {currentHeroSlide.subtitle}
+                </p>
+
+                {/* Action Button: SCHEDULE NODE PILOT ────○ */}
+                <div className="mt-6 sm:mt-8">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isUserAuthorizedForProduct(user, 'aura')) {
+                        openAuthModal({
+                          title: 'Sign In Required',
+                          message: 'Please sign in with your account to request an Aura technical pilot.',
+                          productKey: 'aura',
+                          actionText: 'Sign In / Register',
+                        })
+                        return
+                      }
+                      setModalOpen(true)
+                    }}
+                    className="inline-flex items-center gap-4 group cursor-pointer font-['Inter'] active:scale-[0.98] transition-transform duration-150"
+                  >
+                    <span className="text-[11.5px] font-semibold tracking-[0.2em] uppercase text-white group-hover:text-white/80 transition-colors drop-shadow-sm">
+                      {currentHeroSlide.ctaText || ap.heroButtonText || 'Schedule Node Pilot'}
+                    </span>
+
+                    {/* Horizontal Extension Line */}
+                    <div className="h-[1.5px] w-12 sm:w-16 bg-white/70 group-hover:w-20 sm:group-hover:w-24 transition-all duration-300" />
+
+                    {/* Circular Arrow Button */}
+                    <div className="w-8 h-8 rounded-full border border-white/60 bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-sm text-white">
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* CORNER DOWN SQUARE THUMBNAILS (Touch & Go, Identical to Homepage Hero) */}
+        <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-20 pointer-events-none">
+          <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-end">
+            <nav
+              aria-label="Aura Hero Slide Navigation"
+              className={`pointer-events-auto transition-all duration-1000 ${
+                isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+              onMouseEnter={() => setIsHeroPaused(true)}
+              onMouseLeave={() => setIsHeroPaused(false)}
+            >
+              <div className="flex items-center gap-3 sm:gap-4">
+                {heroSlides.map((slide, idx) => {
+                  const isActive = idx === activeHeroIndex
+                  return (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      onClick={() => handleSelectHeroSlide(idx)}
+                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${
+                        isActive
+                          ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
+                          : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
+                      }`}
+                      title={`Switch to ${slide.headline}`}
+                      aria-label={`Slide ${idx + 1}: ${slide.headline}`}
+                      aria-current={isActive}
+                    >
+                      <img
+                        src={slide.thumb || slide.src}
+                        alt={slide.headline}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
 
       {/* INNER CONTENT WRAPPER */}
       <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] mx-auto">
@@ -224,7 +437,7 @@ export default function AuraPage({
 
       {/* 6. PURPOSE STATEMENT (WHITE CANVAS) */}
       <ProductPurposeStatement
-        backgroundImage="/aura_sentinel_dusk.jpg"
+        backgroundImage="/aura_350m_perimeter_mesh.jpg"
         imageAlt="Aura Engineering Purpose"
         line1={ap.purpose?.line1 || "Built for Reliability."}
         line2={ap.purpose?.line2 || "Engineered for the Edge."}

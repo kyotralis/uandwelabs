@@ -3,8 +3,21 @@ import { ArrowRight } from 'lucide-react'
 import MorphGallery from './ui/morph-gallery'
 import { useTranslation } from '../i18n'
 
-// Hero Slides: Company Vision & Product Engineering
+// Hero Slides: Company Vision & Product Engineering (Order: Ananda -> Dara -> Aura)
 const HERO_SLIDES = [
+  {
+    id: 'ananda-urban-physics',
+    category: 'Urban Physics & CFD',
+    src: '/hero_ananda_urban_physics.jpg',
+    thumb: '/hero_ananda_urban_physics.jpg',
+    alt: 'Ananda - Urban Physics & Microclimate CFD Architecture',
+    headline: 'More Than Meets the Eye.',
+    tagline: 'Precision and intelligent systems',
+    subtitle:
+      'Behind every remarkable building lies a world of precision urban physics, microclimate aerodynamics, and environmental engineering that makes it work.',
+    targetId: 'introduction',
+    ctaText: 'EXPLORE ANANDA',
+  },
   {
     id: 'ideas-become-real',
     category: 'Design & Engineering',
@@ -20,24 +33,11 @@ const HERO_SLIDES = [
     ctaText: 'DISCOVER OUR MISSION',
   },
   {
-    id: 'more-than-meets-the-eye',
-    category: 'Precision Systems',
-    src: '/hero_precision_depth.jpg',
-    thumb: '/hero_precision_depth.jpg',
-    alt: 'More Than Meets the Eye - Precision and Intelligent Systems',
-    headline: 'More Than Meets the Eye.',
-    tagline: 'Precision and intelligent systems',
-    subtitle:
-      'Behind every remarkable product lies a world of precision, intelligent systems, and engineering that makes it work.',
-    targetId: 'introduction',
-    ctaText: 'EXPLORE OUR PRODUCTS',
-  },
-  {
     id: 'tomorrow-starts-today',
-    category: 'Future Architecture',
-    src: '/hero_aura_vision.jpg',
-    thumb: '/hero_aura_vision.jpg',
-    alt: 'Tomorrow Starts with What We Build Today - Clear Purpose and New Possibilities',
+    category: 'Physical AI & Edge Vision',
+    src: '/hero_aura_highway_lpr.jpg',
+    thumb: '/hero_aura_highway_lpr.jpg',
+    alt: 'Tomorrow Starts with What We Build Today - Aura Physical AI & Autonomous Edge Vision',
     headline: 'Tomorrow Starts with What We Build Today.',
     tagline: 'Products with a clear purpose',
     subtitle:

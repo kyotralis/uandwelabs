@@ -81,6 +81,13 @@ export const TRANSLATIONS = {
     hero: {
       slides: [
         {
+          category: 'Urban Physics & CFD',
+          headline: 'More Than Meets the Eye.',
+          tagline: 'Precision and intelligent systems',
+          subtitle: 'Behind every remarkable building lies a world of precision urban physics, microclimate aerodynamics, and environmental engineering that makes it work.',
+          ctaText: 'EXPLORE ANANDA',
+        },
+        {
           category: 'Design & Engineering',
           headline: 'Ideas Deserve to Become Real.',
           tagline: 'Turn ambitious thinking into tangible products',
@@ -88,14 +95,7 @@ export const TRANSLATIONS = {
           ctaText: 'DISCOVER OUR MISSION',
         },
         {
-          category: 'Precision Systems',
-          headline: 'More Than Meets the Eye.',
-          tagline: 'Precision and intelligent systems',
-          subtitle: 'Behind every remarkable product lies a world of precision, intelligent systems, and engineering that makes it work.',
-          ctaText: 'EXPLORE OUR PRODUCTS',
-        },
-        {
-          category: 'Future Architecture',
+          category: 'Physical AI & Edge Vision',
           headline: 'Tomorrow Starts with What We Build Today.',
           tagline: 'Products with a clear purpose',
           subtitle: 'We create products with a clear purpose, designed to address real challenges and open new possibilities.',
@@ -675,6 +675,33 @@ export const TRANSLATIONS = {
       heroDesc: 'Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking and perimeter defense with zero cloud egress.',
       heroButtonText: 'Schedule Node Pilot',
 
+      heroSlides: [
+        {
+          id: 'highway-lpr',
+          category: 'Autonomous Highway Edge Vision',
+          headline: 'Physical AI. Silicon at the Edge.',
+          subtitle:
+            'Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking across 6 expressway lanes with zero cloud egress.',
+          ctaText: 'Schedule Node Pilot',
+        },
+        {
+          id: 'perimeter-mesh',
+          category: 'Critical Infrastructure Defense',
+          headline: 'Coordinated Perimeter Mesh.',
+          subtitle:
+            'Autonomous multi-node target handoff tracks human and vehicular vectors over 350 meters with zero blind spots, micro-lux night optics, and predictive intrusion alerts.',
+          ctaText: 'Schedule Node Pilot',
+        },
+        {
+          id: 'campus-checkpoint',
+          category: 'Mission-Critical Access Intelligence',
+          headline: 'Air-Gapped Autonomous Vision.',
+          subtitle:
+            'Raw video never exits the camera node. FIPS 140-2 Level 3 armored cryptography and hardware root-of-trust ensure permanent physical security and absolute data sovereignty.',
+          ctaText: 'Schedule Node Pilot',
+        },
+      ],
+
       gallery: [
         {
           title: 'Multilane Highway LPR',
@@ -991,7 +1018,7 @@ export const TRANSLATIONS = {
           authorRole: 'Autonomous Edge Infrastructure Architect',
           date: 'September 19, 2026',
           readTime: '11 min read',
-          image: '/aura_sentinel_dusk.jpg',
+          image: '/aura_350m_perimeter_mesh.jpg',
           tags: ['350m Mesh', 'Air-Gapped', 'Perimeter Security', 'Zero Drift'],
           metrics: [
             { label: 'Mesh Coverage Radius', value: '350 Meters' },
@@ -1444,6 +1471,13 @@ export const TRANSLATIONS = {
     hero: {
       slides: [
         {
+          category: '城市物理与计算流体动力学',
+          headline: '超乎所见，深藏不露。',
+          tagline: '高精度与前沿微气候系统',
+          subtitle: '在每一座令人惊叹的建筑背后，都蕴藏着微米级精密物理计算、微气候气流动力学与驱动其运转的深厚工程底蕴。',
+          ctaText: '探索 ANANDA 平台',
+        },
+        {
           category: '设计与工程创新',
           headline: '构想，理应化为现实。',
           tagline: '将远大构想转化为切实产品',
@@ -1451,14 +1485,7 @@ export const TRANSLATIONS = {
           ctaText: '探索我们的使命',
         },
         {
-          category: '精密系统架构',
-          headline: '超乎所见，深藏不露。',
-          tagline: '高精度与前沿智能系统',
-          subtitle: '在每一件令人惊叹的产品背后，都蕴藏着微米级精密仪器、端侧智能算法与驱动其运转的深厚工程底蕴。',
-          ctaText: '浏览核心产品',
-        },
-        {
-          category: '未来技术平台',
+          category: '端侧自主物理AI',
           headline: '未来，始于今日所造。',
           tagline: '目的明确的革新技术',
           subtitle: '我们打造目标明确的革新技术，专为攻克真实世界的严苛挑战，开启人居与智能感知的全新可能。',
@@ -2038,6 +2065,33 @@ export const TRANSLATIONS = {
       heroDesc: '在加固型光学感知节点内直接运行确定性 128-TOPS 神经网络推理。亚毫秒级车辆高速捕获与周界警戒，零云端回传延迟。',
       heroButtonText: '预约节点原型评估',
 
+      heroSlides: [
+        {
+          id: 'highway-lpr',
+          category: '端侧自主高速公路全维感知',
+          headline: '物理AI终端。端侧算力芯片。',
+          subtitle:
+            '在加固型光学感知节点内直接运行确定性 128-TOPS 神经网络推理。亚毫秒级跨6车道高速公路车辆追踪与号牌识别，零云端回传延迟。',
+          ctaText: '预约节点原型评估',
+        },
+        {
+          id: 'perimeter-mesh',
+          category: '关键基础设施全维纵深防御',
+          headline: '350米协同警戒网格网络。',
+          subtitle:
+            '多节点自主时空接力，实现长达 350 米警戒线的人车矢量零盲区追踪、微光夜视增强与侵入轨迹前瞻预测。',
+          ctaText: '预约节点原型评估',
+        },
+        {
+          id: 'campus-checkpoint',
+          category: '高安全园区架构智能出入核验',
+          headline: '物理隔绝的端侧自主机器视觉。',
+          subtitle:
+            '原始视频流永不离开摄像头节点。通过 FIPS 140-2 Level 3 级加密硬件信任根，保障永久物理安全与绝对数据主权。',
+          ctaText: '预约节点原型评估',
+        },
+      ],
+
       gallery: [
         {
           title: '多车道高速公路车牌毫秒级识别',
@@ -2354,7 +2408,7 @@ export const TRANSLATIONS = {
           authorRole: '边缘基础设施架构专家',
           date: '2026年09月19日',
           readTime: '11 分钟阅读',
-          image: '/aura_sentinel_dusk.jpg',
+          image: '/aura_350m_perimeter_mesh.jpg',
           tags: ['350米网格互联', '物理单向隔离', '关键周界防线', '零轨迹漂移'],
           metrics: [
             { label: '网状互联覆盖半径', value: '350 米' },

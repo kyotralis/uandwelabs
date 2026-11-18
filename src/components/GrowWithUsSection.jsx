@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
-import careerHeroImg from '../assets/careerhomeimage.png'
+import careerHeroImg from '../assets/careerhomeimage.jpg'
 import { useTranslation } from '../i18n'
 
 export default function GrowWithUsSection({ onNavigateToCareers }) {

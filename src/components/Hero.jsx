@@ -63,9 +63,31 @@ export default function Hero({
 }) {
   const [activeNav, setActiveNav] = useState('PROJECTS')
   const [isRevealed, setIsRevealed] = useState(false)
-  const [slideIndex, setSlideIndex] = useState(0)
+  const [slideIndex, setSlideIndex] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('uandwe_hero_slide_index')
+        if (saved !== null) {
+          const parsed = parseInt(saved, 10)
+          if (!isNaN(parsed) && parsed >= 0 && parsed < HERO_SLIDES.length) {
+            return parsed
+          }
+        }
+      } catch {}
+    }
+    return 0
+  })
   const [isPaused, setIsPaused] = useState(false)
   const readyTriggered = useRef(false)
+
+  // Persist current active hero slide in sessionStorage so refresh stays on current slide
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('uandwe_hero_slide_index', String(slideIndex))
+      } catch {}
+    }
+  }, [slideIndex])
 
   const { t } = useTranslation()
 

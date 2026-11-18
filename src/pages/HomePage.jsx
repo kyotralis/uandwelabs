@@ -27,6 +27,13 @@ export default function HomePage({
   const lenisRef = useRef(null)
   const isRestoringRef = useRef(true)
 
+  // Ensure current page session is registered as 'home'
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('uandwe_current_page', 'home')
+    } catch {}
+  }, [])
+
   // 1. Initialize Lenis buttery-smooth momentum scrolling
   useEffect(() => {
     if (typeof window === 'undefined') return

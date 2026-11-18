@@ -49,19 +49,34 @@ function App() {
   const [currentPage, setCurrentPage] = useState(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase()
-      if (hash === '#login' || hash === '#signin') {
-        return 'login'
-      }
-      if (hash === '#signup') {
+
+      // If user was on home page, stay on home page across refresh unless an explicit standalone page is targeted
+      try {
+        const savedPage = sessionStorage.getItem('uandwe_current_page')
+        if (savedPage === 'home') {
+          const isExplicitStandalone =
+            hash === '#login' || hash === '#signin' || hash === '#signup' ||
+            hash === '#ananda' || hash === '#ananda-commercial' || hash === '#ananda-residential' ||
+            hash === '#dara' || hash === '#aura' ||
+            hash === '#blogs' || hash === '#blog' ||
+            hash === '#about' || hash === '#about-us' ||
+            hash === '#privacy' || hash === '#security' || hash === '#terms'
+          if (!isExplicitStandalone) {
+            return 'home'
+          }
+        }
+      } catch {}
+
+      if (hash === '#login' || hash === '#signin' || hash === '#signup') {
         return 'login'
       }
       if (hash === '#ananda' || hash === '#geospatial' || hash === '#ananda-commercial' || hash === '#ananda-residential') {
         return 'ananda'
       }
-      if (hash === '#dara' || hash === '#healthcare') {
+      if (hash === '#dara') {
         return 'dara'
       }
-      if (hash === '#aura' || hash === '#physical-ai' || hash === '#board') {
+      if (hash === '#aura' || hash === '#physical-ai') {
         return 'aura'
       }
       if (hash === '#blogs' || hash === '#blog') {
@@ -246,15 +261,21 @@ function App() {
       } else if (hash === '#ananda-residential') {
         setAnandaCategory('residential')
         setCurrentPage('ananda')
-      } else if (hash === '#dara' || hash === '#healthcare') {
+      } else if (hash === '#dara') {
         setCurrentPage('dara')
-      } else if (hash === '#aura' || hash === '#physical-ai' || hash === '#board') {
+      } else if (hash === '#aura' || hash === '#physical-ai') {
         setCurrentPage('aura')
       } else if (hash === '#blogs' || hash === '#blog') {
         setCurrentPage('blogs')
       } else if (hash === '#about' || hash === '#about-us') {
         setCurrentPage('about')
       } else if (hash === '#careers' || hash === '#career' || hash === '#jobs') {
+        try {
+          if (sessionStorage.getItem('uandwe_current_page') === 'home') {
+            setCurrentPage('home')
+            return
+          }
+        } catch {}
         setCurrentPage('careers')
       } else if (hash === '#privacy' || hash === '#privacy-policy') {
         setCurrentPage('privacy')
@@ -271,6 +292,16 @@ function App() {
         try { sessionStorage.setItem('uandwe_current_page', 'terms') } catch {}
         if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true })
         window.scrollTo({ top: 0, behavior: 'instant' })
+      } else if (
+        hash === '#healthcare' ||
+        hash === '#board' ||
+        hash === '#introduction' ||
+        hash === '#beliefs' ||
+        hash === '#hero' ||
+        hash === '' ||
+        hash === '#'
+      ) {
+        setCurrentPage('home')
       } else {
         setCurrentPage('home')
       }

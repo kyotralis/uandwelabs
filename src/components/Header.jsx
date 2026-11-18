@@ -151,6 +151,7 @@ const SECTION_IDS = ['hero', 'about', 'introduction', 'healthcare', 'board', 'be
 
 export default function Header({
   activeNav = 'products',
+  currentPage = 'home',
   onNavChange,
   user,
   savedAccounts = [],
@@ -898,17 +899,30 @@ export default function Header({
               href="#hero"
               onClick={(e) => {
                 e.preventDefault()
-                const heroEl = document.getElementById('hero')
-                if (heroEl) {
-                  if (window.__lenis) {
-                    window.__lenis.scrollTo(0, { duration: 1.2 })
+                setActiveDropdown(null)
+                setSignInMenuOpen(false)
+                setSignInGeoSpatialOpen(false)
+                setMobileMenuOpen(false)
+                setUserMenuOpen(false)
+
+                // If on any subpage (Careers, About, Blogs, Products, etc.), navigate directly to Home
+                if (currentPage !== 'home' || activeNav !== 'home') {
+                  if (onNavigateToHome) {
+                    onNavigateToHome()
+                    return
+                  }
+                }
+
+                // If already on Home page, smoothly scroll to top hero section
+                if (window.__lenis) {
+                  window.__lenis.scrollTo(0, { duration: 1.2 })
+                } else {
+                  const heroEl = document.getElementById('hero')
+                  if (heroEl) {
+                    heroEl.scrollIntoView({ behavior: 'smooth' })
                   } else {
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                   }
-                } else if (onNavigateToHome) {
-                  onNavigateToHome()
-                } else {
-                  window.location.hash = 'hero'
                 }
               }}
               className="flex items-center gap-1.5 sm:gap-2.5 xl:gap-3 cursor-pointer select-none group shrink-0 py-0.5"

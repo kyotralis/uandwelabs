@@ -267,12 +267,13 @@ export const TRANSLATIONS = {
     // ----------------------------------------------------
     footer: {
       description: 'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities.',
-      aboutUsCol: 'About Us',
+      companyCol: 'Company',
+      aboutUsCol: 'Company',
       productsCol: 'Products',
       links: {
         aboutUs: 'About Us',
         careers: 'Careers',
-        techBlog: 'Technical Blog',
+        techBlog: 'Blogs',
         partners: 'Partners',
         ananda: 'Ananda',
         dara: 'Dara (Healthcare)',
@@ -1657,12 +1658,13 @@ export const TRANSLATIONS = {
     // ----------------------------------------------------
     footer: {
       description: '我们融合生成式智能、环境物理仿真与高精尖工程制造，致力于构建可持续、面向未来的真实世界。',
-      aboutUsCol: '关于我们',
+      companyCol: '公司',
+      aboutUsCol: '公司',
       productsCol: '核心产品',
       links: {
         aboutUs: '关于我们',
         careers: '加入我们',
-        techBlog: '技术专栏',
+        techBlog: '博客',
         partners: '生态伙伴',
         ananda: 'Ananda (环境物理)',
         dara: 'Dara (辅助医疗)',

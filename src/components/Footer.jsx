@@ -82,7 +82,7 @@ export default function Footer({
             {/* Column 1: About Us */}
             <div>
               <h4 className="font-semibold text-slate-900 text-sm mb-4">
-                {f.aboutUsCol || 'About Us'}
+                {f.companyCol || f.aboutUsCol || 'Company'}
               </h4>
               <ul className="space-y-3 text-slate-600">
                 <li>
@@ -127,7 +127,7 @@ export default function Footer({
                     }}
                     className="hover:text-black transition-colors cursor-pointer text-left"
                   >
-                    {f.links?.techBlog || 'Technical Blog'}
+                    {f.links?.techBlog || 'Blogs'}
                   </button>
                 </li>
                 <li>

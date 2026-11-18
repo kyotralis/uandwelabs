@@ -78,10 +78,10 @@ export default function CareersPage({
     } catch {}
 
     const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '').toLowerCase() : ''
-    const validSections = ['hero', 'culture', 'life', 'openings', 'benefits', 'inquiry']
+    const validSections = ['careers-hero', 'hero', 'culture', 'life', 'openings', 'benefits', 'inquiry']
     const targetSection = (hash && validSections.includes(hash)) ? hash : savedSection
 
-    if (targetSection && targetSection !== 'hero') {
+    if (targetSection && targetSection !== 'hero' && targetSection !== 'careers-hero') {
       const doScrollToSection = () => {
         const el = document.getElementById(targetSection)
         if (el) {
@@ -266,8 +266,8 @@ export default function CareersPage({
         try {
           sessionStorage.setItem('uandwe_careers_scroll_y', String(window.scrollY))
 
-          const sections = ['inquiry', 'benefits', 'openings', 'life', 'culture', 'hero']
-          let currentSection = 'hero'
+          const sections = ['inquiry', 'benefits', 'openings', 'life', 'culture', 'careers-hero']
+          let currentSection = 'careers-hero'
           const vMid = window.innerHeight * 0.45
 
           for (const sId of sections) {
@@ -427,7 +427,7 @@ export default function CareersPage({
       {/* ======================================================== */}
       {/* 1. IMMERSIVE HERO SECTION                                */}
       {/* ======================================================== */}
-      <div id="hero" className="relative w-full h-screen min-h-[640px] flex items-end pb-16 sm:pb-20 md:pb-24 pt-28 sm:pt-32 px-[4%] overflow-hidden bg-black">
+      <div id="careers-hero" className="relative w-full h-screen min-h-[640px] flex items-end pb-16 sm:pb-20 md:pb-24 pt-28 sm:pt-32 px-[4%] overflow-hidden bg-black">
         {/* Dynamic Visual with subtle overlay */}
         <div className="absolute inset-0 z-0">
           <img

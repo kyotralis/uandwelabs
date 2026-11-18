@@ -567,7 +567,11 @@ function App() {
       sessionStorage.removeItem('ananda_scroll_y')
     } catch {}
     window.location.hash = 'hero'
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { immediate: true })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
   }
 
   const handleNavigateToAnanda = (category = 'commercial') => {
@@ -686,6 +690,7 @@ function App() {
       {/* ========================================================= */}
       <Header
         activeNav={activeNav}
+        currentPage={currentPage}
         user={user}
         savedAccounts={savedAccounts}
         onSwitchAccount={handleSwitchAccount}

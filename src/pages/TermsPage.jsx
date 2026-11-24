@@ -143,7 +143,7 @@ export default function TermsPage({
       ? cmsTerms.articles
       : fallbackArticles
 
-  const contactData = cmsTerms?.contact || {}
+  const contactData = cmsTerms?.legalDesk || cmsTerms?.contact || {}
   const contactEmail = contactData.contactEmail || cmsTerms?.contactEmail || 'legal@uandwelabs.com'
   const contactSecurityEmail = contactData.securityEmail || 'security@uandwelabs.com'
   const contactLabel = contactData.label || 'Compliance Desk'
@@ -313,7 +313,7 @@ export default function TermsPage({
                     )}
                   </div>
 
-                  {(art.id === 'legal-desk' || art.contactEmail || art.securityEmail) && (
+                  {art.id === 'legal-desk' && (
                     <div className="p-6 sm:p-8 rounded-2xl bg-neutral-950 text-white space-y-3 font-mono text-xs sm:text-sm shadow-xl border border-white/10 mt-4 relative">
                       <div className="flex items-center justify-between border-b border-white/10 pb-3">
                         <span className="text-neutral-400 tracking-wider uppercase font-semibold">

@@ -60,10 +60,12 @@ export default function AdminEditButton({
       window.parent.postMessage({ type: 'EDIT_SECTION', section, field, label }, '*')
     } else {
       // Standalone browser tab: open admin studio with target section, field, and current port
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      const adminBase = isLocal ? 'http://localhost:5175' : 'https://uandwelabs-admin.vercel.app'
       const currentPort = window.location.port || '5174'
       const pagePath = window.location.pathname || `/${section}`
       window.open(
-        `http://localhost:5175?section=${encodeURIComponent(section)}&field=${encodeURIComponent(field)}&label=${encodeURIComponent(label || '')}&page=${encodeURIComponent(pagePath)}&port=${currentPort}`,
+        `${adminBase}?section=${encodeURIComponent(section)}&field=${encodeURIComponent(field)}&label=${encodeURIComponent(label || '')}&page=${encodeURIComponent(pagePath)}&port=${currentPort}`,
         '_blank'
       )
     }

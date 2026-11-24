@@ -42,7 +42,7 @@ export default function WhatWeBelieveSection() {
       return cmsHome.beliefs.items.map((item) => ({
         title: item.title,
         statement: item.statement || item.desc || '',
-        elaboration: item.elaboration && item.elaboration !== (item.statement || item.desc) ? item.elaboration : '',
+        elaboration: item.elaboration || item.desc || '',
       }))
     }
     return b.principles || DEFAULT_PRINCIPLES
@@ -66,17 +66,39 @@ export default function WhatWeBelieveSection() {
           <div className="lg:col-span-5 lg:sticky lg:top-36 self-start">
 
             {/* Main Prominent Section Title */}
-            <div className="mb-2 sm:mb-3">
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                {cmsHome?.beliefs?.title1 || b.title1 || 'What We'}
-              </h2>
-            </div>
-
-            <div className="mb-4 sm:mb-6">
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                {cmsHome?.beliefs?.title2 || b.title2 || 'Believe In'}
-              </h2>
-            </div>
+            {cmsHome?.beliefs?.title1 || cmsHome?.beliefs?.title2 ? (
+              <>
+                <div className="mb-2 sm:mb-3">
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
+                    {cmsHome?.beliefs?.title1 || b.title1 || 'What We'}
+                  </h2>
+                </div>
+                <div className="mb-4 sm:mb-6">
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
+                    {cmsHome?.beliefs?.title2 || b.title2 || 'Believe In'}
+                  </h2>
+                </div>
+              </>
+            ) : cmsHome?.beliefs?.title ? (
+              <div className="mb-4 sm:mb-6">
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-tight select-text">
+                  {cmsHome.beliefs.title}
+                </h2>
+              </div>
+            ) : (
+              <>
+                <div className="mb-2 sm:mb-3">
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
+                    {b.title1 || 'What We'}
+                  </h2>
+                </div>
+                <div className="mb-4 sm:mb-6">
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
+                    {b.title2 || 'Believe In'}
+                  </h2>
+                </div>
+              </>
+            )}
 
             {/* Sub-headline */}
             <div className="mb-4 sm:mb-6">
@@ -128,7 +150,7 @@ export default function WhatWeBelieveSection() {
                   )}
 
                   {/* Concise Contextual Elaboration */}
-                  {item.elaboration && item.elaboration !== item.statement && (
+                  {item.elaboration && (
                     <p className="text-sm sm:text-base text-slate-500 leading-relaxed font-normal max-w-xl transition-colors group-hover:text-slate-700">
                       {item.elaboration}
                     </p>

@@ -1462,14 +1462,6 @@ export function deepMerge(target, source) {
     }
   }
 
-  // Permanently eliminate legacy 'Purpose Over Noise' and paragraph subtitle from beliefs
-  if (
-    result.home?.beliefs?.items?.some(it => it.title === 'Purpose Over Noise') ||
-    result.home?.beliefs?.subtitle?.toLowerCase().includes('at uandwe labs, we believe')
-  ) {
-    result.home.beliefs = JSON.parse(JSON.stringify(DEFAULT_CMS_DATA.home.beliefs));
-  }
-
   return result;
 }
 

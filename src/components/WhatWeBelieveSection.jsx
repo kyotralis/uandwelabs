@@ -36,6 +36,44 @@ export default function WhatWeBelieveSection() {
   const [cmsHome] = useCmsContent('home')
   const { t } = useTranslation()
   const b = t.beliefs || {}
+  const beliefsData = cmsHome?.beliefs || {}
+
+  // Parse title lines intelligently:
+  // If user edited title, derive lines from title; otherwise use title1/title2 or i18n
+  let line1 = ''
+  let line2 = ''
+
+  if (beliefsData.title && beliefsData.title !== `${beliefsData.title1 || ''} ${beliefsData.title2 || ''}`.trim()) {
+    const cleanTitle = beliefsData.title.trim()
+    if (cleanTitle.includes('\n')) {
+      const parts = cleanTitle.split('\n')
+      line1 = parts[0]
+      line2 = parts.slice(1).join('\n')
+    } else {
+      const words = cleanTitle.split(' ')
+      if (words.length > 2) {
+        line1 = words.slice(0, 2).join(' ')
+        line2 = words.slice(2).join(' ')
+      } else if (words.length === 2) {
+        line1 = words[0]
+        line2 = words[1]
+      } else {
+        line1 = cleanTitle
+        line2 = ''
+      }
+    }
+  } else if (beliefsData.title1 || beliefsData.title2) {
+    line1 = beliefsData.title1 || ''
+    line2 = beliefsData.title2 || ''
+  } else if (beliefsData.title) {
+    line1 = beliefsData.title
+    line2 = ''
+  }
+
+  if (!line1 && !line2) {
+    line1 = b.title1 || 'What We'
+    line2 = b.title2 || 'Believe In'
+  }
 
   const principles = useMemo(() => {
     if (cmsHome?.beliefs?.items && Array.isArray(cmsHome.beliefs.items) && cmsHome.beliefs.items.length > 0) {
@@ -66,51 +104,31 @@ export default function WhatWeBelieveSection() {
           <div className="lg:col-span-5 lg:sticky lg:top-36 self-start">
 
             {/* Main Prominent Section Title */}
-            {cmsHome?.beliefs?.title1 || cmsHome?.beliefs?.title2 ? (
-              <>
-                <div className="mb-2 sm:mb-3">
-                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                    {cmsHome?.beliefs?.title1 || b.title1 || 'What We'}
-                  </h2>
-                </div>
-                <div className="mb-4 sm:mb-6">
-                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                    {cmsHome?.beliefs?.title2 || b.title2 || 'Believe In'}
-                  </h2>
-                </div>
-              </>
-            ) : cmsHome?.beliefs?.title ? (
+            <div className="mb-2 sm:mb-3">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
+                {line1}
+              </h2>
+            </div>
+
+            {line2 && (
               <div className="mb-4 sm:mb-6">
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-tight select-text">
-                  {cmsHome.beliefs.title}
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
+                  {line2}
                 </h2>
               </div>
-            ) : (
-              <>
-                <div className="mb-2 sm:mb-3">
-                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                    {b.title1 || 'What We'}
-                  </h2>
-                </div>
-                <div className="mb-4 sm:mb-6">
-                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                    {b.title2 || 'Believe In'}
-                  </h2>
-                </div>
-              </>
             )}
 
             {/* Sub-headline */}
             <div className="mb-4 sm:mb-6">
               <h3 className="text-xl sm:text-2xl lg:text-[28px] font-light text-slate-900 uppercase tracking-wide leading-snug select-text">
-                {cmsHome?.beliefs?.subtitle || b.subtitle || 'Core Engineering Principles'}
+                {beliefsData.subtitle || b.subtitle || 'Core Engineering Principles'}
               </h3>
             </div>
 
             {/* Introductory Statement */}
             <div className="mb-6 sm:mb-8">
               <p className="text-base sm:text-lg text-slate-600 font-sans leading-relaxed max-w-md select-text">
-                {cmsHome?.beliefs?.intro || b.intro || 'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UANDWE Labs, we build technology that endures.'}
+                {beliefsData.intro || beliefsData.desc || beliefsData.description || b.intro || 'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UANDWE Labs, we build technology that endures.'}
               </p>
             </div>
 

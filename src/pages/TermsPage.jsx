@@ -326,33 +326,33 @@ export default function TermsPage({
                           <AdminEditButton
                             section="termsOfService"
                             field="contact"
-                            label="Legal & Security Desk Emails"
+                            label="Legal & Security Desk Details"
                             inline={true}
                             buttonText="Edit Desk"
                             className="text-[10px] py-0.5 px-2 font-mono"
                           />
                         </div>
                       </div>
-                      <p className="text-white font-medium text-base">UandWe Labs Private Limited</p>
-                      <p className="text-neutral-300">Advanced Hardware & Physical AI Campus</p>
-                      <p className="text-neutral-400">Bengaluru, Karnataka 560001, Republic of India</p>
+                      <p className="text-white font-medium text-base">{contactData.companyName || 'UandWe Labs Private Limited'}</p>
+                      <p className="text-neutral-300">{contactData.campus || 'Advanced Hardware & Physical AI Campus'}</p>
+                      <p className="text-neutral-400">{contactData.address || 'Bengaluru, Karnataka 560001, Republic of India'}</p>
                       <div className="pt-2 flex flex-wrap gap-4 text-xs">
                         <div>
                           <span className="text-neutral-400 block text-[10px]">LEGAL COUNSEL DESK:</span>
                           <a
-                            href={`mailto:${art.contactEmail || contactEmail}`}
+                            href={`mailto:${contactEmail}`}
                             className="text-white underline underline-offset-4 hover:text-neutral-200"
                           >
-                            {art.contactEmail || contactEmail}
+                            {contactEmail}
                           </a>
                         </div>
                         <div>
                           <span className="text-neutral-400 block text-[10px]">SECURITY & INCIDENT DESK:</span>
                           <a
-                            href={`mailto:${art.securityEmail || contactSecurityEmail}`}
+                            href={`mailto:${contactSecurityEmail}`}
                             className="text-white underline underline-offset-4 hover:text-neutral-200"
                           >
-                            {art.securityEmail || contactSecurityEmail}
+                            {contactSecurityEmail}
                           </a>
                         </div>
                       </div>

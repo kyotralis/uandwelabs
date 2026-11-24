@@ -66,7 +66,7 @@ export default function HomePage({
     }
   }, [])
 
-  // 2. Only scroll to a section if explicitly requested via URL hash (e.g. #healthcare)
+  // 2. Restore section or scroll position upon refresh, hash URL, or query param
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -75,7 +75,19 @@ export default function HomePage({
     }
 
     const hash = window.location.hash.replace('#', '').toLowerCase()
-    const targetSection = hash && SECTION_IDS.includes(hash) ? hash : null
+    const urlParams = new URLSearchParams(window.location.search)
+    const paramSection = urlParams.get('section')?.toLowerCase() || urlParams.get('field')?.toLowerCase()
+    let savedSection = ''
+    let savedY = ''
+    try {
+      savedSection = sessionStorage.getItem('uandwe_active_section') || sessionStorage.getItem('uandwe_home_section') || ''
+      savedY = sessionStorage.getItem('uandwe_scroll_y') || ''
+    } catch {}
+
+    const targetSection =
+      (hash && SECTION_IDS.includes(hash) ? hash : null) ||
+      (paramSection && SECTION_IDS.includes(paramSection) ? paramSection : null) ||
+      (savedSection && SECTION_IDS.includes(savedSection) && savedSection !== 'hero' ? savedSection : null)
 
     if (targetSection && targetSection !== 'hero') {
       const doScrollToSection = () => {
@@ -92,13 +104,13 @@ export default function HomePage({
       }
 
       doScrollToSection()
-      const t1 = setTimeout(doScrollToSection, 50)
-      const t2 = setTimeout(doScrollToSection, 180)
-      const t3 = setTimeout(doScrollToSection, 400)
+      const t1 = setTimeout(doScrollToSection, 40)
+      const t2 = setTimeout(doScrollToSection, 150)
+      const t3 = setTimeout(doScrollToSection, 350)
       const t4 = setTimeout(() => {
         doScrollToSection()
         isRestoringRef.current = false
-      }, 800)
+      }, 700)
 
       return () => {
         clearTimeout(t1)
@@ -106,8 +118,29 @@ export default function HomePage({
         clearTimeout(t3)
         clearTimeout(t4)
       }
+    } else if (savedY && Number(savedY) > 80) {
+      const doScrollY = () => {
+        if (window.__lenis) {
+          window.__lenis.scrollTo(Number(savedY), { immediate: true })
+        } else {
+          window.scrollTo({ top: Number(savedY), behavior: 'instant' })
+        }
+      }
+      doScrollY()
+      const t1 = setTimeout(doScrollY, 40)
+      const t2 = setTimeout(doScrollY, 150)
+      const t3 = setTimeout(() => {
+        doScrollY()
+        isRestoringRef.current = false
+      }, 500)
+
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+        clearTimeout(t3)
+      }
     } else {
-      // Always start at top (Hero section) on initial home page visit
+      // Default top position only if brand new visit
       if (window.__lenis) {
         window.__lenis.scrollTo(0, { immediate: true })
       } else {
@@ -117,20 +150,16 @@ export default function HomePage({
     }
   }, [])
 
-  // 3. Continuously track the active section smoothly without jank
+  // 3. Continuously track the active section smoothly without jank and keep URL/session in sync
   useEffect(() => {
     if (typeof window === 'undefined') return
-
-    let hashUpdateTimer = null
 
     const handleScroll = () => {
       if (isRestoringRef.current) return
 
       try {
         sessionStorage.setItem('uandwe_scroll_y', String(window.scrollY))
-      } catch {
-        // ignore
-      }
+      } catch {}
 
       // Check which section is currently in view using bounding client rect
       let activeId = 'hero'
@@ -151,9 +180,32 @@ export default function HomePage({
 
       try {
         sessionStorage.setItem('uandwe_active_section', activeId)
-      } catch {
-        // ignore
-      }
+        sessionStorage.setItem('uandwe_home_section', activeId)
+
+        // Notify parent iframe (Admin) of section change so Admin knows exact section
+        if (window.parent !== window) {
+          window.parent.postMessage(
+            {
+              type: 'SECTION_CHANGE',
+              section: activeId,
+              path: activeId === 'hero' ? '/' : `/#${activeId}`,
+              scrollY: window.scrollY,
+            },
+            '*'
+          )
+        }
+
+        // Update URL hash gently without jumping or polluting history
+        if (activeId !== 'hero') {
+          if (window.location.hash !== `#${activeId}`) {
+            window.history.replaceState(null, '', `#${activeId}`)
+          }
+        } else {
+          if (window.location.hash) {
+            window.history.replaceState(null, '', window.location.pathname)
+          }
+        }
+      } catch {}
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })

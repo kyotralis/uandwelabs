@@ -315,13 +315,12 @@ function App() {
     } catch { }
   }, [currentPage, anandaCategory, loginMode])
 
-  // Maintain clean pathname in URL bar (instantly scrub any # hash or /hero on Home)
+  // Maintain clean pathname in URL bar while preserving valid section hashes
   useEffect(() => {
     if (typeof window === 'undefined') return
     const targetPath = getPathForState(currentPage, anandaCategory, loginMode)
     const currentPath = window.location.pathname.toLowerCase()
     const currentHash = window.location.hash.toLowerCase()
-    const hasHash = Boolean(window.location.hash)
 
     // Scrub /hero or #hero immediately to clean root /
     if (currentHash === '#hero' || currentPath === '/hero') {
@@ -332,8 +331,17 @@ function App() {
     const isRootTarget = targetPath === '/'
     const isCurrentRoot = currentPath === '' || currentPath === '/'
 
-    if (hasHash || (isRootTarget ? !isCurrentRoot : currentPath !== targetPath)) {
-      window.history.replaceState({ idx: currentHistoryIdxRef.current, page: currentPage }, '', targetPath)
+    if (isRootTarget ? !isCurrentRoot : currentPath !== targetPath) {
+      const fullTarget = window.location.hash ? `${targetPath}${window.location.hash}` : targetPath
+      window.history.replaceState({ idx: currentHistoryIdxRef.current, page: currentPage }, '', fullTarget)
+    }
+
+    // Keep parent iframe (Admin Studio) synchronized with current route and hash
+    if (window.parent !== window) {
+      try {
+        const fullCurrent = window.location.pathname + (window.location.hash || '')
+        window.parent.postMessage({ type: 'ROUTE_CHANGE', path: fullCurrent, page: currentPage }, '*')
+      } catch {}
     }
   }, [currentPage, anandaCategory, loginMode])
 

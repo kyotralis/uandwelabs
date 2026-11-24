@@ -25,10 +25,32 @@ export default function TermsPage({
   const [cmsTerms] = useCmsContent('termsOfService')
 
   useEffect(() => {
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
+    let savedY = null
+    try {
+      savedY = sessionStorage.getItem('terms_scroll_y')
+    } catch {}
+
+    if (savedY && Number(savedY) > 50) {
+      setTimeout(() => {
+        window.scrollTo({ top: Number(savedY), behavior: 'instant' })
+      }, 50)
+      setTimeout(() => {
+        window.scrollTo({ top: Number(savedY), behavior: 'instant' })
+      }, 200)
+    } else {
+      if (window.__lenis) {
+        window.__lenis.scrollTo(0, { immediate: true })
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' })
     }
-    window.scrollTo({ top: 0, behavior: 'instant' })
+
+    const handleScroll = () => {
+      try {
+        sessionStorage.setItem('terms_scroll_y', String(window.scrollY))
+      } catch {}
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const handleBack = () => {

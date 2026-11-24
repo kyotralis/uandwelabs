@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import AnandaPage from './pages/AnandaPage'
@@ -10,10 +12,76 @@ import CareersPage from './pages/CareersPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import SecurityPage from './pages/SecurityPage'
 import TermsPage from './pages/TermsPage'
+
+// Directional Page Slide Variants (CSS Grid Stacked):
+// Entering page slides in on top (zIndex: 20) directly over the existing page (zIndex: 10)
+// Both pages stay at 100% opacity with edge shadow -> ZERO white screen gap or flash!
+const pageTransitionVariants = {
+  enter: (direction) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    zIndex: 20,
+    opacity: 1,
+    boxShadow: direction > 0 ? '-16px 0 36px -4px rgba(0,0,0,0.12)' : '16px 0 36px -4px rgba(0,0,0,0.12)',
+  }),
+  center: {
+    x: 0,
+    zIndex: 20,
+    opacity: 1,
+    boxShadow: '0 0 0 rgba(0,0,0,0)',
+    transition: {
+      x: { ease: [0.16, 1, 0.3, 1], duration: 0.68 },
+    },
+    transitionEnd: {
+      transform: 'none',
+    },
+  },
+  exit: (direction) => ({
+    x: direction > 0 ? '-22%' : '22%',
+    zIndex: 10,
+    opacity: 1, // Keep fully solid so NO white background bleeds through
+    transition: {
+      x: { ease: [0.16, 1, 0.3, 1], duration: 0.68 },
+    },
+  }),
+}
+
+// Logical page order for directional slide calculations (Header flow: Home -> Products -> Blogs -> About -> Careers)
+const PAGE_ORDER = {
+  home: 0,
+  ananda: 1,
+  dara: 2,
+  aura: 3,
+  blogs: 4,
+  about: 5,
+  careers: 6,
+  privacy: 7,
+  security: 8,
+  terms: 9,
+  login: 10,
+}
+
+function calculateNavDirection(fromPage, toPage) {
+  if (toPage === 'home') return -1 // Returning to Home is always Back (slides in from Left)
+  if (fromPage === 'home') return 1 // Leaving Home to any subpage is Next (slides in from Right)
+  const fromRank = PAGE_ORDER[fromPage] ?? 0
+  const toRank = PAGE_ORDER[toPage] ?? 0
+  return toRank >= fromRank ? 1 : -1
+}
+
+// Instant top-level scrubber for legacy /hero or #hero in URL bar
+if (typeof window !== 'undefined') {
+  const hash = window.location.hash.toLowerCase()
+  const path = window.location.pathname.toLowerCase()
+  if (hash === '#hero' || path === '/hero') {
+    window.history.replaceState(null, '', '/')
+  }
+}
+
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import AuthPromptModal from './components/AuthPromptModal'
+import ToastContainer, { showToast } from './components/ui/Toast'
 import {
   getSavedAccounts,
   saveAccount,
@@ -42,104 +110,124 @@ function App() {
     }
   })
 
+  // Clean route parser from window.location (supports pathname and strips legacy hash)
+  function getRouteInfo() {
+    if (typeof window === 'undefined') {
+      return { page: 'home', category: 'commercial', mode: 'signup' }
+    }
+
+    // Parse path, e.g. "/hero", "/ananda", "/dara", "/aura", "/about", "/careers", "/login", "/signup"
+    const rawPath = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '')
+    // Support legacy or redirected hash without #
+    const rawHash = window.location.hash.toLowerCase().replace(/^#+/, '').replace(/^\/+/, '')
+    const route = rawPath || rawHash
+
+    if (route === 'login' || route === 'signin') {
+      return { page: 'login', category: 'commercial', mode: 'signin' }
+    }
+    if (route === 'signup' || route === 'register') {
+      return { page: 'login', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'ananda-residential' || route === 'ananda/residential') {
+      return { page: 'ananda', category: 'residential', mode: 'signup' }
+    }
+    if (route === 'ananda' || route === 'geospatial' || route === 'ananda-commercial' || route === 'ananda/commercial') {
+      return { page: 'ananda', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'dara' || route === 'healthcare') {
+      return { page: 'dara', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'aura' || route === 'physical-ai' || route === 'board') {
+      return { page: 'aura', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'blogs' || route === 'blog') {
+      return { page: 'blogs', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'about' || route === 'about-us') {
+      return { page: 'about', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'careers' || route === 'career' || route === 'jobs') {
+      return { page: 'careers', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'privacy' || route === 'privacy-policy') {
+      return { page: 'privacy', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'security' || route === 'security-compliance') {
+      return { page: 'security', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'terms' || route === 'terms-of-service') {
+      return { page: 'terms', category: 'commercial', mode: 'signup' }
+    }
+    if (route === 'admin' || route === 'dashboard' || route === 'cms') {
+      if (typeof window !== 'undefined') {
+        window.location.href = 'http://localhost:5175'
+      }
+      return { page: 'home', category: 'commercial', mode: 'signup' }
+    }
+
+    // Home route (/hero, /introduction, /beliefs, /)
+    return { page: 'home', category: 'commercial', mode: 'signup' }
+  }
+
+  function getPathForState(page, anandaCategory, loginMode) {
+    if (page === 'login') return loginMode === 'signup' ? '/signup' : '/login'
+    if (page === 'ananda') return anandaCategory === 'residential' ? '/ananda-residential' : '/ananda'
+    if (page === 'dara') return '/dara'
+    if (page === 'aura') return '/aura'
+    if (page === 'blogs') return '/blogs'
+    if (page === 'about') return '/about'
+    if (page === 'careers') return '/careers'
+    if (page === 'privacy') return '/privacy'
+    if (page === 'security') return '/security'
+    if (page === 'terms') return '/terms'
+    return '/' // Pure root domain for home (e.g. localhost:5174/ or uandwelabs.com) with no /hero
+  }
+
   // Multi-Account Sessions (maximum 2 accounts in the switcher)
   const [savedAccounts, setSavedAccounts] = useState(() => getSavedAccounts())
 
-  // Initialize from hash or storage if present
-  const [currentPage, setCurrentPage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase()
-
-      // If user was on home page, stay on home page across refresh unless an explicit standalone page is targeted
-      try {
-        const savedPage = sessionStorage.getItem('uandwe_current_page')
-        if (savedPage === 'home') {
-          const isExplicitStandalone =
-            hash === '#login' || hash === '#signin' || hash === '#signup' ||
-            hash === '#ananda' || hash === '#ananda-commercial' || hash === '#ananda-residential' ||
-            hash === '#dara' || hash === '#aura' ||
-            hash === '#blogs' || hash === '#blog' ||
-            hash === '#about' || hash === '#about-us' ||
-            hash === '#privacy' || hash === '#security' || hash === '#terms'
-          if (!isExplicitStandalone) {
-            return 'home'
-          }
-        }
-      } catch {}
-
-      if (hash === '#login' || hash === '#signin' || hash === '#signup') {
-        return 'login'
-      }
-      if (hash === '#ananda' || hash === '#geospatial' || hash === '#ananda-commercial' || hash === '#ananda-residential') {
-        return 'ananda'
-      }
-      if (hash === '#dara') {
-        return 'dara'
-      }
-      if (hash === '#aura' || hash === '#physical-ai') {
-        return 'aura'
-      }
-      if (hash === '#blogs' || hash === '#blog') {
-        return 'blogs'
-      }
-      if (hash === '#about' || hash === '#about-us') {
-        return 'about'
-      }
-      if (hash === '#careers' || hash === '#career' || hash === '#jobs') {
-        return 'careers'
-      }
-      if (hash === '#privacy' || hash === '#privacy-policy') {
-        return 'privacy'
-      }
-      if (hash === '#security' || hash === '#security-compliance') {
-        return 'security'
-      }
-      if (hash === '#terms' || hash === '#terms-of-service') {
-        return 'terms'
-      }
-      try {
-        const savedPage = sessionStorage.getItem('uandwe_current_page')
-        if (
-          savedPage === 'login' ||
-          savedPage === 'ananda' ||
-          savedPage === 'dara' ||
-          savedPage === 'aura' ||
-          savedPage === 'blogs' ||
-          savedPage === 'about' ||
-          savedPage === 'careers' ||
-          savedPage === 'privacy' ||
-          savedPage === 'security' ||
-          savedPage === 'terms'
-        )
-          return savedPage
-      } catch {}
-    }
-    return 'home'
-  })
-  const [anandaCategory, setAnandaCategory] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase()
-      if (hash === '#ananda-residential') return 'residential'
-      try {
-        const savedCat = sessionStorage.getItem('ananda_category')
-        if (savedCat) return savedCat
-      } catch {}
-    }
-    return 'commercial'
-  })
-  const [loginMode, setLoginMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase()
-      if (hash === '#signin' || hash === '#login') return 'signin'
-      if (hash === '#signup' || hash === '#register') return 'signup'
-      try {
-        const savedMode = sessionStorage.getItem('uandwe_login_mode')
-        if (savedMode === 'signup' || savedMode === 'signin') return savedMode
-      } catch {}
-    }
-    return 'signup'
-  })
+  // Initialize from clean URL pathname
+  const [currentPage, setCurrentPage] = useState(() => getRouteInfo().page)
+  const currentPageRef = useRef(currentPage)
+  useEffect(() => {
+    currentPageRef.current = currentPage
+  }, [currentPage])
+  const [anandaCategory, setAnandaCategory] = useState(() => getRouteInfo().category)
+  const [loginMode, setLoginMode] = useState(() => getRouteInfo().mode)
   const [welcomeMessage, setWelcomeMessage] = useState('')
+
+  // Directional navigation tracking: +1 = Forward / Next (from Right), -1 = Back (from Left)
+  const [navDirection, setNavDirection] = useState(1)
+
+  // Clean static branding title & SEO description
+  useEffect(() => {
+    document.title = 'UANDWE LABS'
+
+    const descriptions = {
+      home: 'UandWe Labs bridges generative intelligence, environmental physics, and precision silicon engineering. Creators of Ananda, Dara, and Aura.',
+      ananda: 'Diurnal solar ray-casting, Lattice Boltzmann aerodynamic wind fields, and 2D Saint-Venant flood hydrology for modern masterplans.',
+      dara: 'Smart assistive healthcare hardware keeping seniors safe and independent with contactless 60 GHz radar and multi-language voice guidance.',
+      aura: 'Autonomous edge vision nodes delivering real-time vehicle analytics, high-speed highway recognition, and 350m perimeter defense.',
+      about: 'We believe good technology should feel like second nature — protecting your dignity, respecting your peace of mind, and bringing people closer together.',
+      careers: 'Join our research branch in Bengaluru. Work alongside fluid aerodynamicists, sensor architects, and computational designers.',
+      blogs: 'Engineering research publications, CFD benchmarking, and hardware architecture whitepapers.',
+      login: 'Sign in to access your UandWe Labs simulation environments and enterprise consoles.',
+      privacy: 'Our commitment to zero cloud reliance, local edge data processing, and physical privacy sovereignty.',
+      security: 'Hardware-level cryptographic validation and security compliance specifications.',
+      terms: 'Terms of service and engineering simulation usage agreement.',
+    }
+
+    const pageDesc = descriptions[currentPage] || descriptions.home
+
+    const metaDesc = document.querySelector('meta[name="description"]')
+    if (metaDesc) metaDesc.setAttribute('content', pageDesc)
+
+    const ogTitle = document.querySelector('meta[property="og:title"]')
+    if (ogTitle) ogTitle.setAttribute('content', 'UANDWE Labs')
+
+    const ogDesc = document.querySelector('meta[property="og:description"]')
+    if (ogDesc) ogDesc.setAttribute('content', pageDesc)
+  }, [currentPage])
 
   // Global In-App Auth Required Prompt Modal
   const [authModal, setAuthModal] = useState({
@@ -181,136 +269,181 @@ function App() {
     handleNavigateToLogin('signin', targetProduct)
   }
 
+  // Browser History & Session Stack tracking
+  const currentHistoryIdxRef = useRef(0)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const initialIdx = window.history.state?.idx ?? 0
+      currentHistoryIdxRef.current = initialIdx
+      if (!window.history.state || window.history.state.idx === undefined) {
+        window.history.replaceState({ idx: initialIdx, page: currentPage }, '', window.location.pathname)
+      }
+    }
+  }, [])
+
+  // Pre-warm critical visual assets into browser memory cache for instantaneous paint
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const criticalImages = [
+      '/hero_ananda_urban_physics.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
+      '/hero_aura_highway_lpr.jpg',
+      '/about_hero_studio.jpg',
+      '/about_team_discussion.jpg',
+      '/building-2.jpg',
+      '/careerhomeimage.jpg',
+      '/ananda_hero.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
+      '/aura_hero.jpg',
+      '/aura_2.webp',
+      '/aura_vision_ladybug.jpg',
+      '/aura_sentinel_ladybug.jpg',
+    ]
+    criticalImages.forEach((src) => {
+      const img = new Image()
+      img.src = src
+    })
+  }, [])
+
   // Persist current page & ananda category in sessionStorage
   useEffect(() => {
     try {
       sessionStorage.setItem('uandwe_current_page', currentPage)
       sessionStorage.setItem('ananda_category', anandaCategory)
       sessionStorage.setItem('uandwe_login_mode', loginMode)
-    } catch {}
+    } catch { }
   }, [currentPage, anandaCategory, loginMode])
 
-  // Maintain correct hash in URL bar when navigating between dedicated pages
+  // Maintain clean pathname in URL bar (instantly scrub any # hash or /hero on Home)
   useEffect(() => {
-    if (currentPage === 'login') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (currentHash !== '#login' && currentHash !== '#signin' && currentHash !== '#signup') {
-        window.history.replaceState(null, '', loginMode === 'signup' ? '#signup' : '#login')
-      }
-    } else if (currentPage === 'ananda') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('ananda') && !currentHash.includes('geospatial')) {
-        window.history.replaceState(null, '', anandaCategory === 'residential' ? '#ananda-residential' : '#ananda')
-      }
-    } else if (currentPage === 'dara') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('dara') && !currentHash.includes('healthcare')) {
-        window.history.replaceState(null, '', '#dara')
-      }
-    } else if (currentPage === 'aura') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('aura') && !currentHash.includes('board') && !currentHash.includes('physical-ai')) {
-        window.history.replaceState(null, '', '#aura')
-      }
-    } else if (currentPage === 'blogs') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('blog')) {
-        window.history.replaceState(null, '', '#blogs')
-      }
-    } else if (currentPage === 'about') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('about')) {
-        window.history.replaceState(null, '', '#about')
-      }
-    } else if (currentPage === 'careers') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('career') && !currentHash.includes('jobs')) {
-        window.history.replaceState(null, '', '#careers')
-      }
-    } else if (currentPage === 'privacy') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('privacy')) {
-        window.history.replaceState(null, '', '#privacy')
-      }
-    } else if (currentPage === 'security') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('security')) {
-        window.history.replaceState(null, '', '#security')
-      }
-    } else if (currentPage === 'terms') {
-      const currentHash = window.location.hash.toLowerCase()
-      if (!currentHash.includes('terms')) {
-        window.history.replaceState(null, '', '#terms')
-      }
+    if (typeof window === 'undefined') return
+    const targetPath = getPathForState(currentPage, anandaCategory, loginMode)
+    const currentPath = window.location.pathname.toLowerCase()
+    const currentHash = window.location.hash.toLowerCase()
+    const hasHash = Boolean(window.location.hash)
+
+    // Scrub /hero or #hero immediately to clean root /
+    if (currentHash === '#hero' || currentPath === '/hero') {
+      window.history.replaceState({ idx: currentHistoryIdxRef.current, page: 'home' }, '', '/')
+      return
+    }
+
+    const isRootTarget = targetPath === '/'
+    const isCurrentRoot = currentPath === '' || currentPath === '/'
+
+    if (hasHash || (isRootTarget ? !isCurrentRoot : currentPath !== targetPath)) {
+      window.history.replaceState({ idx: currentHistoryIdxRef.current, page: currentPage }, '', targetPath)
     }
   }, [currentPage, anandaCategory, loginMode])
 
-  // Hash route listener to allow user-initiated navigation
+  // Listen to browser Back/Forward (popstate) with directional recognition
   useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash.toLowerCase()
-      if (hash === '#login' || hash === '#signin') {
-        setCurrentPage('login')
-        setLoginMode('signin')
-      } else if (hash === '#signup') {
-        setCurrentPage('login')
-        setLoginMode('signup')
-      } else if (hash === '#ananda' || hash === '#geospatial' || hash === '#ananda-commercial') {
-        setAnandaCategory('commercial')
-        setCurrentPage('ananda')
-      } else if (hash === '#ananda-residential') {
-        setAnandaCategory('residential')
-        setCurrentPage('ananda')
-      } else if (hash === '#dara') {
-        setCurrentPage('dara')
-      } else if (hash === '#aura' || hash === '#physical-ai') {
-        setCurrentPage('aura')
-      } else if (hash === '#blogs' || hash === '#blog') {
-        setCurrentPage('blogs')
-      } else if (hash === '#about' || hash === '#about-us') {
-        setCurrentPage('about')
-      } else if (hash === '#careers' || hash === '#career' || hash === '#jobs') {
-        try {
-          if (sessionStorage.getItem('uandwe_current_page') === 'home') {
-            setCurrentPage('home')
-            return
-          }
-        } catch {}
-        setCurrentPage('careers')
-      } else if (hash === '#privacy' || hash === '#privacy-policy') {
-        setCurrentPage('privacy')
-        try { sessionStorage.setItem('uandwe_current_page', 'privacy') } catch {}
-        if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true })
-        window.scrollTo({ top: 0, behavior: 'instant' })
-      } else if (hash === '#security' || hash === '#security-compliance') {
-        setCurrentPage('security')
-        try { sessionStorage.setItem('uandwe_current_page', 'security') } catch {}
-        if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true })
-        window.scrollTo({ top: 0, behavior: 'instant' })
-      } else if (hash === '#terms' || hash === '#terms-of-service') {
-        setCurrentPage('terms')
-        try { sessionStorage.setItem('uandwe_current_page', 'terms') } catch {}
-        if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true })
-        window.scrollTo({ top: 0, behavior: 'instant' })
-      } else if (
-        hash === '#healthcare' ||
-        hash === '#board' ||
-        hash === '#introduction' ||
-        hash === '#beliefs' ||
-        hash === '#hero' ||
-        hash === '' ||
-        hash === '#'
-      ) {
-        setCurrentPage('home')
+    const handleLocationChange = (event) => {
+      const info = getRouteInfo()
+      const prevIdx = currentHistoryIdxRef.current
+      const newIdx = event?.state?.idx ?? 0
+
+      let dir = 1
+      if (newIdx < prevIdx) {
+        dir = -1 // User clicked Browser Back (slide from Left)
+      } else if (newIdx > prevIdx) {
+        dir = 1  // User clicked Browser Forward (slide from Right)
       } else {
-        setCurrentPage('home')
+        dir = calculateNavDirection(currentPageRef.current, info.page)
+      }
+
+      currentHistoryIdxRef.current = newIdx
+      setNavDirection(dir)
+      setCurrentPage(info.page)
+      currentPageRef.current = info.page
+      setAnandaCategory(info.category)
+      setLoginMode(info.mode)
+      try {
+        sessionStorage.setItem('uandwe_current_page', info.page)
+        sessionStorage.setItem('ananda_category', info.category)
+      } catch { }
+
+      if (window.__lenis) {
+        window.__lenis.scrollTo(0, { immediate: true })
+      }
+      window.scrollTo({ top: 0, behavior: 'instant' })
+
+      // If user navigated to a home page section like /introduction or /beliefs
+      const path = window.location.pathname.toLowerCase().replace(/^\/+/, '').replace(/\/+$/, '')
+      if (path && (path === 'introduction' || path === 'beliefs' || path === 'healthcare' || path === 'board')) {
+        setTimeout(() => {
+          const el = document.getElementById(path)
+          if (el) {
+            if (window.__lenis) window.__lenis.scrollTo(el, { duration: 1.2 })
+            else el.scrollIntoView({ behavior: 'smooth' })
+          }
+        }, 100)
       }
     }
-    window.addEventListener('hashchange', handleHash)
-    return () => window.removeEventListener('hashchange', handleHash)
-  }, [])
+
+    window.addEventListener('popstate', handleLocationChange)
+    window.addEventListener('hashchange', handleLocationChange)
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange)
+      window.removeEventListener('hashchange', handleLocationChange)
+    }
+  }, [currentPage])
 
   const [redirectTarget, setRedirectTarget] = useState(null)
+
+  // In-app navigation stack (tracks breadcrumbs so Back goes to previous page)
+  const pageHistoryRef = useRef([getRouteInfo().page])
+
+  // Unified Directional Page Navigator
+  const navigateToPage = (targetPage, path, category = null, mode = null) => {
+    const dir = calculateNavDirection(currentPageRef.current, targetPage)
+    setNavDirection(dir)
+    setCurrentPage(targetPage)
+    currentPageRef.current = targetPage
+    if (category) setAnandaCategory(category)
+    if (mode) setLoginMode(mode)
+
+    try {
+      sessionStorage.setItem('uandwe_current_page', targetPage)
+      if (category) sessionStorage.setItem('ananda_category', category)
+      if (mode) sessionStorage.setItem('uandwe_login_mode', mode)
+    } catch { }
+
+    const nextIdx = (currentHistoryIdxRef.current || 0) + 1
+    currentHistoryIdxRef.current = nextIdx
+    window.history.pushState({ idx: nextIdx, page: targetPage }, '', path)
+    pageHistoryRef.current.push(targetPage)
+
+    if (typeof window !== 'undefined' && window.parent !== window) {
+      try {
+        window.parent.postMessage({ type: 'ROUTE_CHANGE', path, page: targetPage }, '*')
+      } catch {}
+    }
+
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { immediate: true })
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }
+
+  // Smart Back Navigator: Returns to previous page (e.g. Careers -> Blogs), or Home if opened directly
+  const handleNavigateBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1 && currentHistoryIdxRef.current > 0) {
+      window.history.back()
+      return
+    }
+
+    if (pageHistoryRef.current.length > 1) {
+      pageHistoryRef.current.pop()
+      const prevPage = pageHistoryRef.current[pageHistoryRef.current.length - 1]
+      const targetPath = getPathForState(prevPage, anandaCategory, loginMode)
+      navigateToPage(prevPage, targetPath)
+      return
+    }
+
+    handleNavigateToHome()
+  }
 
   // Called when user completes login / sign up: route to destination or home page
   const handleLogin = (userData, selectedDestination = null) => {
@@ -328,6 +461,7 @@ function App() {
     const updatedAccounts = saveAccount(enrichedUser)
     setSavedAccounts(updatedAccounts)
     setUser(enrichedUser)
+    showToast(`Welcome back, ${enrichedUser.name || 'Engineer'}!`, 'success')
     try {
       sessionStorage.setItem('uandwe_selected_product', activeProd)
     } catch (err) {
@@ -362,52 +496,38 @@ function App() {
 
     // If destination was Ananda Commercial or Residency
     if (target === 'ananda' || target === 'ananda-residential') {
-      setCurrentPage('ananda')
-      window.history.replaceState(null, '', window.location.pathname)
-      window.location.hash = target
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('ananda', target === 'ananda-residential' ? '/ananda-residential' : '/ananda', cat)
       return
     }
 
     if (target === 'dara') {
-      setCurrentPage('dara')
-      window.location.hash = 'dara'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('dara', '/dara')
       return
     }
 
     if (target === 'aura') {
-      setCurrentPage('aura')
-      window.location.hash = 'aura'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('aura', '/aura')
       return
     }
 
     if (target === 'blogs' || target === 'blog') {
-      setCurrentPage('blogs')
-      window.location.hash = 'blogs'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('blogs', '/blogs')
       return
     }
 
     if (target === 'about' || target === 'about-us') {
-      setCurrentPage('about')
-      window.location.hash = 'about'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('about', '/about')
       return
     }
 
     if (target === 'careers' || target === 'career' || target === 'jobs') {
-      setCurrentPage('careers')
-      window.location.hash = 'careers'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('careers', '/careers')
       return
     }
 
-    setCurrentPage('home')
-    window.history.replaceState(null, '', window.location.pathname)
+    navigateToPage('home', '/')
 
-    if (target) {
+    if (target && target !== 'home' && target !== 'hero') {
       setTimeout(() => {
         const el = document.getElementById(target)
         if (el) {
@@ -418,12 +538,6 @@ function App() {
           }
         }
       }, 150)
-    } else {
-      if (window.__lenis) {
-        window.__lenis.scrollTo(0, { immediate: true })
-      } else {
-        window.scrollTo({ top: 0, behavior: 'instant' })
-      }
     }
   }
 
@@ -435,31 +549,22 @@ function App() {
 
     setUser(newActive)
     setSavedAccounts(getSavedAccounts())
+    showToast(`Switched account to ${newActive.name || newActive.email}`, 'info')
 
     // Update active workspace
     const targetProd = newActive.selectedProduct || 'ananda'
     try {
       sessionStorage.setItem('uandwe_selected_product', targetProd)
-    } catch {}
+    } catch { }
 
     if (targetProd === 'ananda-residential') {
-      setAnandaCategory('residential')
-      setCurrentPage('ananda')
-      window.location.hash = 'ananda-residential'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('ananda', '/ananda-residential', 'residential')
     } else if (targetProd === 'ananda') {
-      setAnandaCategory('commercial')
-      setCurrentPage('ananda')
-      window.location.hash = 'ananda'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('ananda', '/ananda', 'commercial')
     } else if (targetProd === 'dara') {
-      setCurrentPage('dara')
-      window.location.hash = 'dara'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('dara', '/dara')
     } else if (targetProd === 'aura') {
-      setCurrentPage('aura')
-      window.location.hash = 'aura'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('aura', '/aura')
     }
   }
 
@@ -474,30 +579,20 @@ function App() {
     try {
       localStorage.setItem('uandwe_user', JSON.stringify(updatedUser))
       sessionStorage.setItem('uandwe_selected_product', productKey)
-    } catch {}
+    } catch { }
 
     // Update in saved accounts
     const updatedAccounts = saveAccount(updatedUser)
     setSavedAccounts(updatedAccounts)
 
     if (productKey === 'ananda-residential') {
-      setAnandaCategory('residential')
-      setCurrentPage('ananda')
-      window.location.hash = 'ananda-residential'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('ananda', '/ananda-residential', 'residential')
     } else if (productKey === 'ananda') {
-      setAnandaCategory('commercial')
-      setCurrentPage('ananda')
-      window.location.hash = 'ananda'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('ananda', '/ananda', 'commercial')
     } else if (productKey === 'dara') {
-      setCurrentPage('dara')
-      window.location.hash = 'dara'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('dara', '/dara')
     } else if (productKey === 'aura') {
-      setCurrentPage('aura')
-      window.location.hash = 'aura'
-      window.scrollTo({ top: 0, behavior: 'instant' })
+      navigateToPage('aura', '/aura')
     }
   }
 
@@ -510,19 +605,18 @@ function App() {
       handleSwitchAccount(nextActive)
     } else {
       setUser(null)
-      setCurrentPage('home')
-      window.history.replaceState(null, '', window.location.pathname)
+      navigateToPage('home', '/')
     }
   }
 
   // On logout: can log out of active account or all accounts
   const handleLogout = (all = false) => {
+    showToast(all ? 'Signed out of all accounts' : 'Signed out successfully', 'info')
     if (all) {
       clearAllSavedAccounts()
       setSavedAccounts([])
       setUser(null)
-      setCurrentPage('home')
-      window.history.replaceState(null, '', window.location.pathname)
+      navigateToPage('home', '/')
       return
     }
 
@@ -539,8 +633,7 @@ function App() {
     clearAllSavedAccounts()
     setSavedAccounts([])
     setUser(null)
-    setCurrentPage('home')
-    window.history.replaceState(null, '', window.location.pathname)
+    navigateToPage('home', '/')
   }
 
   const handleAddAccount = () => {
@@ -548,372 +641,356 @@ function App() {
   }
 
   const handleNavigateToLogin = (mode = 'signup', target = null) => {
-    setLoginMode(mode)
     setRedirectTarget(target)
-    setCurrentPage('login')
-    try {
-      sessionStorage.setItem('uandwe_current_page', 'login')
-      sessionStorage.setItem('uandwe_login_mode', mode)
-    } catch {}
-    window.location.hash = mode === 'signup' ? 'signup' : 'login'
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    const path = mode === 'signup' ? '/signup' : '/login'
+    navigateToPage('login', path, null, mode)
   }
 
   const handleNavigateToHome = () => {
-    setCurrentPage('home')
     try {
-      sessionStorage.setItem('uandwe_current_page', 'home')
       sessionStorage.setItem('uandwe_active_section', 'hero')
       sessionStorage.removeItem('ananda_scroll_y')
-    } catch {}
-    window.location.hash = 'hero'
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
-    } else {
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    }
+    } catch { }
+    navigateToPage('home', '/')
   }
 
   const handleNavigateToAnanda = (category = 'commercial') => {
-    setAnandaCategory(category)
-    setCurrentPage('ananda')
-    window.location.hash = category === 'residential' ? 'ananda-residential' : 'ananda'
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    const path = category === 'residential' ? '/ananda-residential' : '/ananda'
+    navigateToPage('ananda', path, category)
   }
 
   const handleNavigateToDara = () => {
-    setCurrentPage('dara')
-    window.location.hash = 'dara'
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('dara', '/dara')
   }
 
   const handleNavigateToAura = () => {
-    setCurrentPage('aura')
-    window.location.hash = 'aura'
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('aura', '/aura')
   }
 
   const handleNavigateToBlogs = () => {
-    setCurrentPage('blogs')
-    window.location.hash = 'blogs'
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('blogs', '/blogs')
   }
 
   const handleNavigateToAbout = () => {
-    setCurrentPage('about')
-    try {
-      sessionStorage.setItem('uandwe_current_page', 'about')
-    } catch {}
-    window.location.hash = 'about'
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
-    }
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('about', '/about')
   }
 
   const handleNavigateToCareers = () => {
-    setCurrentPage('careers')
-    try {
-      sessionStorage.setItem('uandwe_current_page', 'careers')
-    } catch {}
-    window.location.hash = 'careers'
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
-    }
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('careers', '/careers')
   }
 
   const handleNavigateToPrivacy = () => {
-    setCurrentPage('privacy')
-    try {
-      sessionStorage.setItem('uandwe_current_page', 'privacy')
-    } catch {}
-    window.location.hash = 'privacy'
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
-    }
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('privacy', '/privacy')
   }
 
   const handleNavigateToSecurity = () => {
-    setCurrentPage('security')
-    try {
-      sessionStorage.setItem('uandwe_current_page', 'security')
-    } catch {}
-    window.location.hash = 'security'
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
-    }
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('security', '/security')
   }
 
   const handleNavigateToTerms = () => {
-    setCurrentPage('terms')
-    try {
-      sessionStorage.setItem('uandwe_current_page', 'terms')
-    } catch {}
-    window.location.hash = 'terms'
-    if (window.__lenis) {
-      window.__lenis.scrollTo(0, { immediate: true })
-    }
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    navigateToPage('terms', '/terms')
   }
 
-  // Show LoginPage if on login route
-  if (currentPage === 'login') {
-    return (
-      <LoginPage
-        onLogin={handleLogin}
-        onNavigateToHome={handleNavigateToHome}
-        initialMode={loginMode}
-        redirectTarget={redirectTarget}
-      />
-    )
-  }
+  // Confidential Admin Hotkey: Ctrl + Shift + A (opens independent Admin CMS Studio on port 5175)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault()
+        window.open('http://localhost:5175', '_blank')
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Active navigation indicator for the unified header
   const activeNav =
     currentPage === 'ananda' || currentPage === 'dara' || currentPage === 'aura'
       ? 'products'
       : currentPage === 'blogs'
-      ? 'blogs'
-      : currentPage === 'about'
-      ? 'about'
-      : currentPage === 'careers'
-      ? 'careers'
-      : 'home'
+        ? 'blogs'
+        : currentPage === 'about'
+          ? 'about'
+          : currentPage === 'careers'
+            ? 'careers'
+            : 'home'
 
   return (
     <>
       {/* ========================================================= */}
       {/* UNIFIED GLOBAL HEADER (Mounted once across entire app)    */}
       {/* ========================================================= */}
-      <Header
-        activeNav={activeNav}
-        currentPage={currentPage}
-        user={user}
-        savedAccounts={savedAccounts}
-        onSwitchAccount={handleSwitchAccount}
-        onSwitchProduct={handleSwitchProduct}
-        onAddAccount={handleAddAccount}
-        onRemoveAccount={handleRemoveAccount}
-        onLogout={handleLogout}
-        onNavigateToLogin={handleNavigateToLogin}
-        onNavigateToHome={handleNavigateToHome}
-        onNavigateToAnanda={handleNavigateToAnanda}
-        onNavigateToDara={handleNavigateToDara}
-        onNavigateToAura={handleNavigateToAura}
-        onNavigateToBlogs={handleNavigateToBlogs}
-        onNavigateToAbout={handleNavigateToAbout}
-        onNavigateToCareers={handleNavigateToCareers}
-        anandaCategory={anandaCategory}
-        isRevealed={true}
-      />
-
-      {/* Show Ananda GeoSpatial standalone full page */}
-      {currentPage === 'ananda' && (
-        <AnandaPage
+      {currentPage !== 'login' && (
+        <Header
+          activeNav={activeNav}
+          currentPage={currentPage}
           user={user}
+          savedAccounts={savedAccounts}
+          onSwitchAccount={handleSwitchAccount}
+          onSwitchProduct={handleSwitchProduct}
+          onAddAccount={handleAddAccount}
+          onRemoveAccount={handleRemoveAccount}
           onLogout={handleLogout}
+          onNavigateToLogin={handleNavigateToLogin}
           onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
           onNavigateToAnanda={handleNavigateToAnanda}
           onNavigateToDara={handleNavigateToDara}
           onNavigateToAura={handleNavigateToAura}
           onNavigateToBlogs={handleNavigateToBlogs}
           onNavigateToAbout={handleNavigateToAbout}
           onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToTerms={handleNavigateToTerms}
-          initialCategory={anandaCategory}
-        />
-      )}
-
-      {/* Show Dara Healthcare standalone full page */}
-      {currentPage === 'dara' && (
-        <DaraPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Aura Physical AI standalone full page */}
-      {currentPage === 'aura' && (
-        <AuraPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Blogs standalone full page */}
-      {currentPage === 'blogs' && (
-        <BlogPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show About Us standalone full page */}
-      {currentPage === 'about' && (
-        <AboutUsPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Careers standalone full page */}
-      {currentPage === 'careers' && (
-        <CareersPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToSecurity={handleNavigateToSecurity}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Privacy Policy standalone full page */}
-      {currentPage === 'privacy' && (
-        <PrivacyPolicyPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToSecurity={handleNavigateToSecurity}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Security standalone full page */}
-      {currentPage === 'security' && (
-        <SecurityPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToSecurity={handleNavigateToSecurity}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Terms standalone full page */}
-      {currentPage === 'terms' && (
-        <TermsPage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToHome={handleNavigateToHome}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToSecurity={handleNavigateToSecurity}
-          onNavigateToTerms={handleNavigateToTerms}
-        />
-      )}
-
-      {/* Show Home page */}
-      {currentPage === 'home' && (
-        <HomePage
-          user={user}
-          onLogout={handleLogout}
-          onNavigateToLogin={handleNavigateToLogin}
-          onNavigateToAnanda={handleNavigateToAnanda}
-          onNavigateToDara={handleNavigateToDara}
-          onNavigateToAura={handleNavigateToAura}
-          onNavigateToBlogs={handleNavigateToBlogs}
-          onNavigateToAbout={handleNavigateToAbout}
-          onNavigateToCareers={handleNavigateToCareers}
-          onNavigateToPrivacy={handleNavigateToPrivacy}
-          onNavigateToSecurity={handleNavigateToSecurity}
-          onNavigateToTerms={handleNavigateToTerms}
           anandaCategory={anandaCategory}
-          welcomeMessage={welcomeMessage}
-          onDismissWelcome={() => setWelcomeMessage('')}
+          isRevealed={true}
         />
       )}
+
+      {/* ========================================================= */}
+      {/* DIRECTIONAL SLIDE PAGE CONTAINER (CSS GRID STACKING)      */}
+      {/* Next page: slides in from Right (+100%) on top (z-20)     */}
+      {/* Back page: slides in from Left (-100%) on top (z-20)      */}
+      {/* Exiting page stays visible underneath -> ZERO WHITE SCREEN*/}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-1 grid-rows-1 w-full min-h-screen relative bg-white" style={{ overflowX: 'clip' }}>
+        <AnimatePresence initial={false} custom={navDirection}>
+          <motion.div
+            key={currentPage + (currentPage === 'ananda' ? `-${anandaCategory}` : '')}
+            custom={navDirection}
+            variants={pageTransitionVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className={`col-start-1 row-start-1 w-full min-h-screen ${currentPage === 'login' ? 'bg-black' : 'bg-white'
+              }`}
+          >
+            {/* Show Login standalone full page */}
+            {currentPage === 'login' && (
+              <LoginPage
+                onLogin={handleLogin}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                initialMode={loginMode}
+                redirectTarget={redirectTarget}
+              />
+            )}
+
+            {/* Show Ananda GeoSpatial standalone full page */}
+            {currentPage === 'ananda' && (
+              <AnandaPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToTerms={handleNavigateToTerms}
+                initialCategory={anandaCategory}
+              />
+            )}
+
+            {/* Show Dara Healthcare standalone full page */}
+            {currentPage === 'dara' && (
+              <DaraPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Aura Physical AI standalone full page */}
+            {currentPage === 'aura' && (
+              <AuraPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Blogs standalone full page */}
+            {currentPage === 'blogs' && (
+              <BlogPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show About Us standalone full page */}
+            {currentPage === 'about' && (
+              <AboutUsPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Careers standalone full page */}
+            {currentPage === 'careers' && (
+              <CareersPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToSecurity={handleNavigateToSecurity}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Privacy Policy standalone full page */}
+            {currentPage === 'privacy' && (
+              <PrivacyPolicyPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToSecurity={handleNavigateToSecurity}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Security standalone full page */}
+            {currentPage === 'security' && (
+              <SecurityPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToSecurity={handleNavigateToSecurity}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Terms standalone full page */}
+            {currentPage === 'terms' && (
+              <TermsPage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToHome={handleNavigateToHome}
+                onNavigateBack={handleNavigateBack}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToSecurity={handleNavigateToSecurity}
+                onNavigateToTerms={handleNavigateToTerms}
+              />
+            )}
+
+            {/* Show Home page */}
+            {currentPage === 'home' && (
+              <HomePage
+                user={user}
+                onLogout={handleLogout}
+                onNavigateToLogin={handleNavigateToLogin}
+                onNavigateToAnanda={handleNavigateToAnanda}
+                onNavigateToDara={handleNavigateToDara}
+                onNavigateToAura={handleNavigateToAura}
+                onNavigateToBlogs={handleNavigateToBlogs}
+                onNavigateToAbout={handleNavigateToAbout}
+                onNavigateToCareers={handleNavigateToCareers}
+                onNavigateToPrivacy={handleNavigateToPrivacy}
+                onNavigateToSecurity={handleNavigateToSecurity}
+                onNavigateToTerms={handleNavigateToTerms}
+                anandaCategory={anandaCategory}
+                welcomeMessage={welcomeMessage}
+                onDismissWelcome={() => setWelcomeMessage('')}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* ========================================================= */}
       {/* UNIFIED GLOBAL FOOTER (Mounted once across entire app)    */}
       {/* ========================================================= */}
-      <Footer
-        onNavigateToHome={handleNavigateToHome}
-        onNavigateToAnanda={handleNavigateToAnanda}
-        onNavigateToDara={handleNavigateToDara}
-        onNavigateToAura={handleNavigateToAura}
-        onNavigateToBlogs={handleNavigateToBlogs}
-        onNavigateToAbout={handleNavigateToAbout}
-        onNavigateToCareers={handleNavigateToCareers}
-        onNavigateToPrivacy={handleNavigateToPrivacy}
-        onNavigateToSecurity={handleNavigateToSecurity}
-        onNavigateToTerms={handleNavigateToTerms}
-        user={user}
-      />
+      {currentPage !== 'login' && (
+        <Footer
+          onNavigateToHome={handleNavigateToHome}
+          onNavigateToAnanda={handleNavigateToAnanda}
+          onNavigateToDara={handleNavigateToDara}
+          onNavigateToAura={handleNavigateToAura}
+          onNavigateToBlogs={handleNavigateToBlogs}
+          onNavigateToAbout={handleNavigateToAbout}
+          onNavigateToCareers={handleNavigateToCareers}
+          onNavigateToPrivacy={handleNavigateToPrivacy}
+          onNavigateToSecurity={handleNavigateToSecurity}
+          onNavigateToTerms={handleNavigateToTerms}
+          user={user}
+        />
+      )}
 
       {/* ========================================================= */}
       {/* GLOBAL LUXURY IN-APP AUTH REQUIRED PROMPT MODAL            */}
@@ -929,6 +1006,7 @@ function App() {
       />
 
       <ScrollToTop />
+      <ToastContainer />
     </>
   )
 }

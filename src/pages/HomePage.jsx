@@ -5,9 +5,8 @@ import WhatWeBelieveSection from '../components/WhatWeBelieveSection'
 import GeoSpatialSection from '../components/GeoSpatialSection'
 import HealthcareSection from '../components/HealthcareSection'
 import BoardSection from '../components/BoardSection'
-import GrowWithUsSection from '../components/GrowWithUsSection'
 
-const SECTION_IDS = ['hero', 'beliefs', 'introduction', 'healthcare', 'board', 'careers']
+const SECTION_IDS = ['hero', 'beliefs', 'introduction', 'healthcare', 'board']
 
 export default function HomePage({
   user,
@@ -18,10 +17,7 @@ export default function HomePage({
   onNavigateToAura,
   onNavigateToBlogs,
   onNavigateToAbout,
-  onNavigateToCareers,
-  onNavigateToPrivacy,
-  onNavigateToSecurity,
-  onNavigateToTerms,
+
   anandaCategory,
 }) {
   const lenisRef = useRef(null)
@@ -75,6 +71,7 @@ export default function HomePage({
       window.history.scrollRestoration = 'manual'
     }
 
+    const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase()
     const hash = window.location.hash.replace('#', '').toLowerCase()
     let savedSection = null
     let savedScrollY = null
@@ -86,7 +83,7 @@ export default function HomePage({
       // ignore storage access errors
     }
 
-    const targetSection = (hash && SECTION_IDS.includes(hash)) ? hash : savedSection
+    const targetSection = (path && SECTION_IDS.includes(path)) ? path : ((hash && SECTION_IDS.includes(hash)) ? hash : savedSection)
 
     if (targetSection && targetSection !== 'hero') {
       const doScrollToSection = () => {
@@ -181,26 +178,11 @@ export default function HomePage({
       } catch {
         // ignore
       }
-
-      // Debounce history replaceState to prevent browser scroll thread hiccups
-      if (hashUpdateTimer) clearTimeout(hashUpdateTimer)
-      hashUpdateTimer = setTimeout(() => {
-        try {
-          if (activeId !== 'hero') {
-            window.history.replaceState(null, '', '#' + activeId)
-          } else {
-            window.history.replaceState(null, '', window.location.pathname)
-          }
-        } catch {
-          // ignore
-        }
-      }, 250)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      if (hashUpdateTimer) clearTimeout(hashUpdateTimer)
     }
   }, [])
 
@@ -236,9 +218,6 @@ export default function HomePage({
 
       {/* Aura / Physical AI Section */}
       <BoardSection onNavigateToAura={onNavigateToAura} />
-
-      {/* Grow With Us Careers Section */}
-      <GrowWithUsSection onNavigateToCareers={onNavigateToCareers} />
     </div>
   )
 }

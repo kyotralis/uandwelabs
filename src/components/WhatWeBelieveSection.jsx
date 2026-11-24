@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
 
 // The 4 Core Principles
 const DEFAULT_PRINCIPLES = [
@@ -31,15 +33,27 @@ const DEFAULT_PRINCIPLES = [
 
 export default function WhatWeBelieveSection() {
   const [hoveredIdx, setHoveredIdx] = useState(null)
+  const [cmsHome] = useCmsContent('home')
   const { t } = useTranslation()
   const b = t.beliefs || {}
-  const principles = b.principles || DEFAULT_PRINCIPLES
+
+  const principles = useMemo(() => {
+    if (cmsHome?.beliefs?.items && Array.isArray(cmsHome.beliefs.items) && cmsHome.beliefs.items.length > 0) {
+      return cmsHome.beliefs.items.map((item) => ({
+        title: item.title,
+        statement: item.statement || item.desc || '',
+        elaboration: item.elaboration && item.elaboration !== (item.statement || item.desc) ? item.elaboration : '',
+      }))
+    }
+    return b.principles || DEFAULT_PRINCIPLES
+  }, [cmsHome?.beliefs?.items, b.principles])
 
   return (
     <section
       id="beliefs"
-      className="relative w-full bg-[var(--site-bg)] text-slate-900 pt-8 sm:pt-10 lg:pt-12 pb-6 sm:pb-8 lg:pb-10 px-6 sm:px-12 lg:px-16 overflow-visible font-['Inter'] select-text"
+      className="relative w-full bg-[var(--site-bg)] text-slate-900 pt-8 sm:pt-10 lg:pt-12 pb-4 sm:pb-6 lg:pb-8 px-6 sm:px-12 lg:px-16 overflow-visible font-['Inter'] select-text"
     >
+      <AdminEditButton section="home" field="beliefs" label="What We Believe" />
       {/* Subtle warm ambient glow in top-right corner */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-12 right-0 w-[500px] h-[500px] bg-orange-100/30 rounded-full blur-[140px]" />
@@ -54,27 +68,27 @@ export default function WhatWeBelieveSection() {
             {/* Main Prominent Section Title */}
             <div className="mb-2 sm:mb-3">
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                {b.title1 || 'What We'}
+                {cmsHome?.beliefs?.title1 || b.title1 || 'What We'}
               </h2>
             </div>
 
             <div className="mb-4 sm:mb-6">
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-[0.03em] uppercase text-black leading-none select-text">
-                {b.title2 || 'Believe In'}
+                {cmsHome?.beliefs?.title2 || b.title2 || 'Believe In'}
               </h2>
             </div>
 
             {/* Sub-headline */}
             <div className="mb-4 sm:mb-6">
               <h3 className="text-xl sm:text-2xl lg:text-[28px] font-light text-slate-900 uppercase tracking-wide leading-snug select-text">
-                {b.subtitle || 'Core Engineering Principles'}
+                {cmsHome?.beliefs?.subtitle || b.subtitle || 'Core Engineering Principles'}
               </h3>
             </div>
 
             {/* Introductory Statement */}
             <div className="mb-6 sm:mb-8">
               <p className="text-base sm:text-lg text-slate-600 font-sans leading-relaxed max-w-md select-text">
-                {b.intro || 'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UandWe Labs, we build technology that endures.'}
+                {cmsHome?.beliefs?.intro || b.intro || 'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UANDWE Labs, we build technology that endures.'}
               </p>
             </div>
 
@@ -92,10 +106,10 @@ export default function WhatWeBelieveSection() {
                   key={idx}
                   onMouseEnter={() => setHoveredIdx(idx)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  className={`group sticky rounded-3xl sm:rounded-[32px] p-8 sm:p-11 lg:p-14 bg-white/95 backdrop-blur-xl border border-[var(--site-border)] shadow-[0_-4px_24px_rgba(0,0,0,0.03),0_20px_50px_rgba(0,0,0,0.07)] ring-1 ring-slate-900/5 transition-all duration-500 cursor-default ${isLast ? 'mb-0' : 'mb-16 sm:mb-20 lg:mb-24'
+                  className={`group sticky rounded-3xl sm:rounded-[32px] p-8 sm:p-11 lg:p-14 bg-white/95 backdrop-blur-xl border border-[var(--site-border)] shadow-[0_-6px_28px_rgba(0,0,0,0.04),0_24px_60px_rgba(0,0,0,0.09)] ring-1 ring-slate-900/5 transition-all duration-300 cursor-default ${isLast ? 'mb-0' : 'mb-24 sm:mb-32 lg:mb-40'
                     }`}
                   style={{
-                    top: `calc(7.5rem + ${idx * 14}px)`,
+                    top: `calc(7rem + ${idx * 20}px)`,
                     zIndex: 10 + idx,
                   }}
                 >
@@ -107,14 +121,18 @@ export default function WhatWeBelieveSection() {
                   </div>
 
                   {/* Prominent Large Typographic Statement */}
-                  <p className="text-xl sm:text-2xl lg:text-[27px] font-light text-slate-900 leading-[1.38] tracking-[-0.015em] mb-5 sm:mb-6 transition-colors group-hover:text-slate-950">
-                    {item.statement}
-                  </p>
+                  {item.statement && (
+                    <p className="text-xl sm:text-2xl lg:text-[27px] font-light text-slate-900 leading-[1.38] tracking-[-0.015em] mb-5 sm:mb-6 transition-colors group-hover:text-slate-950">
+                      {item.statement}
+                    </p>
+                  )}
 
                   {/* Concise Contextual Elaboration */}
-                  <p className="text-sm sm:text-base text-slate-500 leading-relaxed font-normal max-w-xl transition-colors group-hover:text-slate-700">
-                    {item.elaboration}
-                  </p>
+                  {item.elaboration && item.elaboration !== item.statement && (
+                    <p className="text-sm sm:text-base text-slate-500 leading-relaxed font-normal max-w-xl transition-colors group-hover:text-slate-700">
+                      {item.elaboration}
+                    </p>
+                  )}
 
                   {/* Expanding Orange Edge Accent */}
                   <div className="mt-8 sm:mt-10 h-[2px] w-12 bg-slate-200 group-hover:w-36 group-hover:bg-gradient-to-r group-hover:from-orange-500 group-hover:via-amber-400 group-hover:to-transparent transition-all duration-700 ease-out" />

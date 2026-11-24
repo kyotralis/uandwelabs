@@ -9,48 +9,65 @@ import {
 
 } from 'lucide-react'
 import CommonCta from '../components/CommonCta'
+import ScrollReveal from '../components/ui/ScrollReveal'
+import { showToast } from '../components/ui/Toast'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from '../components/AdminEditButton'
+
+// Module-level flag so Life benches remain visible without re-animating opacity
+let hasCareersLifeCardsShownOnce = false
 
 export default function CareersPage({
   user,
   onNavigateToHome,
-  onNavigateToAnanda,
-  onNavigateToDara,
-  onNavigateToAura,
-  onNavigateToBlogs,
-  onNavigateToAbout,
-  onNavigateToCareers,
-  onNavigateToPrivacy,
-  onNavigateToSecurity,
-  onNavigateToTerms,
+  onNavigateBack,
+ 
 }) {
   const { t } = useTranslation()
   const cp = t.careersPage || {}
 
-  const lifeBenches = cp.lifeBenches || [
-    {
-      title: 'From Wild Ideas to Living Cities',
-      desc: 'We explore how breezes flow through neighborhood courtyards, how sunlight naturally warms living rooms, and how future buildings can live in gentle harmony with nature.',
-      tag: 'IMAGINING TOMORROW',
-      image: '/ananda_hero.jpg',
-    },
-    {
-      title: 'Whiteboards, Warm Chai & Making Things',
-      desc: 'No corporate red tape or endless slide decks. A fresh spark sketched over lunch often turns into a real, working prototype you can hold and test in your hands by Friday afternoon.',
-      tag: 'THE MAKER SPIRIT',
-      image: '/about_team_brainstorm.jpg',
-    },
-    {
-      title: 'Tech That Cares Without Getting in the Way',
-      desc: 'From looking out for elders at home without intrusive cameras to creating calmer everyday spaces, we build thoughtful technology that puts human comfort, peace of mind, and dignity first.',
-      tag: 'HUMAN-FIRST IMPACT',
-      image: '/about_indian_team_1.jpg',
-    },
-  ]
+  const [cmsCareers] = useCmsContent('careers')
 
   const jobs = useMemo(() => {
+    if (Array.isArray(cmsCareers) && cmsCareers.length > 0) {
+      return cmsCareers
+    }
+    if (cmsCareers?.items && Array.isArray(cmsCareers.items) && cmsCareers.items.length > 0) {
+      return cmsCareers.items
+    }
     return cp.jobs || []
-  }, [cp.jobs])
+  }, [cmsCareers, cp.jobs])
+
+  const heroImage = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.image) || '/about_team_discussion.jpg'
+  const heroHeadline = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.headline) || (cp.heroTitle?.line1 ? `${cp.heroTitle.line1} ${cp.heroTitle.line2 || ''}` : 'Build What Endures. Careers at UANDWE Labs.')
+  const heroSubtitle = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.subtitle) || cp.heroSubtitle || 'We are expanding our research and engineering branch in Bengaluru. We bring together hardware craftsmen and computational engineers building deep technology that truly endures.'
+
+  const lifeBenches = useMemo(() => {
+    if (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && Array.isArray(cmsCareers?.lifeBenches) && cmsCareers.lifeBenches.length > 0) {
+      return cmsCareers.lifeBenches
+    }
+    return cp.lifeBenches || [
+      {
+        title: 'From Wild Ideas to Living Cities',
+        desc: 'We explore how breezes flow through neighborhood courtyards, how sunlight naturally warms living rooms, and how future buildings can live in gentle harmony with nature.',
+        tag: 'IMAGINING TOMORROW',
+        image: '/ananda_hero.jpg',
+      },
+      {
+        title: 'Whiteboards, Warm Chai & Making Things',
+        desc: 'No corporate red tape or endless slide decks. A fresh spark sketched over lunch often turns into a real, working prototype you can hold and test in your hands by Friday afternoon.',
+        tag: 'THE MAKER SPIRIT',
+        image: '/about_team_brainstorm.jpg',
+      },
+      {
+        title: 'Tech That Cares Without Getting in the Way',
+        desc: 'From looking out for elders at home without intrusive cameras to creating calmer everyday spaces, we build thoughtful technology that puts human comfort, peace of mind, and dignity first.',
+        tag: 'HUMAN-FIRST IMPACT',
+        image: '/about_indian_team_1.jpg',
+      },
+    ]
+  }, [cmsCareers, cp.lifeBenches])
 
   const [activeJob, setActiveJob] = useState(null)
   const [isApplying, setIsApplying] = useState(false)
@@ -159,7 +176,9 @@ export default function CareersPage({
   const [benchesVisible, setBenchesVisible] = useState(false)
   const [benefitsVisible, setBenefitsVisible] = useState(false)
   const [jobCardVisible, setJobCardVisible] = useState([])
-  const [lifeCardVisible, setLifeCardVisible] = useState([])
+  const [lifeCardVisible, setLifeCardVisible] = useState(() =>
+    hasCareersLifeCardsShownOnce ? [true, true, true] : []
+  )
   const [screenWidth, setScreenWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1200
   )
@@ -214,6 +233,10 @@ export default function CareersPage({
         for (let i = 0; i < lifeCount; i++) {
           nextLife[i] = isLifeInView(lifeCardRefs.current[i])
         }
+      }
+
+      if (nextLife.some(Boolean)) {
+        hasCareersLifeCardsShownOnce = true
       }
 
       setLifeCardVisible((prev) => {
@@ -342,47 +365,57 @@ export default function CareersPage({
     }
   }, [jobs.length, lifeBenches.length])
 
-  const convictions = cp.convictions || [
-    {
-      num: '01',
-      title: 'Curiosity Over Consensus',
-      desc: 'The biggest breakthroughs happen when you question established conventions. We encourage bold experiments, challenging assumptions, and following curiosity wherever the data leads.',
-    },
-    {
-      num: '02',
-      title: 'High-Trust Autonomy',
-      desc: 'We don’t believe in micro-management or endless status meetings. We hire brilliant, driven individuals, give them the best tools, and trust them to make decisions and execute.',
-    },
-    {
-      num: '03',
-      title: 'Obsessive Craftsmanship',
-      desc: 'Details make the product. From elegant algorithmic architecture to precision physical materials, we hold ourselves to the highest standards of quality and refinement.',
-    },
-    {
-      num: '04',
-      title: 'Meaningful Impact',
-      desc: 'We dedicate our careers to solving problems that truly matter. Every system we ship is built to improve lives, respect privacy, and leave a positive, enduring mark on the world.',
-    },
-  ]
+  const convictions = useMemo(() => {
+    if (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && Array.isArray(cmsCareers?.convictions) && cmsCareers.convictions.length > 0) {
+      return cmsCareers.convictions
+    }
+    return cp.convictions || [
+      {
+        num: '01',
+        title: 'Curiosity Over Consensus',
+        desc: 'The biggest breakthroughs happen when you question established conventions. We encourage bold experiments, challenging assumptions, and following curiosity wherever the data leads.',
+      },
+      {
+        num: '02',
+        title: 'High-Trust Autonomy',
+        desc: 'We don’t believe in micro-management or endless status meetings. We hire brilliant, driven individuals, give them the best tools, and trust them to make decisions and execute.',
+      },
+      {
+        num: '03',
+        title: 'Obsessive Craftsmanship',
+        desc: 'Details make the product. From elegant algorithmic architecture to precision physical materials, we hold ourselves to the highest standards of quality and refinement.',
+      },
+      {
+        num: '04',
+        title: 'Meaningful Impact',
+        desc: 'We dedicate our careers to solving problems that truly matter. Every system we ship is built to improve lives, respect privacy, and leave a positive, enduring mark on the world.',
+      },
+    ]
+  }, [cmsCareers, cp.convictions])
 
-  const benefits = cp.benefits || [
-    {
-      title: 'Uncapped Research Benches',
-      desc: 'Direct access to cutting-edge FPGA stations, precision CNC milling, dedicated GPU clusters, and specialized RF anechoic chambers.',
-    },
-    {
-      title: 'Intellectual Sovereignty',
-      desc: 'Full co-authorship on patent filings, peer-reviewed technical journal publications, and open-source mathematical solver releases.',
-    },
-    {
-      title: 'Comprehensive Health & Care',
-      desc: '100% premium health, dental, and vision insurance for you and your dependents, plus mental wellness and clinical emergency support.',
-    },
-    {
-      title: 'Bengaluru Campus & Relocation',
-      desc: 'Comprehensive relocation packages to Bengaluru, ergonomic Herman Miller benches, catered nutritious meals, and high-performance mobile hardware.',
-    },
-  ]
+  const benefits = useMemo(() => {
+    if (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && Array.isArray(cmsCareers?.benefits) && cmsCareers.benefits.length > 0) {
+      return cmsCareers.benefits
+    }
+    return cp.benefits || [
+      {
+        title: 'Uncapped Research Benches',
+        desc: 'Direct access to cutting-edge FPGA stations, precision CNC milling, dedicated GPU clusters, and specialized RF anechoic chambers.',
+      },
+      {
+        title: 'Intellectual Sovereignty',
+        desc: 'Full co-authorship on patent filings, peer-reviewed technical journal publications, and open-source mathematical solver releases.',
+      },
+      {
+        title: 'Comprehensive Health & Care',
+        desc: '100% premium health, dental, and vision insurance for you and your dependents, plus mental wellness and clinical emergency support.',
+      },
+      {
+        title: 'Bengaluru Campus & Relocation',
+        desc: 'Comprehensive relocation packages to Bengaluru, ergonomic Herman Miller benches, catered nutritious meals, and high-performance mobile hardware.',
+      },
+    ]
+  }, [cmsCareers, cp.benefits])
 
   const handleOpenApplication = (job) => {
     setActiveJob(job)
@@ -416,9 +449,11 @@ export default function CareersPage({
     setIsSubmitting(true)
 
     setTimeout(() => {
+      const refId = `UWE-TALENT-${Math.floor(1000 + Math.random() * 9000)}`
       setIsSubmitting(false)
       setIsSubmitted(true)
-      setApplicationRef(`UWE-TALENT-${Math.floor(1000 + Math.random() * 9000)}`)
+      setApplicationRef(refId)
+      showToast(`Application submitted successfully! Ref #${refId}`, 'success')
     }, 900)
   }
 
@@ -428,11 +463,15 @@ export default function CareersPage({
       {/* 1. IMMERSIVE HERO SECTION                                */}
       {/* ======================================================== */}
       <div id="careers-hero" className="relative w-full h-screen min-h-[640px] flex items-end pb-16 sm:pb-20 md:pb-24 pt-28 sm:pt-32 px-[4%] overflow-hidden bg-black">
+        <AdminEditButton section="careers" field="hero" label="Careers Hero" position="hero" variant="dark" />
         {/* Dynamic Visual with subtle overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/about_team_discussion.jpg"
+            src={heroImage}
             alt="UandWe Labs Engineering Careers"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover grayscale opacity-75 scale-100 hover:scale-105 transition-transform duration-1000"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 pointer-events-none" />
@@ -444,10 +483,15 @@ export default function CareersPage({
               <button
                 type="button"
                 onClick={() => {
-                  if (onNavigateToHome) onNavigateToHome()
-                  else if (typeof window !== 'undefined') window.location.hash = ''
+                  if (onNavigateBack) {
+                    onNavigateBack()
+                  } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                    window.history.back()
+                  } else if (onNavigateToHome) {
+                    onNavigateToHome()
+                  }
                 }}
-                aria-label="Back to Home"
+                aria-label="Back to Previous Page"
                 className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -455,14 +499,12 @@ export default function CareersPage({
             </div>
             <div className="relative inline-block py-1">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-                {cp.heroTitle?.line1 || 'Build What Endures.'} <br />
-                <span className="text-white">{cp.heroTitle?.line2 || 'Careers at UandWe Labs.'}</span>
+                {heroHeadline}
               </h1>
             </div>
 
             <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
-              {cp.heroSubtitle ||
-                'We are expanding our research and engineering benches in Bengaluru. We bring together curious scientists, hardware craftsmen, and computational engineers building deep technology that truly endures.'}
+              {heroSubtitle}
             </p>
           </div>
         </div>
@@ -471,10 +513,11 @@ export default function CareersPage({
       {/* ======================================================== */}
       {/* 2. CULTURE & WORKING CONVICTIONS (HOW WE WORK)           */}
       {/* ======================================================== */}
-      <div id="culture" className="w-full pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
+      <div id="culture" className="relative w-full pt-8 sm:pt-12 md:pt-14 pb-6 sm:pb-8 md:pb-10 overflow-hidden">
+        <AdminEditButton section="careers" field="convictions" label="Culture & Values" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-14 max-w-3xl"
+            className="mb-6 sm:mb-8 md:mb-10 max-w-3xl"
             style={{
               transform: cultureVisible ? 'translateY(0)' : 'translateY(60px)',
               opacity: cultureVisible ? 1 : 0,
@@ -492,29 +535,26 @@ export default function CareersPage({
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {convictions.map((c, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                className="group border border-black/10 bg-white p-8 sm:p-9 flex flex-col justify-between hover:bg-black hover:border-black transition-all duration-500 cursor-default"
-                style={{
-                  transform: cultureVisible ? 'translateY(0)' : 'translateY(160px)',
-                  opacity: cultureVisible ? 1 : 0,
-                  transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms, border-color 500ms',
-                  transitionDelay: cultureVisible ? `${idx * 120}ms` : '0ms',
-                  willChange: 'transform, opacity',
-                }}
+                delay={idx * 0.1}
+                y={60}
+                className="h-full"
               >
-                <div>
-                  <span className="text-3xl sm:text-4xl font-mono text-neutral-300 group-hover:text-neutral-500 font-normal block mb-6 transition-colors duration-500">
-                    {c.num}
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 group-hover:text-white mb-4 leading-snug transition-colors duration-500">
-                    {c.title}
-                  </h3>
-                  <p className="text-neutral-600 group-hover:text-neutral-300 text-sm leading-relaxed transition-colors duration-500">
-                    {c.desc}
-                  </p>
+                <div className="h-full group border border-black/10 bg-white p-8 sm:p-9 flex flex-col justify-between hover:bg-black hover:border-black transition-all duration-500 cursor-default">
+                  <div>
+                    <span className="text-3xl sm:text-4xl font-mono text-neutral-300 group-hover:text-neutral-500 font-normal block mb-6 transition-colors duration-500">
+                      {c.num}
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 group-hover:text-white mb-4 leading-snug transition-colors duration-500">
+                      {c.title}
+                    </h3>
+                    <p className="text-neutral-600 group-hover:text-neutral-300 text-sm leading-relaxed transition-colors duration-500">
+                      {c.desc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -523,11 +563,12 @@ export default function CareersPage({
       {/* ======================================================== */}
       {/* 3. LIFE INSIDE UANDWE LABS                               */}
       {/* ======================================================== */}
-      <div id="life" className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
+      <div id="life" className="relative w-full py-6 sm:py-8 md:py-10 overflow-hidden">
+        <AdminEditButton section="careers" field="lifeBenches" label="Life Inside UandWe Labs" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
             ref={benchesRef}
-            className="mb-14 max-w-3xl"
+            className="mb-6 sm:mb-8 md:mb-10 max-w-3xl"
             style={{
               transform: benchesVisible ? 'translateX(0)' : 'translateX(-80px)',
               opacity: benchesVisible ? 1 : 0,
@@ -536,7 +577,7 @@ export default function CareersPage({
             }}
           >
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
-              {cp.benchesTitle || 'Life Inside UandWe Labs'}
+              {cp.benchesTitle || 'Life Inside UANDWE Labs'}
             </h2>
           </div>
 
@@ -559,6 +600,8 @@ export default function CareersPage({
                     <img
                       src={bench.image}
                       alt={bench.title}
+                      loading="eager"
+                      decoding="async"
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                     />
                   </div>
@@ -583,9 +626,10 @@ export default function CareersPage({
       {/* ======================================================== */}
       {/* 4. OPEN ENGINEERING BENCHES (JOB ROLES & APPLICATION)    */}
       {/* ======================================================== */}
-      <div id="openings" className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 bg-white overflow-hidden">
+      <div id="openings" className="relative w-full py-6 sm:py-8 md:py-10 bg-white overflow-hidden">
+        <AdminEditButton section="careers" field="items" label="Job Openings" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
-          <div className="mb-10 sm:mb-12 max-w-3xl">
+          <div className="mb-6 sm:mb-8 md:mb-10 max-w-3xl">
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
               {cp.openingsTitle || 'Open Engineering Benches'}
             </h2>
@@ -684,10 +728,11 @@ export default function CareersPage({
       {/* ======================================================== */}
       {/* 5. THE FELLOWSHIP EXPERIENCE (BENEFITS & LIVING)         */}
       {/* ======================================================== */}
-      <div id="benefits" className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
+      <div id="benefits" className="relative w-full py-6 sm:py-8 md:py-10 overflow-hidden">
+        <AdminEditButton section="careers" field="benefits" label="Benefits & Research Benches" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-14 max-w-3xl"
+            className="mb-6 sm:mb-8 md:mb-10 max-w-3xl"
             style={{
               transform: benefitsVisible ? 'translateY(0)' : 'translateY(60px)',
               opacity: benefitsVisible ? 1 : 0,
@@ -705,27 +750,23 @@ export default function CareersPage({
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {benefits.map((b, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                className="group border border-black/10 bg-white p-8 sm:p-9 flex flex-col justify-between hover:bg-black hover:border-black transition-all duration-500 cursor-default"
-                style={{
-                  transform: benefitsVisible ? 'translateY(0)' : 'translateY(160px)',
-                  opacity: benefitsVisible ? 1 : 0,
-                  transition:
-                    'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms, border-color 500ms',
-                  transitionDelay: benefitsVisible ? `${idx * 120}ms` : '0ms',
-                  willChange: 'transform, opacity',
-                }}
+                delay={idx * 0.1}
+                y={60}
+                className="h-full"
               >
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 group-hover:text-white mb-3 leading-snug transition-colors duration-500">
-                    {b.title}
-                  </h3>
-                  <p className="text-neutral-600 group-hover:text-neutral-300 text-sm leading-relaxed transition-colors duration-500">
-                    {b.desc}
-                  </p>
+                <div className="h-full group border border-black/10 bg-white p-8 sm:p-9 flex flex-col justify-between hover:bg-black hover:border-black transition-all duration-500 cursor-default">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 group-hover:text-white mb-3 leading-snug transition-colors duration-500">
+                      {b.title}
+                    </h3>
+                    <p className="text-neutral-600 group-hover:text-neutral-300 text-sm leading-relaxed transition-colors duration-500">
+                      {b.desc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -736,9 +777,12 @@ export default function CareersPage({
       {/* ======================================================== */}
       <div id="inquiry">
         <CommonCta
-          title={cp.spontaneousTitle || 'Don’t See Your Exact Bench?'}
-          subtitle={cp.spontaneousDesc || 'We are always looking for exceptional computational physicists, optical sensor designers, and low-level firmware hackers. Reach out directly to our founders.'}
-          buttonText={cp.spontaneousButton || 'Send General Technical Inquiry'}
+          section="careers"
+          field="cta"
+          label="General Inquiry CTA"
+          title={(typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.cta?.title) || cp.spontaneousTitle || 'Don’t See Your Exact Bench?'}
+          subtitle={(typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && (cmsCareers?.cta?.subtitle || cmsCareers?.cta?.desc)) || cp.spontaneousDesc || 'We are always looking for exceptional computational physicists, optical sensor designers, and low-level firmware hackers. Reach out directly to our founders.'}
+          buttonText={(typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.cta?.buttonText) || cp.spontaneousButton || 'Send General Technical Inquiry'}
           onButtonClick={handleOpenGeneralInquiry}
         />
       </div>

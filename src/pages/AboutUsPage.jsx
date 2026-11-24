@@ -1,20 +1,17 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { ArrowRight, ArrowLeft, Quote } from 'lucide-react'
 import CommonCta from '../components/CommonCta'
+import ScrollReveal from '../components/ui/ScrollReveal'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from '../components/AdminEditButton'
 
 export default function AboutUsPage({
-  user,
   onNavigateToHome,
-  onNavigateToAnanda,
-  onNavigateToDara,
-  onNavigateToAura,
-  onNavigateToBlogs,
-  onNavigateToAbout,
+  onNavigateBack,
+
   onNavigateToCareers,
-  onNavigateToPrivacy,
-  onNavigateToSecurity,
-  onNavigateToTerms,
+ 
 }) {
   const { t } = useTranslation()
   const ap = t.aboutPage || {}
@@ -24,7 +21,7 @@ export default function AboutUsPage({
     let savedY = null
     try {
       savedY = sessionStorage.getItem('uandwe_about_scroll_y')
-    } catch {}
+    } catch { }
     if (savedY && Number(savedY) > 20) {
       const scrollPos = Number(savedY)
       const restore = () => {
@@ -44,7 +41,7 @@ export default function AboutUsPage({
     const handleScroll = () => {
       try {
         sessionStorage.setItem('uandwe_about_scroll_y', String(window.scrollY))
-      } catch {}
+      } catch { }
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -116,79 +113,116 @@ export default function AboutUsPage({
     }
   }, [])
 
-  const studioStories = [
-    {
-      num: '01',
-      tag: 'THE SPARK IN BENGALURU',
-      title: 'Where Curious Conversations Begin',
-      desc: 'In a quiet corner of Bengaluru, surrounded by sketchbooks and warm cups of filter coffee, we started with a simple belief: technology should not trap people inside screens—it should enrich the physical spaces we live and breathe in.',
-      image: '/about_team_brainstorm.jpg',
-    },
-    {
-      num: '02',
-      tag: 'THE MAKER SPIRIT',
-      title: 'From Napkin Sketches to Working Reality',
-      desc: 'We do not do endless corporate slides. An idea scribbled down over lunch gets shaped into physical models by afternoon, and by the end of the week, becomes a real device you can hold and test in your own hands.',
-      image: '/about_team_discussion.jpg',
-    },
-    {
-      num: '03',
-      tag: 'HUMAN COMFORT FIRST',
-      title: 'Crafted for Everyday People & Families',
-      desc: 'From looking out for elderly parents at home without uncomfortable cameras or tags, to designing homes that stay naturally cool in the summer heat, everything we craft is built with genuine love for real human lives.',
-      image: '/about_indian_team_1.jpg',
-    },
-  ]
+  const [cmsAbout] = useCmsContent('about')
 
-  const lifecycleSteps = ap.lifecycleSteps || [
-    {
-      num: '01',
-      title: 'Curious Exploration',
-      desc: 'Every project begins with a simple question and a blank chalkboard. We explore what people truly need before touching a line of code.',
-    },
-    {
-      num: '02',
-      title: 'Hands-On Prototyping',
-      desc: 'We cut, shape, and assemble physical models right in our studio. Holding an idea in your hands teaches you what screens never can.',
-    },
-    {
-      num: '03',
-      title: 'Quiet Refinement',
-      desc: 'Stripping away everything unnecessary until only the essential remains. Simple curves, durable materials, and zero confusing clutter.',
-    },
-    {
-      num: '04',
-      title: 'Real-Life Testing',
-      desc: 'We test our creations in real homes, real rooms, and real weather—making sure they bring lasting calm and comfort to daily life.',
-    },
-  ]
+  const heroImage = cmsAbout?.hero?.image || 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433140/uandwelabs/cms/about_hero_studio_1795433139418.jpg'
+  const heroHeadline = cmsAbout?.hero?.headline || (ap.heroTitle?.line1 ? `${ap.heroTitle.line1} ${ap.heroTitle.line2 || ''}` : 'About UANDWE Labs. Where Ideas Become Real.')
+  const heroSubtitle = cmsAbout?.hero?.subtitle || ap.heroSubtitle || 'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities that serve humanity with dignity.'
 
-  const perspectives = ap.perspectives || [
-    {
-      quote:
-        'Ananda fundamentally transformed our environmental masterplanning. Computing Lattice Boltzmann wind aerodynamics live in the design room eliminated three-day cloud queues completely.',
-      name: 'Sarah Chen',
-      role: 'Principal Environmental Architect',
-      org: 'Studio Form & Light',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&auto=format&fit=crop&q=80',
-    },
-    {
-      quote:
-        'In elder care, the ethical line is absolute. Dara’s 60 GHz contactless radar delivers sub-300ms fall detection while preserving total human dignity. Zero cameras, zero wearable bracelets.',
-      name: 'Dr. Rajesh Shenoy',
-      role: 'Director of Geriatric Care',
-      org: 'Manipal Health Network',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&auto=format&fit=crop&q=80',
-    },
-    {
-      quote:
-        'Deploying Aura’s 128-TOPS edge silicon on multi-lane transit corridors gave us sub-millisecond vehicle recognition at 180 km/h with zero external data egress. A masterclass in sovereign engineering.',
-      name: 'Marcus Vance',
-      role: 'Autonomous Mobility Architect',
-      org: 'Apex Infrastructure Group',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&auto=format&fit=crop&q=80',
-    },
-  ]
+  const studioStories = useMemo(() => {
+    if (cmsAbout?.studioStories && Array.isArray(cmsAbout.studioStories) && cmsAbout.studioStories.length > 0) {
+      return cmsAbout.studioStories.map((item, idx) => ({
+        num: item.num || String(idx + 1).padStart(2, '0'),
+        tag: item.tag || 'OUR STUDIO',
+        title: item.title,
+        desc: item.desc,
+        image: item.src || item.image || 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433148/uandwelabs/cms/about_team_brainstorm_1795433146739.jpg',
+      }))
+    }
+    return [
+      {
+        num: '01',
+        tag: 'THE SPARK IN BENGALURU',
+        title: 'Where Curious Conversations Begin',
+        desc: 'In a quiet corner of Bengaluru, surrounded by sketchbooks and warm cups of filter coffee, we started with a simple belief: technology should not trap people inside screens—it should enrich the physical spaces we live and breathe in.',
+        image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433148/uandwelabs/cms/about_team_brainstorm_1795433146739.jpg',
+      },
+      {
+        num: '02',
+        tag: 'THE MAKER SPIRIT',
+        title: 'From Napkin Sketches to Working Reality',
+        desc: 'We do not do endless corporate slides. An idea scribbled down over lunch gets shaped into physical models by afternoon, and by the end of the week, becomes a real device you can hold and test in your own hands.',
+        image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433142/uandwelabs/cms/about_team_discussion_1795433140845.jpg',
+      },
+      {
+        num: '03',
+        tag: 'HUMAN COMFORT FIRST',
+        title: 'Crafted for Everyday People & Families',
+        desc: 'From looking out for elderly parents at home without uncomfortable cameras or tags, to designing homes that stay naturally cool in the summer heat, everything we craft is built with genuine love for real human lives.',
+        image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433149/uandwelabs/cms/about_indian_team_1_1795433147917.jpg',
+      },
+    ]
+  }, [cmsAbout?.studioStories])
+
+  const lifecycleSteps = useMemo(() => {
+    if (cmsAbout?.lifecycleSteps && Array.isArray(cmsAbout.lifecycleSteps) && cmsAbout.lifecycleSteps.length > 0) {
+      return cmsAbout.lifecycleSteps.map((item, idx) => ({
+        num: item.step || item.num || String(idx + 1).padStart(2, '0'),
+        title: item.title,
+        desc: item.desc,
+      }))
+    }
+    return ap.lifecycleSteps || [
+      {
+        num: '01',
+        title: 'Curious Exploration',
+        desc: 'Every project begins with a simple question and a blank chalkboard. We explore what people truly need before touching a line of code.',
+      },
+      {
+        num: '02',
+        title: 'Hands-On Prototyping',
+        desc: 'We cut, shape, and assemble physical models right in our studio. Holding an idea in your hands teaches you what screens never can.',
+      },
+      {
+        num: '03',
+        title: 'Quiet Refinement',
+        desc: 'Stripping away everything unnecessary until only the essential remains. Simple curves, durable materials, and zero confusing clutter.',
+      },
+      {
+        num: '04',
+        title: 'Real-Life Testing',
+        desc: 'We test our creations in real homes, real rooms, and real weather—making sure they bring lasting calm and comfort to daily life.',
+      },
+    ]
+  }, [cmsAbout?.lifecycleSteps, ap.lifecycleSteps])
+
+  const perspectives = useMemo(() => {
+    if (cmsAbout?.perspectives && Array.isArray(cmsAbout.perspectives) && cmsAbout.perspectives.length > 0) {
+      return cmsAbout.perspectives.map((item, idx) => ({
+        quote: item.quote,
+        name: item.author || item.name,
+        role: item.role,
+        org: item.company || item.org,
+        image: item.src || item.image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&auto=format&fit=crop&q=80',
+      }))
+    }
+    return ap.perspectives || [
+      {
+        quote:
+          'Ananda fundamentally transformed our environmental masterplanning. Computing Lattice Boltzmann wind aerodynamics live in the design room eliminated three-day cloud queues completely.',
+        name: 'Sarah Chen',
+        role: 'Principal Environmental Architect',
+        org: 'Studio Form & Light',
+        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&auto=format&fit=crop&q=80',
+      },
+      {
+        quote:
+          'In elder care, the ethical line is absolute. Dara’s 60 GHz contactless radar delivers sub-300ms fall detection while preserving total human dignity. Zero cameras, zero wearable bracelets.',
+        name: 'Dr. Rajesh Shenoy',
+        role: 'Director of Geriatric Care',
+        org: 'Manipal Health Network',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&auto=format&fit=crop&q=80',
+      },
+      {
+        quote:
+          'Deploying Aura’s 128-TOPS edge silicon on multi-lane transit corridors gave us sub-millisecond vehicle recognition at 180 km/h with zero external data egress. A masterclass in sovereign engineering.',
+        name: 'Marcus Vance',
+        role: 'Autonomous Mobility Architect',
+        org: 'Apex Infrastructure Group',
+        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&auto=format&fit=crop&q=80',
+      },
+    ]
+  }, [cmsAbout?.perspectives, ap.perspectives])
 
   return (
     <div className="bg-white min-h-screen text-neutral-900 w-full font-sans selection:bg-black selection:text-white">
@@ -196,11 +230,15 @@ export default function AboutUsPage({
       {/* 1. IMMERSIVE HERO SECTION                                */}
       {/* ======================================================== */}
       <div className="relative w-full h-screen min-h-[600px] flex items-end pb-16 sm:pb-20 md:pb-24 pt-28 sm:pt-32 px-[4%] overflow-hidden bg-black">
+        <AdminEditButton section="about" field="hero" label="About Us Hero" position="hero" variant="dark" />
         {/* Dynamic Image with subtle overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/about_hero_studio.jpg"
+            src={heroImage}
             alt="UandWe Labs Design and Hardware Innovation Studio"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover opacity-85 scale-100 hover:scale-105 transition-transform duration-1000"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-black/30 pointer-events-none" />
@@ -212,10 +250,15 @@ export default function AboutUsPage({
               <button
                 type="button"
                 onClick={() => {
-                  if (onNavigateToHome) onNavigateToHome()
-                  else if (typeof window !== 'undefined') window.location.hash = ''
+                  if (onNavigateBack) {
+                    onNavigateBack()
+                  } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                    window.history.back()
+                  } else if (onNavigateToHome) {
+                    onNavigateToHome()
+                  }
                 }}
-                aria-label="Back to Home"
+                aria-label="Back to Previous Page"
                 className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -223,14 +266,12 @@ export default function AboutUsPage({
             </div>
             <div className="relative inline-block py-1">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-                {ap.heroTitle?.line1 || 'About UandWe Labs.'} <br />
-                <span className="text-white">{ap.heroTitle?.line2 || 'Where Ideas Become Real.'}</span>
+                {heroHeadline}
               </h1>
             </div>
 
             <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
-              {ap.heroSubtitle ||
-                'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities that serve humanity with dignity.'}
+              {heroSubtitle}
             </p>
           </div>
         </div>
@@ -239,22 +280,23 @@ export default function AboutUsPage({
       {/* ======================================================== */}
       {/* 2. ORIGIN & CONVICTION EDITORIAL SECTION                 */}
       {/* ======================================================== */}
-      <div id="mission" className="w-full pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16">
+      <div id="mission" className="relative w-full pt-8 sm:pt-12 md:pt-14 pb-6 sm:pb-8 md:pb-10">
+        <AdminEditButton section="about" field="mission" label="Mission & Story" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-12 max-w-4xl">
-            {ap.originTitle || 'Technology Made for Real Life'}
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05] mb-6 sm:mb-8 md:mb-10 max-w-4xl">
+            {typeof cmsAbout?.mission === 'object' && cmsAbout?.mission?.title ? cmsAbout.mission.title : (ap.originTitle || 'Technology Made for Real Life')}
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 pt-4 border-t border-black/10">
             <div className="lg:col-span-6">
               <p className="text-base sm:text-lg text-neutral-700 font-normal leading-relaxed">
-                {ap.originParagraph1 ||
-                  'UandWe Labs began in Bengaluru with a simple, refreshing idea: what if technology stopped demanding your constant attention and instead quietly made the real world a better place to live? In a world filled with endless notifications, fleeting apps, and digital noise, we fell in love with making things you can actually feel, touch, and trust in daily life.'}
+                {(typeof cmsAbout?.mission === 'object' ? cmsAbout.mission.statement : cmsAbout?.mission) || ap.originParagraph1 ||
+                  'UANDWE Labs began in Bengaluru with a simple, refreshing idea: what if technology stopped demanding your constant attention and instead quietly made the real world a better place to live? In a world filled with endless notifications, fleeting apps, and digital noise, we fell in love with making things you can actually feel, touch, and trust in daily life.'}
               </p>
             </div>
             <div className="lg:col-span-6">
               <p className="text-base sm:text-lg text-neutral-700 font-normal leading-relaxed">
-                {ap.originParagraph2 ||
+                {(typeof cmsAbout?.mission === 'object' && cmsAbout.mission.elaboration) || ap.originParagraph2 ||
                   'Our studio brings together dreamers, architects, craftspeople, and thinkers who care deeply about everyday life. Whether we are designing comfortable spaces where cool breezes flow naturally, or creating gentle devices that keep grandparents safe at home without cameras watching over them, we believe good technology should feel like second nature—protecting your dignity, respecting your peace of mind, and bringing people closer together.'}
               </p>
             </div>
@@ -265,10 +307,11 @@ export default function AboutUsPage({
       {/* ======================================================== */}
       {/* 3. INSIDE OUR STUDIO & OUR JOURNEY                       */}
       {/* ======================================================== */}
-      <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-12 sm:pb-16 md:pb-20 overflow-hidden bg-neutral-50/60 border-y border-black/5">
+      <div className="relative w-full py-6 sm:py-8 md:py-10 overflow-hidden bg-neutral-50/60">
+        <AdminEditButton section="about" field="studioStories" label="Inside Our Studio Stories" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-12 max-w-3xl"
+            className="mb-6 sm:mb-8 md:mb-10 max-w-3xl"
             style={{
               transform: frontiersVisible ? 'translateX(0)' : 'translateX(-80px)',
               opacity: frontiersVisible ? 1 : 0,
@@ -327,10 +370,11 @@ export default function AboutUsPage({
       {/* ======================================================== */}
       {/* 4. THE ENGINEERING LIFECYCLE (4-STAGE METHODOLOGY)       */}
       {/* ======================================================== */}
-      <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
+      <div className="relative w-full py-6 sm:py-8 md:py-10 overflow-hidden">
+        <AdminEditButton section="about" field="lifecycleSteps" label="Engineering Lifecycle" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div
-            className="mb-12 max-w-3xl"
+            className="mb-6 sm:mb-8 md:mb-10 max-w-3xl"
             style={{
               transform: lifecycleVisible ? 'translateY(0)' : 'translateY(60px)',
               opacity: lifecycleVisible ? 1 : 0,
@@ -348,30 +392,26 @@ export default function AboutUsPage({
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
             {lifecycleSteps.map((step, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                className="group border border-black/10 bg-white p-8 sm:p-9 flex flex-col justify-between hover:bg-black hover:border-black transition-all duration-500 cursor-default"
-                style={{
-                  transform: lifecycleVisible ? 'translateY(0)' : 'translateY(160px)',
-                  opacity: lifecycleVisible ? 1 : 0,
-                  transition:
-                    'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms, border-color 500ms',
-                  transitionDelay: lifecycleVisible ? `${idx * 120}ms` : '0ms',
-                  willChange: 'transform, opacity',
-                }}
+                delay={idx * 0.1}
+                y={60}
+                className="h-full"
               >
-                <div>
-                  <span className="text-3xl sm:text-4xl font-mono text-neutral-300 group-hover:text-neutral-500 font-normal block mb-6 transition-colors duration-500">
-                    {step.num}
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 group-hover:text-white mb-4 leading-snug transition-colors duration-500">
-                    {step.title}
-                  </h3>
-                  <p className="text-neutral-600 group-hover:text-neutral-300 text-sm leading-relaxed transition-colors duration-500">
-                    {step.desc}
-                  </p>
+                <div className="h-full group border border-black/10 bg-white p-8 sm:p-9 flex flex-col justify-between hover:bg-black hover:border-black transition-all duration-500 cursor-default">
+                  <div>
+                    <span className="text-3xl sm:text-4xl font-mono text-neutral-300 group-hover:text-neutral-500 font-normal block mb-6 transition-colors duration-500">
+                      {step.num}
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-normal tracking-tight text-neutral-950 group-hover:text-white mb-4 leading-snug transition-colors duration-500">
+                      {step.title}
+                    </h3>
+                    <p className="text-neutral-600 group-hover:text-neutral-300 text-sm leading-relaxed transition-colors duration-500">
+                      {step.desc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -380,63 +420,57 @@ export default function AboutUsPage({
       {/* ======================================================== */}
       {/* 5. PEER & PARTNER PERSPECTIVES                           */}
       {/* ======================================================== */}
-      <div className="w-full pt-10 sm:pt-14 md:pt-16 pb-8 sm:pb-12 md:pb-16 overflow-hidden">
+      <div className="relative w-full py-6 sm:py-8 md:py-10 overflow-hidden">
+        <AdminEditButton section="about" field="perspectives" label="Partner Perspectives" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
-          <div
-            className="mb-12 max-w-3xl"
-            style={{
-              transform: perspectivesVisible ? 'translateX(0)' : 'translateX(-80px)',
-              opacity: perspectivesVisible ? 1 : 0,
-              transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1)',
-              willChange: 'transform, opacity',
-            }}
-          >
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
-              {ap.perspectivesTitle || 'Peer & Partner Perspectives'}
-            </h2>
-          </div>
+          <ScrollReveal x={-60} y={0}>
+            <div className="mb-6 sm:mb-8 md:mb-10 max-w-3xl">
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-950 leading-[1.05]">
+                {ap.perspectivesTitle || 'Peer & Partner Perspectives'}
+              </h2>
+            </div>
+          </ScrollReveal>
 
           <div
-            ref={perspectivesRef}
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {perspectives.map((p, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                className="flex flex-col justify-between border border-black/10 p-8 sm:p-10 bg-neutral-50/50 hover:bg-white hover:border-black transition-all duration-300 rounded-2xl hover:shadow-xl"
-                style={{
-                  transform: perspectivesVisible ? 'translateX(0)' : 'translateX(-220px)',
-                  opacity: perspectivesVisible ? 1 : 0,
-                  transition: 'transform 950ms cubic-bezier(0.16, 1, 0.3, 1), opacity 950ms cubic-bezier(0.16, 1, 0.3, 1)',
-                  transitionDelay: perspectivesVisible ? `${idx * 160}ms` : '0ms',
-                  willChange: 'transform, opacity',
-                }}
+                x={-80}
+                y={0}
+                delay={idx * 0.14}
+                className="h-full"
               >
-                <div>
-                  <div className="mb-6">
-                    <Quote size={28} className="text-neutral-900/15" />
-                  </div>
-                  <p className="text-base sm:text-lg font-normal text-neutral-900 leading-relaxed mb-8">
-                    "{p.quote}"
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-4 pt-6 border-t border-black/10">
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    className="w-11 h-11 rounded-full object-cover grayscale"
-                  />
+                <div
+                  className="h-full flex flex-col justify-between border border-black/10 p-8 sm:p-10 bg-neutral-50/50 hover:bg-white hover:border-black transition-all duration-300 rounded-2xl hover:shadow-xl"
+                >
                   <div>
-                    <h4 className="text-neutral-950 font-normal text-sm sm:text-base">
-                      {p.name}
-                    </h4>
-                    <p className="text-neutral-500 text-xs tracking-wider">
-                      {p.role} · {p.org}
+                    <div className="mb-6">
+                      <Quote size={28} className="text-neutral-900/15" />
+                    </div>
+                    <p className="text-base sm:text-lg font-normal text-neutral-900 leading-relaxed mb-8">
+                      "{p.quote}"
                     </p>
                   </div>
+
+                  <div className="flex items-center gap-4 pt-6 border-t border-black/10">
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-11 h-11 rounded-full object-cover grayscale"
+                    />
+                    <div>
+                      <h4 className="text-neutral-950 font-normal text-sm sm:text-base">
+                        {p.name}
+                      </h4>
+                      <p className="text-neutral-500 text-xs tracking-wider">
+                        {p.role} · {p.org}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -446,9 +480,12 @@ export default function AboutUsPage({
       {/* 6. CALL TO ACTION / CAREERS                               */}
       {/* ======================================================== */}
       <CommonCta
-        title={ap.ctaTitle || 'Ready to Build What Truly Matters?'}
-        subtitle={ap.ctaDesc || 'We are continually expanding our research and engineering benches in Bengaluru. Work alongside fluid aerodynamicists, sensor architects, and computational designers.'}
-        buttonText={ap.ctaButton || 'Explore Open Careers'}
+        section="about"
+        field="cta"
+        label="Careers CTA"
+        title={cmsAbout?.cta?.title || ap.ctaTitle || 'Ready to Build What Truly Matters?'}
+        subtitle={cmsAbout?.cta?.subtitle || cmsAbout?.cta?.desc || ap.ctaDesc || 'We are continually expanding our research and engineering branch in Bengaluru. Work alongside fluid aerodynamicists, sensor architects, and computational designers.'}
+        buttonText={cmsAbout?.cta?.buttonText || ap.ctaButton || 'Explore Open Careers'}
         onButtonClick={() => {
           if (onNavigateToCareers) {
             onNavigateToCareers()

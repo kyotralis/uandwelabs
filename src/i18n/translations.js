@@ -111,7 +111,7 @@ export const TRANSLATIONS = {
       title1: 'What We',
       title2: 'Believe In',
       subtitle: 'Core Engineering Principles',
-      intro: 'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UandWe Labs, we build technology that endures.',
+      intro: 'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UANDWE Labs, we build technology that endures.',
       principles: [
         {
           title: 'Simplicity',
@@ -275,7 +275,7 @@ export const TRANSLATIONS = {
         careers: 'Careers',
         techBlog: 'Blogs',
         partners: 'Partners',
-        ananda: 'Ananda',
+        ananda: 'Geo Spatial',
         dara: 'Dara (Healthcare)',
         aura: 'Aura (Physical AI)',
       },
@@ -674,7 +674,7 @@ export const TRANSLATIONS = {
         line2: 'Silicon at the Edge.',
       },
       heroDesc: 'Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking and perimeter defense with zero cloud egress.',
-      heroButtonText: 'Schedule Node Pilot',
+      heroButtonText: 'Request Pilot Demo',
 
       heroSlides: [
         {
@@ -683,7 +683,7 @@ export const TRANSLATIONS = {
           headline: 'Physical AI. Silicon at the Edge.',
           subtitle:
             'Deterministic 128-TOPS neural inferencing directly inside hardened optical sensor nodes. Sub-millisecond vehicle tracking across 6 expressway lanes with zero cloud egress.',
-          ctaText: 'Schedule Node Pilot',
+          ctaText: 'Request Pilot Demo',
         },
         {
           id: 'perimeter-mesh',
@@ -691,7 +691,7 @@ export const TRANSLATIONS = {
           headline: 'Coordinated Perimeter Mesh.',
           subtitle:
             'Autonomous multi-node target handoff tracks human and vehicular vectors over 350 meters with zero blind spots, micro-lux night optics, and predictive intrusion alerts.',
-          ctaText: 'Schedule Node Pilot',
+          ctaText: 'Request Pilot Demo',
         },
         {
           id: 'campus-checkpoint',
@@ -699,7 +699,7 @@ export const TRANSLATIONS = {
           headline: 'Air-Gapped Autonomous Vision.',
           subtitle:
             'Raw video never exits the camera node. FIPS 140-2 Level 3 armored cryptography and hardware root-of-trust ensure permanent physical security and absolute data sovereignty.',
-          ctaText: 'Schedule Node Pilot',
+          ctaText: 'Request Pilot Demo',
         },
       ],
 
@@ -943,7 +943,7 @@ export const TRANSLATIONS = {
           authorRole: 'Head of Assistive Hardware Systems',
           date: 'October 22, 2026',
           readTime: '7 min read',
-          image: '/dara_emergency_fall.jpg',
+          image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
           tags: ['60 GHz Radar', 'Fall Detection', 'Zero Wearables', 'Privacy-First'],
           metrics: [
             { label: 'Detection Latency', value: '< 280 ms' },
@@ -962,7 +962,7 @@ export const TRANSLATIONS = {
           authorRole: 'Edge Silicon Systems Lead',
           date: 'October 15, 2026',
           readTime: '10 min read',
-          image: '/aura_lpr.jpg',
+          image: '/aura_2.webp',
           tags: ['128-TOPS NPU', 'Highway LPR', 'Zero Cloud', 'INT8 Quantization'],
           metrics: [
             { label: 'Per-Frame Inference', value: '0.8 ms' },
@@ -1000,7 +1000,7 @@ export const TRANSLATIONS = {
           authorRole: 'Acoustic Interaction Designer',
           date: 'September 29, 2026',
           readTime: '6 min read',
-          image: '/dara_device_home.jpg',
+          image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
           tags: ['Acoustic Speech', 'Tactile UX', 'Geriatric Care', 'Talking Clock'],
           metrics: [
             { label: 'Supported Languages', value: '6 Dialects' },
@@ -1060,7 +1060,7 @@ export const TRANSLATIONS = {
     aboutPage: {
       badge: 'UANDWE RESEARCH LABS · OUR PURPOSE & CULTURE',
       heroTitle: {
-        line1: 'About UandWe Labs.',
+        line1: 'About UANDWE Labs.',
         line2: 'Where Ideas Become Real.',
       },
       heroSubtitle:
@@ -1069,13 +1069,13 @@ export const TRANSLATIONS = {
       originBadge: 'OUR STORY & PURPOSE',
       originTitle: 'Technology Made for Real Life',
       originParagraph1:
-        'UandWe Labs began in Bengaluru with a simple, refreshing idea: what if technology stopped demanding your constant attention and instead quietly made the real world a better place to live? In a world filled with endless notifications, fleeting apps, and digital noise, we fell in love with making things you can actually feel, touch, and trust in daily life.',
+        'UANDWE Labs began in Bengaluru with a simple, refreshing idea: what if technology stopped demanding your constant attention and instead quietly made the real world a better place to live? In a world filled with endless notifications, fleeting apps, and digital noise, we fell in love with making things you can actually feel, touch, and trust in daily life.',
       originParagraph2:
         'Our studio brings together dreamers, architects, craftspeople, and thinkers who care deeply about everyday life. Whether we are designing comfortable spaces where cool breezes flow naturally, or creating gentle devices that keep grandparents safe at home without cameras watching over them, we believe good technology should feel like second nature—protecting your dignity, respecting your peace of mind, and bringing people closer together.',
       principlesTitle: 'What We Believe In',
       principlesSubtitle: 'Core Engineering Principles',
       principlesIntro:
-        'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UandWe Labs, we build technology that endures.',
+        'Great products begin with clear thinking, purposeful design, and an uncompromising commitment to getting the details right. At UANDWE Labs, we build technology that endures.',
       principles: [
         {
           title: 'Simplicity',
@@ -1119,7 +1119,7 @@ export const TRANSLATIONS = {
           desc: 'Contactless 60 GHz fall radar, multi-language acoustic talking clock, and rise-to-wake torch engineered for elder independence with zero wearables.',
           linkText: 'Explore Dara Hardware',
           target: 'dara',
-          image: '/dara_device_home.jpg',
+          image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
         },
         {
           tag: 'PHYSICAL AI SILICON',
@@ -1221,7 +1221,7 @@ export const TRANSLATIONS = {
       ],
       ctaTitle: 'Ready to Build What Truly Matters?',
       ctaDesc:
-        'We are continually expanding our research and engineering benches in Bengaluru. Work alongside fluid aerodynamicists, sensor architects, and computational designers.',
+        'We are continually expanding our research and engineering branch in Bengaluru. Work alongside fluid aerodynamicists, sensor architects, and computational designers.',
       ctaButton: 'Explore Open Careers',
     },
 
@@ -1232,10 +1232,10 @@ export const TRANSLATIONS = {
       badge: 'UANDWE RESEARCH LABS · CAREERS & FELLOWSHIP',
       heroTitle: {
         line1: 'Build What Endures.',
-        line2: 'Careers at UandWe Labs.',
+        line2: 'Careers at UANDWE Labs.',
       },
       heroSubtitle:
-        'We are expanding our research and engineering benches in Bengaluru. We bring together curious scientists, hardware craftsmen, and computational engineers building deep technology that truly endures.',
+        'We are expanding our research and engineering branch in Bengaluru. We bring together hardware craftsmen and computational engineers building deep technology that truly endures.',
       heroCta: 'Explore Open Positions',
       cultureTitle: 'How We Work',
       cultureSubtitle: 'Principles that shape our culture, our engineering standards, and the way we build together.',
@@ -1261,7 +1261,7 @@ export const TRANSLATIONS = {
           desc: 'We dedicate our careers to solving problems that truly matter. Every system we ship is built to improve lives, respect privacy, and leave a positive, enduring mark on the world.',
         },
       ],
-      benchesTitle: 'Life Inside UandWe Labs',
+      benchesTitle: 'Life Inside UANDWE Labs',
       benchesSubtitle: 'Where curious minds, warm conversations, and bold experiments turn into technology that touches everyday lives.',
       lifeBenches: [
         {
@@ -1284,7 +1284,7 @@ export const TRANSLATIONS = {
         },
       ],
       openingsTitle: 'Open Engineering Benches',
-      openingsSubtitle: 'Current research and engineering openings across our benches in Bengaluru. Apply directly to our technical desk.',
+      openingsSubtitle: 'Current research and engineering openings across our branch in Bengaluru. Apply directly to our technical desk.',
       categories: {
         all: 'All Benches',
         geospatial: 'GeoSpatial Physics',
@@ -1502,7 +1502,7 @@ export const TRANSLATIONS = {
       title1: '我们所',
       title2: '坚守的信仰',
       subtitle: '核心工程原则',
-      intro: '卓越的产品始于明晰的逻辑思维、目的明确的设计构思，以及对打磨每一个细节的不妥协追求。在 UandWe Labs，我们打造能够经受时间洗礼的长久技术。',
+      intro: '卓越的产品始于明晰的逻辑思维、目的明确的设计构思，以及对打磨每一个细节的不妥协追求。在 UANDWE Labs，我们打造能够经受时间洗礼的长久技术。',
       principles: [
         {
           title: '大道至简',
@@ -1666,7 +1666,7 @@ export const TRANSLATIONS = {
         careers: '加入我们',
         techBlog: '博客',
         partners: '生态伙伴',
-        ananda: 'Ananda (环境物理)',
+        ananda: 'Geo Spatial (空间地理)',
         dara: 'Dara (辅助医疗)',
         aura: 'Aura (物理AI)',
       },
@@ -2334,7 +2334,7 @@ export const TRANSLATIONS = {
           authorRole: '辅助硬件系统研发负责人',
           date: '2026年10月22日',
           readTime: '7 分钟阅读',
-          image: '/dara_emergency_fall.jpg',
+          image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
           tags: ['60 GHz 毫米波', '主动跌倒识别', '无感零穿戴', '隐私第一原则'],
           metrics: [
             { label: '跌倒事件识别延迟', value: '< 280 毫秒' },
@@ -2353,7 +2353,7 @@ export const TRANSLATIONS = {
           authorRole: '边缘硅片系统架构师',
           date: '2026年10月15日',
           readTime: '10 分钟阅读',
-          image: '/aura_lpr.jpg',
+          image: '/aura_2.webp',
           tags: ['128-TOPS NPU', '高速公路 LPR', '零云端依赖', 'INT8 量化加速'],
           metrics: [
             { label: '单帧完整推理用时', value: '0.8 毫秒' },
@@ -2391,7 +2391,7 @@ export const TRANSLATIONS = {
           authorRole: '人机交互声学设计师',
           date: '2026年09月29日',
           readTime: '6 分钟阅读',
-          image: '/dara_device_home.jpg',
+          image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
           tags: ['自然语音播报', '触感人机交互', '长者认知呵护', '报时多语言钟'],
           metrics: [
             { label: '内置多语言方言数', value: '6 种母语语音' },
@@ -2510,7 +2510,7 @@ export const TRANSLATIONS = {
           desc: '非接触式 60 GHz 毫米波雷达跌倒监测、多语言母语语音报时钟以及抬手即亮柔光手电筒，在绝无摄像头与穿戴物的前提下捍卫长者独立自立。',
           linkText: '探索 Dara 智能辅具',
           target: 'dara',
-          image: '/dara_device_home.jpg',
+          image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
         },
         {
           tag: '边缘物理AI算力硅片',
@@ -2626,7 +2626,7 @@ export const TRANSLATIONS = {
         line2: '加入 UandWe Labs。',
       },
       heroSubtitle:
-        '我们正在班加罗尔研发中心大力扩建核心工程技术团队，汇聚满怀探索好奇心的科学家、硬件工匠与计算工程师，共同铸就经得起岁月沉淀的深科技基石。',
+        '我们正在班加罗尔研发中心大力扩建核心工程技术团队，汇聚硬件工匠与计算工程师，共同铸就经得起岁月沉淀的深科技基石。',
       heroCta: '浏览热招职位',
       cultureTitle: '我们的研发方式',
       cultureSubtitle: '指引我们的研发文化、工程标准以及我们携手创新的核心准则。',

@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { ArrowRight } from 'lucide-react'
 import MorphGallery from './ui/morph-gallery'
+import HeroHeading from './ui/HeroHeading'
+import { HERO_AUTOPLAY_DURATION } from '../constants/hero'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
 
 // Hero Slides: Company Vision & Product Engineering (Order: Ananda -> Dara -> Aura)
 const HERO_SLIDES = [
@@ -21,8 +25,8 @@ const HERO_SLIDES = [
   {
     id: 'ideas-become-real',
     category: 'Design & Engineering',
-    src: '/hero_dara_ideas_real.jpg',
-    thumb: '/hero_dara_ideas_real.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
+    thumb: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     thumbStyle: { objectPosition: '72% 38%' },
     alt: 'Ideas Deserve to Become Real - Purposeful Design and Advanced Engineering',
     headline: 'Ideas Deserve to Become Real.',
@@ -35,8 +39,8 @@ const HERO_SLIDES = [
   {
     id: 'tomorrow-starts-today',
     category: 'Physical AI & Edge Vision',
-    src: '/hero_aura_highway_lpr.jpg',
-    thumb: '/hero_aura_highway_lpr.jpg',
+    src: '/aura_2.webp',
+    thumb: '/aura_2.webp',
     alt: 'Tomorrow Starts with What We Build Today - Aura Physical AI & Autonomous Edge Vision',
     headline: 'Tomorrow Starts with What We Build Today.',
     tagline: 'Products with a clear purpose',
@@ -47,7 +51,10 @@ const HERO_SLIDES = [
   },
 ]
 
-const AUTOPLAY_DURATION = 5000 // 5 seconds per slide
+const AUTOPLAY_DURATION = HERO_AUTOPLAY_DURATION
+
+// Module-level flag so when returning to Home, hero is revealed immediately with 0ms delay
+let heroHasRevealedOnce = false
 
 export default function Hero({
   user,
@@ -62,7 +69,7 @@ export default function Hero({
   anandaCategory,
 }) {
   const [activeNav, setActiveNav] = useState('PROJECTS')
-  const [isRevealed, setIsRevealed] = useState(false)
+  const [isRevealed, setIsRevealed] = useState(() => heroHasRevealedOnce)
   const [slideIndex, setSlideIndex] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -73,65 +80,76 @@ export default function Hero({
             return parsed
           }
         }
-      } catch {}
+      } catch { }
     }
     return 0
   })
   const [isPaused, setIsPaused] = useState(false)
-  const readyTriggered = useRef(false)
+  const readyTriggered = useRef(heroHasRevealedOnce)
 
   // Persist current active hero slide in sessionStorage so refresh stays on current slide
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         sessionStorage.setItem('uandwe_hero_slide_index', String(slideIndex))
-      } catch {}
+      } catch { }
     }
   }, [slideIndex])
 
+  const [cmsHome] = useCmsContent('home')
   const { t } = useTranslation()
 
+  const rawSlides = useMemo(() => {
+    if (cmsHome?.heroSlides && Array.isArray(cmsHome.heroSlides) && cmsHome.heroSlides.length > 0) {
+      return cmsHome.heroSlides
+    }
+    return HERO_SLIDES
+  }, [cmsHome?.heroSlides])
+
   const localizedSlides = useMemo(() => {
-    return HERO_SLIDES.map((slide, idx) => ({
+    return rawSlides.map((slide, idx) => ({
       ...slide,
-      category: t.hero?.slides?.[idx]?.category || slide.category,
-      headline: t.hero?.slides?.[idx]?.headline || slide.headline,
-      tagline: t.hero?.slides?.[idx]?.tagline || slide.tagline,
-      subtitle: t.hero?.slides?.[idx]?.subtitle || slide.subtitle,
-      ctaText: t.hero?.slides?.[idx]?.ctaText || slide.ctaText,
+      category: slide.category || t.hero?.slides?.[idx]?.category,
+      headline: slide.headline || t.hero?.slides?.[idx]?.headline,
+      tagline: slide.tagline || t.hero?.slides?.[idx]?.tagline,
+      subtitle: slide.subtitle || t.hero?.slides?.[idx]?.subtitle,
+      ctaText: slide.ctaText || t.hero?.slides?.[idx]?.ctaText,
     }))
-  }, [t])
+  }, [rawSlides, t])
 
   const currentSlide = localizedSlides[slideIndex] || localizedSlides[0]
 
   // Synchronize initial reveal: wait for hero image/WebGL to be ready, with a safety fallback
   const handleReady = () => {
+    heroHasRevealedOnce = true
     if (readyTriggered.current) return
     readyTriggered.current = true
-    requestAnimationFrame(() => {
-      setIsRevealed(true)
-    })
+    setIsRevealed(true)
   }
 
   useEffect(() => {
-    // Safety fallback: if WebGL or image load takes longer than 350ms, reveal simultaneously
+    if (heroHasRevealedOnce) {
+      setIsRevealed(true)
+      return
+    }
+    // Safety fallback: if WebGL or image load takes longer than 200ms, reveal simultaneously
     const fallbackTimer = setTimeout(() => {
       handleReady()
-    }, 350)
+    }, 200)
 
     return () => clearTimeout(fallbackTimer)
   }, [])
 
   // Automatic slide rotation
   useEffect(() => {
-    if (!isRevealed || isPaused) return
+    if (!isRevealed || isPaused || localizedSlides.length === 0) return
 
     const timer = setInterval(() => {
-      setSlideIndex((curr) => (curr + 1) % HERO_SLIDES.length)
+      setSlideIndex((curr) => (curr + 1) % localizedSlides.length)
     }, AUTOPLAY_DURATION)
 
     return () => clearInterval(timer)
-  }, [isRevealed, isPaused])
+  }, [isRevealed, isPaused, localizedSlides.length])
 
   // Touch and Go Handler
   const handleSelectSlide = (idx) => {
@@ -143,12 +161,10 @@ export default function Hero({
       id="hero"
       className="min-h-screen relative flex flex-col justify-between overflow-hidden font-['Inter'] text-white select-text"
     >
+      <AdminEditButton section="home" field="heroSlides" label="Hero Slides" variant="dark" position="hero" />
 
-      {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition) */}
-      <div
-        className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
-          }`}
-      >
+      {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition) - ALWAYS 100% visible */}
+      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-100">
         <MorphGallery
           items={localizedSlides}
           index={slideIndex}
@@ -177,23 +193,19 @@ export default function Hero({
             {/* Master Content: Synchronized with Active Slide & Image Morph */}
             <div
               key={slideIndex}
-              className={`transition-all duration-1000 ${isRevealed ? 'animate-hero-sync' : 'opacity-0'
+              className={`transition-all duration-1000 ${isRevealed ? 'opacity-100' : 'opacity-0'
                 }`}
             >
-              {/* Master Headline: Synchronized with Active Slide */}
-              <div className="relative inline-block py-1">
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text ">
-                  {currentSlide.headline}
-                </h1>
-              </div>
+              {/* Master Headline: Centralized kinetic reveal animation */}
+              <HeroHeading text={currentSlide.headline} />
 
-              {/* Subtitle Paragraph: Synchronized with Active Slide */}
-              <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+              {/* Subtitle Paragraph: Staggered Soft Blur & Rise */}
+              <p className="animate-hero-subtitle mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
                 {currentSlide.subtitle}
               </p>
 
-              {/* Action Button: EXPLORE PLATFORM ────○ */}
-              <div className="mt-6 sm:mt-8">
+              {/* Action Button: Staggered Slide In */}
+              <div className="animate-hero-cta mt-6 sm:mt-8">
                 <a
                   href={`#${currentSlide.targetId}`}
                   onClick={(e) => {
@@ -256,7 +268,8 @@ export default function Hero({
                       alt={slide.headline}
                       style={slide.thumbStyle || {}}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
+                      loading="eager"
+                      decoding="async"
                     />
                   </button>
                 )

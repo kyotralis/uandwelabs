@@ -3,19 +3,10 @@ import { ArrowLeft, ShieldCheck, Lock, Cpu, Server, Key, AlertTriangle, CheckCir
 import { useTranslation } from '../i18n'
 
 export default function SecurityPage({
-  user,
-  onLogout,
+
   onNavigateToHome,
-  onNavigateToLogin,
-  onNavigateToAnanda,
-  onNavigateToDara,
-  onNavigateToAura,
-  onNavigateToBlogs,
-  onNavigateToAbout,
-  onNavigateToCareers,
-  onNavigateToPrivacy,
-  onNavigateToSecurity,
-  onNavigateToTerms,
+  onNavigateBack,
+
 }) {
   const { t } = useTranslation()
   const [activeSection, setActiveSection] = useState('philosophy')
@@ -25,10 +16,12 @@ export default function SecurityPage({
   }, [])
 
   const handleBack = () => {
-    if (onNavigateToHome) {
+    if (onNavigateBack) {
+      onNavigateBack()
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back()
+    } else if (onNavigateToHome) {
       onNavigateToHome()
-    } else if (typeof window !== 'undefined') {
-      window.location.hash = ''
     }
   }
 
@@ -64,7 +57,7 @@ export default function SecurityPage({
             <button
               type="button"
               onClick={handleBack}
-              aria-label="Back to Home"
+              aria-label="Back to Previous Page"
               className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />

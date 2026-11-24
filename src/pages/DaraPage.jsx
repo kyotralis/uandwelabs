@@ -17,11 +17,16 @@ import {
   ArrowLeft,
 } from 'lucide-react'
 import MorphGallery from '../components/ui/morph-gallery'
+import HeroHeading from '../components/ui/HeroHeading'
+import { HERO_AUTOPLAY_DURATION } from '../constants/hero'
+import AdminEditButton from '../components/AdminEditButton'
+import ScrollReveal from '../components/ui/ScrollReveal'
+import { showToast } from '../components/ui/Toast'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
 import { openAuthModal } from '../utils/authPrompt'
 import { isUserAuthorizedForProduct } from '../utils/accountManager'
 import {
-  ProductHero,
   ProductGallery,
   ProductArchitectureGrid,
   ProductPillarsGrid,
@@ -39,8 +44,8 @@ const DARA_HERO_SLIDES = [
   {
     id: 'dara-living',
     category: 'ASSISTIVE HEALTHCARE',
-    src: '/dara_hero_living.jpg',
-    thumb: '/dara_hero_living.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
+    thumb: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     alt: 'Senior Care Invisible by Design',
     headline: 'Senior Care. Invisible by Design.',
     subtitle:
@@ -84,12 +89,12 @@ const PREVIEW_LANGUAGES = [
 
 const DARA_GALLERY = [
   {
-    image: '/dara_device_home.jpg',
+    image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     title: '60 GHz Contactless Radar',
     desc: 'Continuous fall detection through drywall and shower curtains with zero cameras.',
   },
   {
-    image: '/dara_torch_risetowake.jpg',
+    image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     title: 'Built-in Torch & Rise-to-Wake',
     desc: 'Automatically activates clock and illuminates path the instant the device is raised.',
   },
@@ -97,7 +102,7 @@ const DARA_GALLERY = [
 
 const RAW_DARA_FEATURES = [
   {
-    
+
     icon: <Clock size={24} strokeWidth={1.5} />,
     title: 'Talking Clock & Multi-Language Voice',
     desc: 'Displays the current time with high-contrast digits and announces the exact time aloud upon button press through the built-in acoustic speaker with multi-language voice support.',
@@ -178,20 +183,16 @@ const DARA_SCOPE_OPTIONS = [
   { value: 'hospital', label: 'Geriatric Hospital Ward' },
 ]
 
+// Module-level flag so returning to Dara shows hero content immediately
+let daraHeroRevealedOnce = false
+
 export default function DaraPage({
   user,
-  onLogout,
   onNavigateToHome,
+  onNavigateBack,
   onNavigateToLogin,
-  onNavigateToAnanda,
-  onNavigateToDara,
-  onNavigateToAura,
-  onNavigateToBlogs,
-  onNavigateToAbout,
-  onNavigateToCareers,
-  onNavigateToPrivacy,
-  onNavigateToTerms,
 }) {
+  const [cmsDara] = useCmsContent('dara')
   const { t } = useTranslation()
   const dp = t.daraPage || {}
 
@@ -202,41 +203,48 @@ export default function DaraPage({
 
   // Multi-Slide WebGL Morph Hero States
   const [activeHeroIndex, setActiveHeroIndex] = useState(0)
-  const [isHeroRevealed, setIsHeroRevealed] = useState(false)
+  const [isHeroRevealed, setIsHeroRevealed] = useState(() => daraHeroRevealedOnce)
   const [isHeroPaused, setIsHeroPaused] = useState(false)
-  const heroReadyTriggered = useRef(false)
+  const heroReadyTriggered = useRef(daraHeroRevealedOnce)
 
   const heroSlides = useMemo(() => {
-    return DARA_HERO_SLIDES.map((slide, idx) => ({
+    const base = (cmsDara?.heroSlides && Array.isArray(cmsDara.heroSlides) && cmsDara.heroSlides.length > 0)
+      ? cmsDara.heroSlides
+      : DARA_HERO_SLIDES
+
+    return base.map((slide, idx) => ({
       ...slide,
-      headline: dp.heroSlides?.[idx]?.headline || slide.headline,
-      category: dp.heroSlides?.[idx]?.category || slide.category,
-      subtitle: dp.heroSlides?.[idx]?.subtitle || slide.subtitle,
-      ctaText: dp.heroSlides?.[idx]?.ctaText || slide.ctaText,
+      headline: slide.headline || dp.heroSlides?.[idx]?.headline,
+      category: slide.category || dp.heroSlides?.[idx]?.category,
+      subtitle: slide.subtitle || dp.heroSlides?.[idx]?.subtitle,
+      ctaText: slide.ctaText || dp.heroSlides?.[idx]?.ctaText,
     }))
-  }, [dp.heroSlides])
+  }, [cmsDara?.heroSlides, dp.heroSlides])
 
   const handleHeroReady = () => {
+    daraHeroRevealedOnce = true
     if (heroReadyTriggered.current) return
     heroReadyTriggered.current = true
-    requestAnimationFrame(() => {
-      setIsHeroRevealed(true)
-    })
+    setIsHeroRevealed(true)
   }
 
   useEffect(() => {
+    if (daraHeroRevealedOnce) {
+      setIsHeroRevealed(true)
+      return
+    }
     const fallbackTimer = setTimeout(() => {
       handleHeroReady()
-    }, 350)
+    }, 200)
     return () => clearTimeout(fallbackTimer)
   }, [])
 
-  // Auto-play hero slide rotation (5s duration, synchronized with noise dissolve WebGL transition)
+  // Auto-play hero slide rotation (synchronized with noise dissolve WebGL transition)
   useEffect(() => {
-    if (!isHeroRevealed || isHeroPaused) return
+    if (!isHeroRevealed || isHeroPaused || heroSlides.length === 0) return
     const timer = setInterval(() => {
       setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length)
-    }, 5000)
+    }, HERO_AUTOPLAY_DURATION)
     return () => clearInterval(timer)
   }, [isHeroRevealed, isHeroPaused, heroSlides.length])
 
@@ -248,44 +256,83 @@ export default function DaraPage({
 
   // Localized data structures
   const gallery = useMemo(() => {
+    if (cmsDara?.gallery && Array.isArray(cmsDara.gallery) && cmsDara.gallery.length > 0) {
+      return cmsDara.gallery.slice(0, 2).map((item, idx) => ({
+        ...item,
+        image: item.image || item.src || DARA_GALLERY[idx]?.image || 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
+      }))
+    }
     const list = dp.gallery || DARA_GALLERY
-    return list.map((item, idx) => ({
+    return list.slice(0, 2).map((item, idx) => ({
       ...item,
-      image: DARA_GALLERY[idx]?.image,
+      image: item.image || item.src || DARA_GALLERY[idx]?.image || 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     }))
-  }, [dp.gallery])
+  }, [cmsDara?.gallery, dp.gallery])
 
   const features = useMemo(() => {
     const icons = [
-      <Clock size={24} strokeWidth={1.5} />,
-      <Zap size={24} strokeWidth={1.5} />,
-      <Search size={24} strokeWidth={1.5} />,
-      <Eye size={24} strokeWidth={1.5} />,
-      <Radio size={24} strokeWidth={1.5} />,
-      <Shield size={24} strokeWidth={1.5} />,
+      <Clock key="d1" size={24} strokeWidth={1.5} />,
+      <Zap key="d2" size={24} strokeWidth={1.5} />,
+      <Search key="d3" size={24} strokeWidth={1.5} />,
+      <Eye key="d4" size={24} strokeWidth={1.5} />,
+      <Radio key="d5" size={24} strokeWidth={1.5} />,
+      <Shield key="d6" size={24} strokeWidth={1.5} />,
     ]
+    if (cmsDara?.features && Array.isArray(cmsDara.features) && cmsDara.features.length > 0) {
+      return cmsDara.features.map((item, idx) => ({
+        ...item,
+        icon: icons[idx % icons.length],
+      }))
+    }
     const list = dp.features || RAW_DARA_FEATURES
     return list.map((item, idx) => ({
       ...item,
       icon: icons[idx] || RAW_DARA_FEATURES[idx]?.icon,
     }))
-  }, [dp.features])
+  }, [cmsDara?.features, dp.features])
 
   const pillars = useMemo(() => {
     const icons = [
-      <Sparkles size={24} strokeWidth={1.5} />,
-      <Heart size={24} strokeWidth={1.5} />,
-      <Sun size={24} strokeWidth={1.5} />,
-      <ShieldCheck size={24} strokeWidth={1.5} />,
+      <Sparkles key="dp1" size={24} strokeWidth={1.5} />,
+      <Heart key="dp2" size={24} strokeWidth={1.5} />,
+      <Sun key="dp3" size={24} strokeWidth={1.5} />,
+      <ShieldCheck key="dp4" size={24} strokeWidth={1.5} />,
     ]
+    if (cmsDara?.pillars && Array.isArray(cmsDara.pillars) && cmsDara.pillars.length > 0) {
+      return cmsDara.pillars.map((item, idx) => ({
+        ...item,
+        icon: icons[idx % icons.length],
+      }))
+    }
     const list = dp.pillars || DARA_PILLARS
     return list.map((item, idx) => ({
       ...item,
       icon: icons[idx] || DARA_PILLARS[idx]?.icon,
     }))
-  }, [dp.pillars])
+  }, [cmsDara?.pillars, dp.pillars])
 
-  const darkCards = dp.darkCards || DARA_DARK_CARDS
+  const darkCards = useMemo(() => {
+    if (cmsDara?.privacy?.cards && Array.isArray(cmsDara.privacy.cards) && cmsDara.privacy.cards.length > 0) {
+      return cmsDara.privacy.cards
+    }
+    return dp.darkCards || DARA_DARK_CARDS
+  }, [cmsDara?.privacy?.cards, dp.darkCards])
+
+  const clockData = useMemo(() => {
+    return cmsDara?.clock || {}
+  }, [cmsDara?.clock])
+
+  const purposeData = useMemo(() => {
+    return cmsDara?.purpose || dp.purpose || {}
+  }, [cmsDara?.purpose, dp.purpose])
+
+  const ctaData = useMemo(() => {
+    return cmsDara?.cta || dp.cta || {}
+  }, [cmsDara?.cta, dp.cta])
+
+  const privacyData = useMemo(() => {
+    return cmsDara?.privacy || {}
+  }, [cmsDara?.privacy])
   const scopeOptions = dp.modal?.scopeOptions || DARA_SCOPE_OPTIONS
 
   // Live Current Time Clock
@@ -331,7 +378,7 @@ export default function DaraPage({
     const lang = PREVIEW_LANGUAGES[activeLangIndex]
     const now = new Date()
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    
+
     let announceText = `The current time is ${timeStr}.`
     if (lang.code === 'hi') {
       announceText = `अभी समय ${timeStr} हुआ है।`
@@ -344,6 +391,7 @@ export default function DaraPage({
     } else if (lang.code === 'ml') {
       announceText = `ഇപ്പോൾ സമയം ${timeStr}.`
     }
+    showToast(`Announcing live time in ${lang.name}`, 'info')
     handleToggleVoice(announceText)
   }
 
@@ -351,12 +399,9 @@ export default function DaraPage({
     <div className="bg-white min-h-screen text-neutral-900 w-full font-sans selection:bg-black selection:text-white">
       {/* 1. IMMERSIVE HERO SECTION (MorphGallery WebGL Shader) */}
       <div className="min-h-screen relative flex flex-col justify-between overflow-hidden font-['Inter'] text-white select-text">
+        <AdminEditButton section="dara" field="heroSlides" label="Hero Slides" variant="dark" position="hero" />
         {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition) */}
-        <div
-          className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${
-            isHeroRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
-          }`}
-        >
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-100">
           <MorphGallery
             items={heroSlides}
             index={activeHeroIndex}
@@ -380,10 +425,15 @@ export default function DaraPage({
             <button
               type="button"
               onClick={() => {
-                if (onNavigateToHome) onNavigateToHome()
-                else if (typeof window !== 'undefined') window.location.hash = ''
+                if (onNavigateBack) {
+                  onNavigateBack()
+                } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                  window.history.back()
+                } else if (onNavigateToHome) {
+                  onNavigateToHome()
+                }
               }}
-              aria-label="Back to Home"
+              aria-label="Back to Previous Page"
               className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -397,9 +447,8 @@ export default function DaraPage({
             <div className="max-w-3xl">
               <div
                 key={activeHeroIndex}
-                className={`transition-all duration-1000 ${
-                  isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
-                }`}
+                className={`transition-all duration-1000 ${isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
+                  }`}
               >
                 {/* Category Tag */}
                 <div className="mb-3">
@@ -408,12 +457,8 @@ export default function DaraPage({
                   </span>
                 </div>
 
-                {/* Master Headline */}
-                <div className="relative inline-block py-1">
-                  <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-                    {currentHeroSlide.headline}
-                  </h1>
-                </div>
+                {/* Master Headline: Centralized kinetic reveal animation */}
+                <HeroHeading text={currentHeroSlide.headline} />
 
                 {/* Subtitle Paragraph */}
                 <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
@@ -459,9 +504,8 @@ export default function DaraPage({
           <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-end">
             <nav
               aria-label="Dara Hero Slide Navigation"
-              className={`pointer-events-auto transition-all duration-1000 ${
-                isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+              className={`pointer-events-auto transition-all duration-1000 ${isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                }`}
               onMouseEnter={() => setIsHeroPaused(true)}
               onMouseLeave={() => setIsHeroPaused(false)}
             >
@@ -473,11 +517,10 @@ export default function DaraPage({
                       key={slide.id}
                       type="button"
                       onClick={() => handleSelectHeroSlide(idx)}
-                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${
-                        isActive
-                          ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
-                          : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
-                      }`}
+                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${isActive
+                        ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
+                        : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
+                        }`}
                       title={`Switch to ${slide.headline}`}
                       aria-label={`Slide ${idx + 1}: ${slide.headline}`}
                       aria-current={isActive}
@@ -486,7 +529,8 @@ export default function DaraPage({
                         src={slide.thumb || slide.src}
                         alt={slide.headline}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
+                        loading="eager"
+                        decoding="async"
                       />
                     </button>
                   );
@@ -500,38 +544,22 @@ export default function DaraPage({
       {/* INNER CONTENT WRAPPER */}
       <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] mx-auto">
         {/* SECTION A: TALKING CLOCK & MULTI-LANGUAGE VOICE DECK */}
-        <div ref={clockRef} className="w-full py-20 md:py-24 border-b border-black/10 overflow-hidden">
+        <div className="relative w-full pt-8 sm:pt-12 md:pt-14 pb-6 sm:pb-8 md:pb-10 overflow-hidden">
+          <AdminEditButton section="dara" field="clock" label="Talking Clock" />
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center w-full">
-            <div
-              className="lg:col-span-5 space-y-3"
-              style={{
-                transform: clockInView ? 'translateY(0)' : 'translateY(120px)',
-                opacity: clockInView ? 1 : 0,
-                transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-                willChange: 'transform, opacity',
-              }}
-            >
+            <ScrollReveal y={50} className="lg:col-span-5 space-y-3">
               <h2 className="text-3xl md:text-4xl font-normal tracking-tight text-neutral-900 uppercase">
-                {dp.clockSectionTitle || 'Talking Clock & Built-In Speaker'}
+                {clockData.clockSectionTitle || dp.clockSectionTitle || 'Talking Clock & Built-In Speaker'}
               </h2>
               <p className="text-neutral-500 text-sm md:text-base leading-relaxed">
-                {dp.clockSectionDesc || 'Displays the current time clearly on a high-contrast screen. Press the button to announce the exact time aloud via the built-in speaker in multiple regional languages.'}
+                {clockData.clockSectionDesc || dp.clockSectionDesc || 'Displays the current time clearly on a high-contrast screen. Press the button to announce the exact time aloud via the built-in speaker in multiple regional languages.'}
               </p>
-            </div>
+            </ScrollReveal>
 
-            <div
-              className="lg:col-span-7 bg-neutral-50 border border-black/10 p-8 space-y-6"
-              style={{
-                transform: clockInView ? 'translateY(0)' : 'translateY(160px)',
-                opacity: clockInView ? 1 : 0,
-                transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-                transitionDelay: clockInView ? '200ms' : '0ms',
-                willChange: 'transform, opacity',
-              }}
-            >
+            <ScrollReveal delay={0.15} y={60} className="lg:col-span-7 bg-neutral-50 border border-black/10 p-8 space-y-6">
               <div className="flex items-center justify-between border-b border-black/10 pb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono uppercase tracking-wider text-neutral-600">{dp.liveClockLabel || 'LIVE CLOCK:'}</span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-neutral-600">{clockData.liveClockLabel || dp.liveClockLabel || 'LIVE CLOCK:'}</span>
                   <span className="text-2xl md:text-3xl font-mono font-normal text-neutral-900">{currentTimeStr}</span>
                 </div>
               </div>
@@ -547,11 +575,10 @@ export default function DaraPage({
                         handleToggleVoice(lang.text)
                       }
                     }}
-                    className={`py-3 px-4 border text-xs font-mono uppercase tracking-wider text-center transition-colors duration-300 cursor-pointer ${
-                      activeLangIndex === idx
-                        ? 'bg-black border-black text-white'
-                        : 'bg-white border-black/10 text-neutral-700 hover:border-black/30'
-                    }`}
+                    className={`py-3 px-4 border text-xs font-mono uppercase tracking-wider text-center transition-colors duration-300 cursor-pointer ${activeLangIndex === idx
+                      ? 'bg-black border-black text-white'
+                      : 'bg-white border-black/10 text-neutral-700 hover:border-black/30'
+                      }`}
                   >
                     {lang.label}
                   </button>
@@ -565,7 +592,7 @@ export default function DaraPage({
                   className="px-6 py-3.5 bg-black hover:bg-neutral-800 text-white text-xs font-mono uppercase tracking-wider transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Volume2 size={16} />
-                  <span>{dp.pressToAnnounce || 'PRESS TO ANNOUNCE CURRENT TIME'}</span>
+                  <span>{clockData.pressToAnnounce || dp.pressToAnnounce || 'PRESS TO ANNOUNCE CURRENT TIME'}</span>
                 </button>
 
                 <div className="flex items-center justify-between sm:justify-end gap-4">
@@ -592,60 +619,78 @@ export default function DaraPage({
               <p className="text-xs text-neutral-500 italic pt-1">
                 "{PREVIEW_LANGUAGES[activeLangIndex].text}"
               </p>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
 
         {/* SECTION B: SPATIAL DYNAMICS GALLERY */}
-        <ProductGallery items={gallery} />
+        <div className="relative">
+          <AdminEditButton section="dara" field="gallery" label="Gallery" />
+          <ProductGallery items={gallery} />
+        </div>
 
         {/* SECTION C: ARCHITECTURE GRID */}
-        <ProductArchitectureGrid
-          title={dp.architectureTitle || "The Architecture of Senior Autonomy"}
-          features={features}
-        />
+        <div className="relative">
+          <AdminEditButton section="dara" field="features" label="Features" />
+          <ProductArchitectureGrid
+            title={cmsDara?.architectureTitle || dp.architectureTitle || "The Architecture of Senior Autonomy"}
+            features={features}
+          />
+        </div>
 
         {/* SECTION D: HUMAN PILLARS GRID */}
-        <ProductPillarsGrid
-          title={<>{dp.pillarsTitle?.line1 || 'Designed Around'} <br /><span className="text-neutral-900">{dp.pillarsTitle?.line2 || 'Human Needs.'}</span></>}
-          pillars={pillars}
-        />
+        <div className="relative">
+          <AdminEditButton section="dara" field="pillars" label="Pillars" />
+          <ProductPillarsGrid
+            title={<>{cmsDara?.pillarsTitle?.line1 || dp.pillarsTitle?.line1 || 'Designed Around'} <br /><span className="text-neutral-900">{cmsDara?.pillarsTitle?.line2 || dp.pillarsTitle?.line2 || 'Human Needs.'}</span></>}
+            pillars={pillars}
+          />
+        </div>
       </div>
 
       {/* SECTION E: PRIVACY-FIRST TECHNOLOGY (DARK CANVAS) */}
-      <ProductDarkShowcase
-        backgroundImage="/dara_torch_risetowake.jpg"
-        title={<>{dp.darkCanvasTitle?.line1 || 'Your Space. Your Privacy.'} <br /><span className="text-white">{dp.darkCanvasTitle?.line2 || 'Your Independence.'}</span></>}
-        cards={darkCards}
-      />
+      <div className="relative">
+        <AdminEditButton section="dara" field="privacy" label="Privacy Showcase" variant="dark" />
+        <ProductDarkShowcase
+          backgroundImage={privacyData.image || "https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg"}
+          title={<>{privacyData.headingLine1 || dp.darkCanvasTitle?.line1 || 'Your Space. Your Privacy.'} <br /><span className="text-white">{privacyData.headingLine2 || dp.darkCanvasTitle?.line2 || 'Your Independence.'}</span></>}
+          cards={darkCards}
+        />
+      </div>
 
       {/* SECTION F: PURPOSE STATEMENT (WHITE CANVAS) */}
-      <ProductPurposeStatement
-        backgroundImage="/dara_emergency_fall.jpg"
-        imageAlt="The Story Behind DARA"
-        line1={dp.purpose?.line1 || "Built for Dignity."}
-        line2={dp.purpose?.line2 || "Designed for Independence."}
-        description={dp.purpose?.description || "Assistive technology crafted to keep seniors safe, comfortable, and self-reliant at home — with zero wearables, zero cameras, and complete peace of mind."}
-      />
+      <div className="relative">
+        <AdminEditButton section="dara" field="purpose" label="Purpose" />
+        <ProductPurposeStatement
+          backgroundImage={purposeData.image || "https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg"}
+          imageAlt="The Story Behind DARA"
+          line1={purposeData.line1 || dp.purpose?.line1 || "Built for Dignity."}
+          line2={purposeData.line2 || dp.purpose?.line2 || "Designed for Independence."}
+          description={purposeData.description || dp.purpose?.description || "Assistive technology crafted to keep seniors safe, comfortable, and self-reliant at home — with zero wearables, zero cameras, and complete peace of mind."}
+        />
+      </div>
 
       {/* SECTION G: CLOSING CALL TO ACTION BOX */}
-      <ProductCtaBox
-        title={dp.cta?.title || "Bring Dignity to Every Room"}
-        subtitle={dp.cta?.subtitle || "Request a live hardware demonstration or schedule a consultation with our geriatric engineering team in Bengaluru."}
-        buttonText={dp.cta?.buttonText || "Request Demo"}
-        onButtonClick={() => {
-          if (!isUserAuthorizedForProduct(user, 'dara')) {
-            openAuthModal({
-              title: 'Sign In Required',
-              message: 'Please sign in with your account to request a Dara demo.',
-              productKey: 'dara',
-              actionText: 'Sign In / Register',
-            })
-            return
-          }
-          setModalOpen(true)
-        }}
-      />
+      <div className="relative">
+        <AdminEditButton section="dara" field="cta" label="Call to Action" />
+        <ProductCtaBox
+          title={ctaData.title || dp.cta?.title || "Bring Dignity to Every Room"}
+          subtitle={ctaData.subtitle || dp.cta?.subtitle || "Request a live hardware demonstration or schedule a consultation with our geriatric engineering team in Bengaluru."}
+          buttonText={ctaData.buttonText || dp.cta?.buttonText || "Request Demo"}
+          onButtonClick={() => {
+            if (!isUserAuthorizedForProduct(user, 'dara')) {
+              openAuthModal({
+                title: 'Sign In Required',
+                message: 'Please sign in with your account to request a Dara demo.',
+                productKey: 'dara',
+                actionText: 'Sign In / Register',
+              })
+              return
+            }
+            setModalOpen(true)
+          }}
+        />
+      </div>
 
       {/* CONSULTATION / PILOT MODAL */}
       <ProductConsultModal

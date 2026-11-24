@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Users,
   Monitor,
   Zap,
   Compass,
@@ -27,11 +26,17 @@ import {
 } from 'lucide-react';
 
 import CommonCta from '../components/CommonCta';
+import ScrollReveal from '../components/ui/ScrollReveal';
+import { showToast } from '../components/ui/Toast';
 import { isUserProductMatch } from '../components/ProductComponents';
 import { openAuthModal } from '../utils/authPrompt';
 import { isUserAuthorizedForProduct } from '../utils/accountManager';
 import MorphGallery from '../components/ui/morph-gallery';
+import HeroHeading from '../components/ui/HeroHeading';
+import { HERO_AUTOPLAY_DURATION } from '../constants/hero';
+import AdminEditButton from '../components/AdminEditButton';
 import { useTranslation } from '../i18n';
+import { useCmsContent } from '../services/contentStore';
 
 // Ananda Hero Images (Indian Modern Architecture & Microclimate CFD)
 import goldenHourWindflow from '../assets/anadha/Golden-Hour Courtyard Windflow.webp';
@@ -207,7 +212,7 @@ const ANANDA_HERO_SLIDES = [
 const COMMERCIAL_HERO_SLIDES = [
   {
     id: 'bangalore_ubcity',
-    src: '/ananda_indian_bangalore_ubcity.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433139/uandwelabs/cms/ananda_indian_bangalore_ubcity_1795433137879.jpg',
     title: 'Bengaluru Commercial Skydeck',
     desc: 'High-performance diurnal solar ray-casting and microclimate airflow simulation across glass-facade towers'
   },
@@ -219,7 +224,7 @@ const COMMERCIAL_HERO_SLIDES = [
   },
   {
     id: 'exoskeleton',
-    src: '/ananda_hero_exoskeleton.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433136/uandwelabs/cms/ananda_hero_exoskeleton_1795433134903.jpg',
     title: 'Aerodynamic Monolith',
     desc: 'Monumental fluid structural exoskeleton and high-performance glass curtain wall'
   },
@@ -258,19 +263,13 @@ const RESIDENTIAL_HERO_SLIDES = [
   }
 ];
 
+// Module-level flag so returning to Ananda shows hero content immediately
+let anandaHeroRevealedOnce = false;
+
 export default function AnandaPage({
   user,
-  onLogout,  
   onNavigateToHome,
-  onNavigateToLogin,
-  onNavigateToAnanda,
-  onNavigateToDara,
-  onNavigateToAura,
-  onNavigateToBlogs,
-  onNavigateToAbout,
-  onNavigateToCareers,
-  onNavigateToPrivacy,
-  onNavigateToTerms,
+  onNavigateBack,
   initialCategory = 'commercial',
 }) {
   // Duality Mode state: false = Commercial Scale, true = Residential Living
@@ -289,19 +288,21 @@ export default function AnandaPage({
         setIsResidential(false);
       }
     };
-    const handleHash = () => {
-      const hash = window.location.hash.toLowerCase();
-      if (hash.includes('residential')) {
+    const handleLocationChange = () => {
+      const path = (window.location.pathname + window.location.hash).toLowerCase();
+      if (path.includes('residential')) {
         setIsResidential(true);
-      } else if (hash.includes('ananda') || hash.includes('commercial')) {
+      } else if (path.includes('ananda') || path.includes('commercial')) {
         setIsResidential(false);
       }
     };
     window.addEventListener('ananda_category_change', handleCategoryChange);
-    window.addEventListener('hashchange', handleHash);
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
     return () => {
       window.removeEventListener('ananda_category_change', handleCategoryChange);
-      window.removeEventListener('hashchange', handleHash);
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
     };
   }, []);
 
@@ -359,7 +360,8 @@ export default function AnandaPage({
   const [gpsStatus, setGpsStatus] = useState('idle'); // 'idle' | 'detecting' | 'locked' | 'denied'
   const [gpsAccuracy, setGpsAccuracy] = useState(null);
 
-  // Internationalization hook
+  // Internationalization hook & CMS sync
+  const [cmsAnanda] = useCmsContent('ananda');
   const { t } = useTranslation();
   const ap = t.anandaPage || {};
   const m = ap.modal || {};
@@ -383,35 +385,60 @@ export default function AnandaPage({
 
   const environmentFeatures = useMemo(() => {
     const icons = [
-      <Sun size={24} strokeWidth={1.5} />,
-      <Wind size={24} strokeWidth={1.5} />,
-      <Waves size={24} strokeWidth={1.5} />,
-      <Compass size={24} strokeWidth={1.5} />,
-      <Zap size={24} strokeWidth={1.5} />,
-      <Monitor size={24} strokeWidth={1.5} />,
+      <Sun key="f1" size={24} strokeWidth={1.5} />,
+      <Wind key="f2" size={24} strokeWidth={1.5} />,
+      <Waves key="f3" size={24} strokeWidth={1.5} />,
+      <Compass key="f4" size={24} strokeWidth={1.5} />,
+      <Zap key="f5" size={24} strokeWidth={1.5} />,
+      <Monitor key="f6" size={24} strokeWidth={1.5} />,
     ];
+    if (cmsAnanda?.features && Array.isArray(cmsAnanda.features) && cmsAnanda.features.length > 0) {
+      return cmsAnanda.features.map((item, idx) => ({
+        ...item,
+        icon: icons[idx % icons.length],
+      }));
+    }
     const trans = ap.features || RAW_ENVIRONMENT_FEATURES;
     return trans.map((item, idx) => ({
       ...item,
       icon: icons[idx] || RAW_ENVIRONMENT_FEATURES[idx]?.icon,
     }));
-  }, [ap.features]);
+  }, [cmsAnanda?.features, ap.features]);
 
   const testimonials = useMemo(() => {
+    if (cmsAnanda?.testimonials && Array.isArray(cmsAnanda.testimonials) && cmsAnanda.testimonials.length > 0) {
+      return cmsAnanda.testimonials.map((item, idx) => ({
+        ...item,
+        image: item.image || item.src || TESTIMONIALS[idx]?.image,
+      }))
+    }
     const list = ap.testimonials || TESTIMONIALS;
     return list.map((item, idx) => ({
       ...item,
       image: TESTIMONIALS[idx]?.image,
     }));
-  }, [ap.testimonials]);
+  }, [cmsAnanda?.testimonials, ap.testimonials]);
 
   const mosaicStudies = useMemo(() => {
+    if (cmsAnanda?.mosaicStudies && Array.isArray(cmsAnanda.mosaicStudies) && cmsAnanda.mosaicStudies.length > 0) {
+      return cmsAnanda.mosaicStudies.map((item, idx) => {
+        let img = item.src || item.image;
+        // Guard against any old corrupted placeholder strings that might be cached
+        if (!img || img.includes('residential_breeze') || img.includes('bangalore_ubcity') || img.includes('ananda_hero_exoskeleton')) {
+          img = MOSAIC_STUDIES[idx]?.image;
+        }
+        return {
+          ...item,
+          image: img || MOSAIC_STUDIES[idx]?.image,
+        };
+      });
+    }
     const list = ap.caseStudies || MOSAIC_STUDIES;
     return list.map((item, idx) => ({
       ...item,
       image: MOSAIC_STUDIES[idx]?.image,
     }));
-  }, [ap.caseStudies]);
+  }, [cmsAnanda?.mosaicStudies, ap.caseStudies]);
 
   // Agent Scheduling States
   const availableDates = m.dates || ['Today, Oct 28', 'Tomorrow, Oct 29', 'Friday, Oct 30'];
@@ -428,40 +455,56 @@ export default function AnandaPage({
 
   // Active Hero Slides (3 requested modern Indian architectural simulation slides)
   const heroSlides = useMemo(() => {
+    if (cmsAnanda?.heroSlides && Array.isArray(cmsAnanda.heroSlides) && cmsAnanda.heroSlides.length > 0) {
+      return cmsAnanda.heroSlides.map((slide, idx) => ({
+        ...slide,
+        src: (slide.src && !slide.src.includes('residential_breeze') && !slide.src.includes('ananda_hero.jpg'))
+          ? slide.src
+          : ANANDA_HERO_SLIDES[idx]?.src,
+        thumb: (slide.thumb && !slide.thumb.includes('ananda_hero.jpg'))
+          ? slide.thumb
+          : ANANDA_HERO_SLIDES[idx]?.thumb,
+        title: slide.headline || slide.title || ANANDA_HERO_SLIDES[idx]?.title,
+        desc: slide.subtitle || slide.desc || ANANDA_HERO_SLIDES[idx]?.desc,
+      }));
+    }
     const localized = ap.heroSlides || ANANDA_HERO_SLIDES;
     return ANANDA_HERO_SLIDES.map((slide, idx) => ({
       ...slide,
       title: localized[idx]?.title || slide.title,
       desc: localized[idx]?.desc || slide.desc,
     }));
-  }, [ap.heroSlides]);
+  }, [cmsAnanda?.heroSlides, ap.heroSlides]);
 
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
-  const [isHeroRevealed, setIsHeroRevealed] = useState(false);
+  const [isHeroRevealed, setIsHeroRevealed] = useState(() => anandaHeroRevealedOnce);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
-  const heroReadyTriggered = useRef(false);
+  const heroReadyTriggered = useRef(anandaHeroRevealedOnce);
 
   const handleHeroReady = () => {
+    anandaHeroRevealedOnce = true;
     if (heroReadyTriggered.current) return;
     heroReadyTriggered.current = true;
-    requestAnimationFrame(() => {
-      setIsHeroRevealed(true);
-    });
+    setIsHeroRevealed(true);
   };
 
   useEffect(() => {
+    if (anandaHeroRevealedOnce) {
+      setIsHeroRevealed(true);
+      return;
+    }
     const fallbackTimer = setTimeout(() => {
       handleHeroReady();
-    }, 350);
+    }, 200);
     return () => clearTimeout(fallbackTimer);
   }, []);
 
-  // Automatic slide rotation (5s duration, synchronized with noise dissolve WebGL transition)
+  // Automatic slide rotation (synchronized with noise dissolve WebGL transition)
   useEffect(() => {
     if (!isHeroRevealed || isHeroPaused) return;
     const timer = setInterval(() => {
       setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 5000);
+    }, HERO_AUTOPLAY_DURATION);
     return () => clearInterval(timer);
   }, [isHeroRevealed, isHeroPaused, heroSlides.length]);
 
@@ -485,7 +528,7 @@ export default function AnandaPage({
     let savedY = null;
     try {
       savedY = sessionStorage.getItem('ananda_scroll_y');
-    } catch {}
+    } catch { }
     if (savedY && Number(savedY) > 80) {
       setTimeout(() => {
         window.scrollTo({ top: Number(savedY), behavior: 'instant' });
@@ -498,7 +541,7 @@ export default function AnandaPage({
     const handleScroll = () => {
       try {
         sessionStorage.setItem('ananda_scroll_y', String(window.scrollY));
-      } catch {}
+      } catch { }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -754,6 +797,7 @@ export default function AnandaPage({
   const handleCopyMeetingLink = () => {
     navigator.clipboard?.writeText('https://meet.uandwelabs.com/ananda-geo-8492');
     setCopiedLink(true);
+    showToast('Consultation meeting link copied to clipboard!', 'success');
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
@@ -805,12 +849,9 @@ export default function AnandaPage({
       {/* 1. IMMERSIVE HERO SECTION (MorphGallery WebGL Shader)    */}
       {/* ======================================================== */}
       <div className="min-h-screen relative flex flex-col justify-between overflow-hidden font-['Inter'] text-white select-text">
+        <AdminEditButton section="ananda" field="heroSlides" label="Hero Slides" variant="dark" position="hero" />
         {/* Full-Bleed Artwork (Morph Gallery with WebGL noise dissolve transition - same as Homepage) */}
-        <div
-          className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-all duration-1000 ease-out ${
-            isHeroRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03]'
-          }`}
-        >
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden opacity-100">
           <MorphGallery
             items={heroSlides}
             index={activeHeroIndex}
@@ -834,10 +875,15 @@ export default function AnandaPage({
             <button
               type="button"
               onClick={() => {
-                if (onNavigateToHome) onNavigateToHome()
-                else if (typeof window !== 'undefined') window.location.hash = ''
+                if (onNavigateBack) {
+                  onNavigateBack()
+                } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                  window.history.back()
+                } else if (onNavigateToHome) {
+                  onNavigateToHome()
+                }
               }}
-              aria-label="Back to Home"
+              aria-label="Back to Previous Page"
               className="pointer-events-auto w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -852,16 +898,13 @@ export default function AnandaPage({
               {/* Master Content: Synchronized with Active Slide & Image Morph */}
               <div
                 key={activeHeroIndex}
-                className={`transition-all duration-1000 ${
-                  isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
-                }`}
+                className={`transition-all duration-1000 ${isHeroRevealed ? 'animate-hero-sync' : 'opacity-0'
+                  }`}
               >
-                {/* Master Headline: Synchronized with Active Slide */}
-                <div className="relative inline-block py-1">
-                  <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-[64px] font-normal font-['Inter'] tracking-[0.03em] text-white uppercase leading-[1.08] select-text drop-shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-                    {heroSlides[activeHeroIndex]?.title || ap.heroDefaultTitle || 'Where Architecture Meets Physics'}
-                  </h1>
-                </div>
+                {/* Master Headline: Centralized kinetic reveal animation */}
+                <HeroHeading
+                  text={heroSlides[activeHeroIndex]?.title || ap.heroDefaultTitle || 'Where Architecture Meets Physics'}
+                />
 
                 {/* Subtitle Paragraph: Synchronized with Active Slide - (Commented out for now) */}
                 {/* <p className="mt-5 sm:mt-6 text-sm sm:text-[15.5px] text-white font-normal leading-relaxed max-w-xl font-['Inter'] min-h-[64px] sm:min-h-[72px] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
@@ -911,9 +954,8 @@ export default function AnandaPage({
           <div className="w-full max-w-[1560px] 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 2xl:px-20 flex justify-end">
             <nav
               aria-label="Ananda Hero Slide Navigation"
-              className={`pointer-events-auto transition-all duration-1000 ${
-                isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+              className={`pointer-events-auto transition-all duration-1000 ${isHeroRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+                }`}
               onMouseEnter={() => setIsHeroPaused(true)}
               onMouseLeave={() => setIsHeroPaused(false)}
             >
@@ -925,11 +967,10 @@ export default function AnandaPage({
                       key={slide.id}
                       type="button"
                       onClick={() => handleSelectHeroSlide(idx)}
-                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${
-                        isActive
-                          ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
-                          : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
-                      }`}
+                      className={`relative aspect-square w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 outline-none group select-none ${isActive
+                        ? 'border border-white scale-110 shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_16px_rgba(255,255,255,0.35)] opacity-100 z-10'
+                        : 'border border-white/25 shadow-[0_8px_24px_rgba(0,0,0,0.45)] opacity-60 hover:opacity-100 hover:border-white/70 hover:scale-105'
+                        }`}
                       title={`Switch to ${slide.title}`}
                       aria-label={`Slide ${idx + 1}: ${slide.title}`}
                       aria-current={isActive}
@@ -938,7 +979,8 @@ export default function AnandaPage({
                         src={slide.thumb || slide.src}
                         alt={slide.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
+                        loading="eager"
+                        decoding="async"
                       />
                     </button>
                   );
@@ -958,38 +1000,37 @@ export default function AnandaPage({
         {/* ======================================================== */}
         {/* 2. CORE CAPABILITIES (SWISS BRUTALIST 6-GRID)            */}
         {/* ======================================================== */}
-        <div className="w-full py-12 sm:py-16 md:py-24 border-b border-black/10">
+        <div className="relative w-full pt-8 sm:pt-12 md:pt-14 pb-6 sm:pb-8 md:pb-10">
+          <AdminEditButton section="ananda" field="capabilities" label="Capabilities" />
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-neutral-900 mb-8 sm:mb-12 md:mb-16 font-sans">
-            {ap.coreTitle || 'The Architecture of Innovation'}
+            {cmsAnanda?.coreTitle || ap.coreTitle || 'The Architecture of Innovation'}
           </h2>
 
           {/* Continuous Swiss Brutalist 6-Grid: 3 cols (desktop), 2 cols (tablet), 1 col (mobile) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-0 md:border-t md:border-l md:border-black/10">
             {environmentFeatures.map((feature, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                ref={(el) => (cardRefs.current[idx] = el)}
-                className="p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-none border border-black/10 md:border-0 md:border-b md:border-r md:border-black/10 flex flex-col justify-between group hover:bg-black transition-all duration-500 cursor-default bg-white shadow-xs md:shadow-none"
-                style={{
-                  transform: cardVisible[idx] ? 'translateY(0)' : 'translateY(50px)',
-                  opacity: cardVisible[idx] ? 1 : 0,
-                  transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms, border-color 500ms',
-                  transitionDelay: getCardDelay(idx, cardVisible[idx]),
-                  willChange: 'transform, opacity',
-                }}
+                delay={(idx % 3) * 0.1}
+                y={50}
+                className="h-full md:border-b md:border-r md:border-black/10"
               >
-                <div>
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-neutral-100 group-hover:bg-white/10 flex items-center justify-center text-neutral-900 group-hover:text-white transition-colors duration-500 mb-6 sm:mb-8 shrink-0">
-                    {feature.icon}
+                <div
+                  className="p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-none border border-black/10 md:border-0 flex flex-col justify-between group hover:bg-black transition-all duration-500 cursor-default bg-white shadow-xs md:shadow-none h-full"
+                >
+                  <div>
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-neutral-100 group-hover:bg-white/10 flex items-center justify-center text-neutral-900 group-hover:text-white transition-colors duration-500 mb-6 sm:mb-8 shrink-0">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight mb-3 sm:mb-4 group-hover:text-white transition-colors duration-500 font-sans">
+                      {feature.title}
+                    </h3>
+                    <p className="text-neutral-600 font-normal text-sm leading-relaxed group-hover:text-neutral-300 transition-colors duration-500 font-sans">
+                      {feature.desc}
+                    </p>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight mb-3 sm:mb-4 group-hover:text-white transition-colors duration-500 font-sans">
-                    {feature.title}
-                  </h3>
-                  <p className="text-neutral-600 font-normal text-sm leading-relaxed group-hover:text-neutral-300 transition-colors duration-500 font-sans">
-                    {feature.desc}
-                  </p>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -1000,7 +1041,7 @@ export default function AnandaPage({
       {/* 4. WORK / PLAY DUALITY SWITCHER (COMMERCIAL × RESIDENTIAL) */}
       {/* ======================================================== */}
       <section
-        className="w-full py-20 md:py-24 border-b border-black/10 transition-colors duration-1000 overflow-x-clip"
+        className="w-full py-6 sm:py-8 md:py-10 transition-colors duration-1000 overflow-x-clip"
         style={{ backgroundColor: isResidential ? '#0d0e12' : '#000000' }}
       >
         <div className="max-w-[1600px] mx-auto px-[4%] flex flex-col items-center">
@@ -1047,23 +1088,19 @@ export default function AnandaPage({
               className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full h-auto md:h-[580px]"
             >
 
-              {/* Main Left Card (Col Span 2) - 1st image comes from down */}
-              <div
-                className="col-span-1 md:col-span-2 h-[260px] sm:h-[340px] md:h-full min-h-0 relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
-                style={{
-                  transform: dualityVisible ? 'translateY(0)' : 'translateY(160px)',
-                  opacity: dualityVisible ? 1 : 0,
-                  transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1)',
-                  willChange: 'transform, opacity',
-                }}
-              >
-                <img
-                  key={isResidential ? 'res-1' : 'comm-1'}
-                  src={isResidential ? goldenHourUrbanShadow : modernCampusPlazaShadows}
-                  alt={isResidential ? "Residential Neighborhood Solar & Shadow Simulation" : "Commercial Solar Simulation"}
-                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
-                />
-              </div>
+              {/* Main Left Card (Col Span 2) - 1st image comes from down via ScrollReveal */}
+              <ScrollReveal y={60} className="col-span-1 md:col-span-2 h-[260px] sm:h-[340px] md:h-full min-h-0">
+                <div
+                  className="w-full h-full relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
+                >
+                  <img
+                    key={isResidential ? 'res-1' : 'comm-1'}
+                    src={isResidential ? goldenHourUrbanShadow : modernCampusPlazaShadows}
+                    alt={isResidential ? "Residential Neighborhood Solar & Shadow Simulation" : "Commercial Solar Simulation"}
+                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+              </ScrollReveal>
 
               {/* Stacked Right Column */}
               <div className="col-span-1 flex flex-col gap-6 h-auto md:h-full min-h-0">
@@ -1122,48 +1159,51 @@ export default function AnandaPage({
         {/* ======================================================== */}
         {/* 5. ARCHITECT & ENGINEERING PERSPECTIVES (TESTIMONIALS)   */}
         {/* ======================================================== */}
-        <div className="w-full pt-12 sm:pt-16 md:pt-24 pb-6 sm:pb-8 md:pb-10">
-          <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-neutral-900 mb-8 sm:mb-12 md:mb-16 text-left">
-            {ap.perspectivesTitle || 'Architect & Engineering Perspectives'}
-          </h2>
+        <div className="relative w-full py-6 sm:py-8 md:py-10">
+          <AdminEditButton section="ananda" field="testimonials" label="Testimonials" />
+          <ScrollReveal direction="left" distance={60} once={false} amount={0.2}>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-neutral-900 mb-8 sm:mb-12 md:mb-16 text-left">
+              {cmsAnanda?.perspectivesTitle || ap.perspectivesTitle || 'Architect & Engineering Perspectives'}
+            </h2>
+          </ScrollReveal>
 
-          <div ref={testimonialsRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8 xl:gap-10 overflow-x-clip">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8 xl:gap-10">
             {testimonials.map((testimonial, idx) => (
-              <div
+              <ScrollReveal
                 key={idx}
-                className="flex flex-col border border-black/10 p-6 sm:p-7 lg:p-8 xl:p-10 rounded-2xl lg:rounded-none bg-neutral-50 hover:bg-white hover:border-black/30 transition-all duration-300"
-                style={{
-                  transform: testimonialsVisible
-                    ? 'translate(0, 0)'
-                    : 'translateY(40px)',
-                  opacity: testimonialsVisible ? 1 : 0,
-                  transition: 'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), background-color 300ms, border-color 300ms',
-                  transitionDelay: testimonialsVisible ? `${idx * 120}ms` : '0ms',
-                  willChange: 'transform, opacity',
-                }}
+                direction="left"
+                distance={80}
+                delay={idx * 0.15}
+                once={false}
+                amount={0.2}
+                className="h-full"
               >
-                <div className="mb-4 sm:mb-6">
-                  <Quote size={28} className="text-neutral-900/15" />
-                </div>
-                <p className="text-base sm:text-lg lg:text-lg xl:text-xl font-normal text-neutral-900 leading-relaxed mb-6 sm:mb-8 flex-grow">
-                  "{testimonial.quote}"
-                </p>
-                <div className="flex items-center gap-3.5 sm:gap-4 pt-5 sm:pt-6 border-t border-black/10">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover grayscale shrink-0"
-                  />
-                  <div>
-                    <h4 className="text-neutral-900 font-medium text-sm sm:text-base leading-tight">
-                      {testimonial.name}
-                    </h4>
-                    <p className="text-neutral-500 text-xs sm:text-[13px] tracking-normal mt-0.5">
-                      {testimonial.role} · {testimonial.studio}
-                    </p>
+                <div
+                  className="h-full flex flex-col border border-black/10 p-6 sm:p-7 lg:p-8 xl:p-10 rounded-2xl lg:rounded-none bg-neutral-50 hover:bg-white hover:border-black/30 transition-all duration-300"
+                >
+                  <div className="mb-4 sm:mb-6">
+                    <Quote size={28} className="text-neutral-900/15" />
+                  </div>
+                  <p className="text-base sm:text-lg lg:text-lg xl:text-xl font-normal text-neutral-900 leading-relaxed mb-6 sm:mb-8 flex-grow">
+                    "{testimonial.quote}"
+                  </p>
+                  <div className="flex items-center gap-3.5 sm:gap-4 pt-5 sm:pt-6 border-t border-black/10">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover grayscale shrink-0"
+                    />
+                    <div>
+                      <h4 className="text-neutral-900 font-medium text-sm sm:text-base leading-tight">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-neutral-500 text-xs sm:text-[13px] tracking-normal mt-0.5">
+                        {testimonial.role} · {testimonial.studio}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -1172,9 +1212,10 @@ export default function AnandaPage({
         {/* ======================================================== */}
         {/* 6. BUILT ON ANANDA (SELECTED PROJECTS & CASE STUDIES)   */}
         {/* ======================================================== */}
-        <div className="w-full pt-6 sm:pt-8 md:pt-10 pb-6 sm:pb-8 md:pb-10 border-b border-black/10">
+        <div className="relative w-full py-6 sm:py-8 md:py-10">
+          <AdminEditButton section="ananda" field="caseStudies" label="Case Studies" />
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-neutral-900 mb-8 sm:mb-12 md:mb-16 text-left">
-            {ap.caseStudiesTitle || 'Built on Ananda'}
+            {cmsAnanda?.caseStudiesTitle || ap.caseStudiesTitle || 'Built on Ananda'}
           </h2>
 
           <div className="border border-black/10 overflow-hidden rounded-2xl md:rounded-none overflow-x-clip">
@@ -1377,24 +1418,27 @@ export default function AnandaPage({
         {/* ======================================================== */}
         {/* 7. MONOCHROMATIC HIGH-IMPACT CTA                         */}
         {/* ======================================================== */}
-        <CommonCta
-          title={ap.ctaTitle || 'Ready to shape the future?'}
-          subtitle={ap.ctaDesc || 'Deploy GPU ray-casting, aerodynamic wind CFD, and flood hydrology on your next architectural development with our engineering team.'}
-          buttonText={ap.ctaButton || 'Schedule Simulation Consultation'}
-          onButtonClick={() => {
-            const targetKey = isResidential ? 'ananda-residential' : 'ananda';
-            if (!isUserAuthorizedForProduct(user, targetKey)) {
-              openAuthModal({
-                title: 'Sign In Required',
-                message: 'Please sign in with your account to schedule a simulation consultation.',
-                productKey: targetKey,
-                actionText: 'Sign In / Register',
-              });
-              return;
-            }
-            setModalOpen(true);
-          }}
-        />
+        <div className="relative">
+          <AdminEditButton section="ananda" field="cta" label="Consultation CTA" />
+          <CommonCta
+            title={cmsAnanda?.cta?.title || ap.ctaTitle || 'Ready to shape the future?'}
+            subtitle={cmsAnanda?.cta?.desc || ap.ctaDesc || 'Deploy GPU ray-casting, aerodynamic wind CFD, and flood hydrology on your next architectural development with our engineering team.'}
+            buttonText={cmsAnanda?.cta?.buttonText || ap.ctaButton || 'Schedule Simulation Consultation'}
+            onButtonClick={() => {
+              const targetKey = isResidential ? 'ananda-residential' : 'ananda';
+              if (!isUserAuthorizedForProduct(user, targetKey)) {
+                openAuthModal({
+                  title: 'Sign In Required',
+                  message: 'Please sign in with your account to schedule a simulation consultation.',
+                  productKey: targetKey,
+                  actionText: 'Sign In / Register',
+                });
+                return;
+              }
+              setModalOpen(true);
+            }}
+          />
+        </div>
 
 
       </div> {/* END INNER CONTENT WRAPPER 2 */}
@@ -1676,7 +1720,10 @@ export default function AnandaPage({
 
                       <button
                         type="button"
-                        onClick={() => setModalStep('confirmed')}
+                        onClick={() => {
+                          setModalStep('confirmed');
+                          showToast('Simulation review consultation confirmed! Calendar invite generated.', 'success');
+                        }}
                         className="w-full mt-2 py-3.5 bg-black hover:bg-neutral-800 text-white text-xs font-medium rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md font-sans"
                       >
                         <Calendar size={14} />

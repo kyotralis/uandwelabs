@@ -17,6 +17,8 @@ export default function ProductShowcaseSection({
   activeCategory = null,
   onCategoryChange = null,
   onButtonClick = null,
+  extraControls = null,
+  leftControls = null,
 }) {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef(null)
@@ -30,8 +32,8 @@ export default function ProductShowcaseSection({
         setIsVisible(entry.isIntersecting)
       },
       {
-        threshold: 0.25,
-        rootMargin: '0px 0px -100px 0px',
+        threshold: 0.15,
+        rootMargin: '0px 0px -40px 0px',
       }
     )
 
@@ -73,13 +75,20 @@ export default function ProductShowcaseSection({
     <section
       ref={sectionRef}
       id={id}
-      className={`relative w-full ${bgClassName} text-slate-900 py-6 sm:py-8 lg:py-8 px-4 sm:px-8 lg:px-16 overflow-hidden font-['Inter'] select-text`}
+      className={`relative w-full ${bgClassName} text-slate-900 pt-2 sm:pt-4 lg:pt-4 pb-6 sm:pb-8 lg:pb-8 px-4 sm:px-8 lg:px-16 overflow-hidden font-['Inter'] select-text`}
     >
       <div className="max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
 
           {/* ================= LEFT SIDE: VERTICAL CUT REVEAL TEXT ANIMATION ================= */}
           <div className="lg:col-span-4 flex flex-col justify-center pr-0 lg:pr-4">
+
+            {/* In-Context Admin Edit Control for Left-Side Overview Content */}
+            {leftControls && (
+              <div className="mb-3.5 flex items-center">
+                {leftControls}
+              </div>
+            )}
 
             {/* Main Prominent Product Title (Character-by-character Cut Reveal) */}
             <div className="mb-3 sm:mb-4">
@@ -191,23 +200,30 @@ export default function ProductShowcaseSection({
           </div>
 
           {/* ================= RIGHT SIDE: COVERFLOW CAROUSEL ANIMATION ================= */}
-          <div className="lg:col-span-8 w-full">
-            <CoverflowCarousel
-              key={`${id}-${activeCategory || 'default'}`}
-              isUnrolled={isVisible}
-              slides={slides}
-              rotate={rotate}
-              depth={depth}
-              perspective={perspective}
-              falloff={falloff}
-              fade={fade}
-              cardWidth={cardWidth}
-              gap={gap}
-              loop={loop}
-              showCaption={showCaption}
-              showPagination={showPagination}
-              showNavigation={showNavigation}
-            />
+          <div className="lg:col-span-8 w-full min-h-[380px] sm:min-h-[440px] flex items-center justify-center">
+            {slides && slides.length > 0 ? (
+              <CoverflowCarousel
+                key={`${id}-${activeCategory || 'default'}`}
+                isUnrolled={isVisible}
+                slides={slides}
+                rotate={rotate}
+                depth={depth}
+                perspective={perspective}
+                falloff={falloff}
+                fade={fade}
+                cardWidth={cardWidth}
+                gap={gap}
+                loop={loop}
+                showCaption={showCaption}
+                showPagination={showPagination}
+                showNavigation={showNavigation}
+                extraControls={extraControls}
+              />
+            ) : (
+              <div className="w-full flex items-center justify-center py-8">
+                <div className="w-[280px] sm:w-[320px] h-[360px] sm:h-[400px] rounded-3xl bg-neutral-900/10 dark:bg-neutral-900/40 border border-neutral-800/20 animate-pulse" />
+              </div>
+            )}
           </div>
 
         </div>

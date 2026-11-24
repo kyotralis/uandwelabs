@@ -3,23 +3,34 @@ import { ArrowRight } from 'lucide-react'
 import careerHeroImg from '../assets/careerhomeimage.jpg'
 import { useTranslation } from '../i18n'
 
+// Module-level flag so GrowWithUsSection stays visible when returning to Home
+let hasGrowSectionShownOnce = false
+
 export default function GrowWithUsSection({ onNavigateToCareers }) {
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(() => hasGrowSectionShownOnce)
   const cardRef = useRef(null)
   const { t } = useTranslation()
   const c = t.careers || {}
 
   useEffect(() => {
+    if (hasGrowSectionShownOnce) {
+      setIsVisible(true)
+      return
+    }
+
     const el = cardRef.current
     if (!el) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting)
+        if (entry.isIntersecting) {
+          hasGrowSectionShownOnce = true
+          setIsVisible(true)
+        }
       },
       {
-        threshold: 0.22,
-        rootMargin: '0px 0px -100px 0px',
+        threshold: 0.15,
+        rootMargin: '0px 0px 50px 0px',
       }
     )
 
@@ -53,6 +64,8 @@ export default function GrowWithUsSection({ onNavigateToCareers }) {
             <img
               src={careerHeroImg}
               alt="Modern architectural terrace with ascending spiral staircase in warm sunrise light"
+              loading="eager"
+              decoding="async"
               className="w-full h-full object-cover object-[70%_center] sm:object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
             />
           </div>
@@ -125,7 +138,7 @@ export default function GrowWithUsSection({ onNavigateToCareers }) {
                 >
                   {/* Explore Opportunities Button */}
                   <a
-                    href="#careers"
+                    href="/careers"
                     onClick={(e) => {
                       if (onNavigateToCareers) {
                         e.preventDefault()

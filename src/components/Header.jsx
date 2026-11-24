@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import {
-  Search,
   Globe,
   ChevronDown,
   X,
@@ -20,6 +19,8 @@ import {
 } from 'lucide-react'
 import Logo from '../assets/logo.webp'
 import { useTranslation, GLOBAL_LOCALES } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
 
 // Dropdown Navigation Data (Horizontal Segmented Dock)
 const PRODUCTS_DATA = [
@@ -186,6 +187,17 @@ export default function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileGeoSpatialOpen, setMobileGeoSpatialOpen] = useState(false)
   const [avatarError, setAvatarError] = useState(false)
+  const [cmsSettings] = useCmsContent('settings')
+
+  const headerData = cmsSettings?.header || cmsSettings || {}
+  const companyName = headerData.companyName || cmsSettings?.companyName || 'UANDWE LABS'
+  const logoSrc = headerData.logo || cmsSettings?.logo || Logo
+  const regionText = headerData.regionText || 'India'
+  const signInText = headerData.signInText || t?.signIn || 'Sign In'
+  const navProducts = headerData.navProducts || t?.products || 'Products'
+  const navBlogs = headerData.navBlogs || t?.blogs || 'Blogs'
+  const navAbout = headerData.navAbout || t?.aboutUs || 'About Us'
+  const navCareers = headerData.navCareers || t?.careers || 'Careers'
 
   // Compute effective saved accounts (max 2 accounts)
   const effectiveAccounts = useMemo(() => {
@@ -321,9 +333,9 @@ export default function Header({
   const [activePlatform, setActivePlatform] = useState(() => {
     if (propAnandaCategory) return propAnandaCategory
     if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase()
-      if (hash.includes('residential')) return 'residential'
-      if (hash.includes('ananda') || hash.includes('commercial')) return 'commercial'
+      const path = (window.location.pathname + window.location.hash).toLowerCase()
+      if (path.includes('residential')) return 'residential'
+      if (path.includes('ananda') || path.includes('commercial')) return 'commercial'
       try {
         const saved = sessionStorage.getItem('ananda_category') || localStorage.getItem('uandwe_active_platform')
         if (saved) return saved
@@ -346,19 +358,21 @@ export default function Header({
         setActivePlatform(e.detail)
       }
     }
-    const handleHash = () => {
-      const hash = window.location.hash.toLowerCase()
-      if (hash.includes('residential')) {
+    const handleLocationChange = () => {
+      const path = (window.location.pathname + window.location.hash).toLowerCase()
+      if (path.includes('residential')) {
         setActivePlatform('residential')
-      } else if (hash.includes('ananda') || hash.includes('commercial')) {
+      } else if (path.includes('ananda') || path.includes('commercial')) {
         setActivePlatform('commercial')
       }
     }
     window.addEventListener('ananda_category_change', handleCategoryChange)
-    window.addEventListener('hashchange', handleHash)
+    window.addEventListener('popstate', handleLocationChange)
+    window.addEventListener('hashchange', handleLocationChange)
     return () => {
       window.removeEventListener('ananda_category_change', handleCategoryChange)
-      window.removeEventListener('hashchange', handleHash)
+      window.removeEventListener('popstate', handleLocationChange)
+      window.removeEventListener('hashchange', handleLocationChange)
     }
   }, [])
 
@@ -647,7 +661,8 @@ export default function Header({
       if (onNavigateToLogin) {
         onNavigateToLogin('signin', targetId)
       } else {
-        window.location.hash = 'login'
+        window.history.pushState(null, '', '/login')
+        window.dispatchEvent(new Event('popstate'))
       }
       return
     }
@@ -680,7 +695,8 @@ export default function Header({
         onNavigateToAbout()
         return
       }
-      window.location.hash = 'about'
+      window.history.pushState(null, '', '/about')
+      window.dispatchEvent(new Event('popstate'))
       return
     }
     if (targetId === 'careers' || navKey === 'CAREERS' || targetId === 'career' || targetId === 'jobs') {
@@ -688,7 +704,8 @@ export default function Header({
         onNavigateToCareers()
         return
       }
-      window.location.hash = 'careers'
+      window.history.pushState(null, '', '/careers')
+      window.dispatchEvent(new Event('popstate'))
       return
     }
     if (targetId === 'ananda') {
@@ -710,7 +727,7 @@ export default function Header({
         if (onNavigateToHome) {
           onNavigateToHome()
         }
-        window.location.hash = resolvedId
+        window.history.pushState(null, '', `/${resolvedId}`)
       }
     }
   }
@@ -739,7 +756,8 @@ export default function Header({
       if (onNavigateToAnanda) {
         onNavigateToAnanda(targetCategory)
       } else {
-        window.location.hash = targetCategory === 'residential' ? 'ananda-residential' : 'ananda'
+        window.history.pushState(null, '', targetCategory === 'residential' ? '/ananda-residential' : '/ananda')
+        window.dispatchEvent(new Event('popstate'))
       }
       window.dispatchEvent(new CustomEvent('ananda_category_change', { detail: targetCategory }))
     } else {
@@ -748,7 +766,8 @@ export default function Header({
       if (onNavigateToLogin) {
         onNavigateToLogin('signin', target)
       } else {
-        window.location.hash = 'login'
+        window.history.pushState(null, '', '/login')
+        window.dispatchEvent(new Event('popstate'))
       }
     }
   }
@@ -771,7 +790,8 @@ export default function Header({
       onNavigateToAnanda(targetCategory)
       return
     }
-    window.location.hash = targetCategory === 'residential' ? 'ananda-residential' : 'ananda'
+    window.history.pushState(null, '', targetCategory === 'residential' ? '/ananda-residential' : '/ananda')
+    window.dispatchEvent(new Event('popstate'))
   }
 
   const handleSelectLocale = (locale) => {
@@ -896,7 +916,7 @@ export default function Header({
 
             {/* Brand Logo & Name - Crisp & Elegant */}
             <a
-              href="#hero"
+              href="/"
               onClick={(e) => {
                 e.preventDefault()
                 setActiveDropdown(null)
@@ -929,14 +949,29 @@ export default function Header({
               aria-label="uandwelabs Home"
             >
               <img
-                src={Logo}
-                alt="uandwelabs logo"
+                src={logoSrc}
+                alt={companyName || 'uandwelabs logo'}
+                onError={(e) => {
+                  if (e.currentTarget.src !== Logo) {
+                    e.currentTarget.src = Logo
+                  }
+                }}
                 className="h-8 sm:h-10 md:h-11 lg:h-11 xl:h-[50px] w-auto object-contain group-hover:scale-105 transition-all duration-200 drop-shadow-xs"
               />
               <span className="text-[13px] sm:text-[17px] xl:text-[19px] font-semibold tracking-[-0.01em] uppercase text-slate-900 group-hover:text-black transition-colors font-['Inter'] whitespace-nowrap">
-                UANDWE LABS
+                {companyName}
               </span>
             </a>
+
+            {/* Admin Header & Logo Edit Button */}
+            <AdminEditButton
+              section="settings"
+              field="header"
+              label="Website Header & Brand Logo"
+              inline={true}
+              buttonText="Edit Header"
+              className="inline-flex text-[11px] py-1 px-2.5 shrink-0"
+            />
 
             {/* Navigation Links (Desktop) */}
             <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 shrink-0">
@@ -958,7 +993,7 @@ export default function Header({
                       : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                   }`}
                 >
-                  <span>{t?.products || 'Products'}</span>
+                  <span>{navProducts || t?.products || 'Products'}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
                       activeDropdown === 'products' ? 'rotate-180 text-black' : 'group-hover:text-black'
@@ -1198,14 +1233,20 @@ export default function Header({
                   if (navDropdownTimeoutRef.current) clearTimeout(navDropdownTimeoutRef.current)
                   setActiveDropdown(null)
                 }}
-                onClick={() => handleDropdownItemClick('blogs', 'BLOGS')}
+                onClick={() => {
+                  if (onNavigateToBlogs) {
+                    onNavigateToBlogs()
+                  } else {
+                    handleDropdownItemClick('blogs', 'BLOGS')
+                  }
+                }}
                 className={`px-3 py-1.5 xl:py-2 text-[13.5px] xl:text-[15px] font-medium tracking-normal rounded-full transition-all duration-200 cursor-pointer ${
                   activeNav?.toLowerCase() === 'blogs'
                     ? 'text-black bg-slate-100 font-semibold shadow-xs'
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                 }`}
               >
-                {t?.blogs || 'Blogs'}
+                {navBlogs || t?.blogs || 'Blogs'}
               </button>
 
               {/* 3. About Us */}
@@ -1228,7 +1269,7 @@ export default function Header({
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                 }`}
               >
-                {t?.aboutUs || 'About Us'}
+                {navAbout || t?.aboutUs || 'About Us'}
               </button>
 
               {/* 4. Careers */}
@@ -1251,192 +1292,32 @@ export default function Header({
                     : 'text-slate-700 hover:text-black hover:bg-slate-100/80'
                 }`}
               >
-                {t?.careers || 'Careers'}
+                {navCareers || t?.careers || 'Careers'}
               </button>
 
             </nav>
           </div>
 
           {/* ------------------------------------------------------- */}
-          {/* RIGHT: Search | India ▾ | Sign In                       */}
+          {/* RIGHT: India | Sign In                                  */}
           {/* ------------------------------------------------------- */}
           <div className="flex items-center gap-1 sm:gap-2.5 xl:gap-3.5 shrink-0">
 
-            {/* 1A. Mobile & Tablet Search Toggle Button (Fixed icon in header, opens dropdown bar below on < lg screens) */}
-            <button
-              type="button"
-              onClick={() => {
-                const next = !searchOpen
-                setSearchOpen(next)
-                if (next) {
-                  setGlobalOpen(false)
-                  setUserMenuOpen(false)
-                  setSignInMenuOpen(false)
-                  setActiveDropdown(null)
-                  setMobileMenuOpen(false)
-                }
-              }}
-              className={`lg:hidden flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full transition-colors cursor-pointer shrink-0 ${
-                searchOpen
-                  ? 'bg-black text-white shadow-xs'
-                  : 'text-slate-700 hover:text-black hover:bg-slate-100'
-              }`}
-              title="Search"
-              aria-label="Toggle Search"
-            >
-              {searchOpen ? <X className="w-4 h-4 text-white" /> : <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />}
-            </button>
-
-            {/* 1B. Desktop Expandable Search (Expands inline on >= lg desktop screens) */}
-            <div ref={searchContainerRef} className="relative hidden lg:flex items-center">
-              <form
-                onSubmit={handleSearchSubmit}
-                onClick={() => {
-                  if (!searchOpen) {
-                    setSearchOpen(true)
-                    setGlobalOpen(false)
-                    setUserMenuOpen(false)
-                    setActiveDropdown(null)
-                  }
-                }}
-                className={`flex items-center h-9 sm:h-9.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
-                  searchOpen
-                    ? 'w-48 lg:w-56 xl:w-64 px-3 bg-white border border-slate-300/80 shadow-[0_4px_18px_rgba(0,0,0,0.08)] ring-2 ring-black/5'
-                    : 'w-9 sm:w-9.5 px-0 bg-transparent hover:bg-slate-100 cursor-pointer justify-center border border-transparent'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    if (!searchOpen) {
-                      e.preventDefault()
-                      setSearchOpen(true)
-                      setGlobalOpen(false)
-                      setUserMenuOpen(false)
-                      setActiveDropdown(null)
-                    }
-                  }}
-                  className={`flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
-                    searchOpen
-                      ? 'text-slate-400 hover:text-slate-700 mr-1.5'
-                      : 'w-9 sm:w-9.5 h-9 sm:h-9.5 text-slate-700 hover:text-black'
-                  }`}
-                  title="Search"
-                  aria-label="Search"
-                >
-                  <Search className="w-4.5 h-4.5" />
-                </button>
-
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder={t?.searchPlaceholder || "Search products, solutions..."}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                      setSearchOpen(false)
-                      setSearchQuery('')
-                    }
-                  }}
-                  tabIndex={searchOpen ? 0 : -1}
-                  className={`w-full text-xs sm:text-[13.5px] font-normal bg-transparent outline-none text-slate-900 placeholder:text-slate-400 transition-opacity duration-200 ${
-                    searchOpen ? 'opacity-100 delay-100' : 'opacity-0 pointer-events-none w-0'
-                  }`}
-                />
-
-                {searchOpen && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSearchOpen(false)
-                      setSearchQuery('')
-                    }}
-                    className="text-slate-400 hover:text-slate-800 p-1 rounded-full hover:bg-slate-100 shrink-0 transition-colors cursor-pointer ml-1"
-                    title="Close search"
-                    aria-label="Close search"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </form>
-
-              {/* Desktop Live Search Results Dropdown */}
-              {searchOpen && searchQuery.trim().length > 0 && (
-                <div className="absolute right-0 top-full mt-3 w-[390px] xl:w-[430px] max-w-[calc(100vw-2.5rem)] bg-white/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.18),0_4px_14px_rgba(0,0,0,0.06)] border border-slate-200/90 ring-1 ring-black/[0.04] p-2.5 sm:p-3 z-50 origin-top-right animate-in fade-in-0 slide-in-from-top-2 duration-150 overflow-hidden">
-                  <div className="flex items-center justify-between px-2.5 py-1.5 mb-1.5 border-b border-slate-100">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      Search Results
-                    </span>
-                    <span className="text-[10.5px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                      {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'}
-                    </span>
-                  </div>
-
-                  {searchResults.length > 0 ? (
-                    <div className="max-h-[360px] overflow-y-auto pr-0.5 space-y-0.5">
-                      {searchResults.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => handleSelectSearchResult(item)}
-                          className="group px-3 py-2.5 rounded-xl hover:bg-slate-100/80 active:bg-slate-100 transition-colors duration-150 cursor-pointer text-left"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-semibold text-[13.5px] sm:text-[14px] text-slate-900 group-hover:text-black truncate">
-                              {item.title}
-                            </span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
-                          </div>
-                          <p className="text-[12px] text-slate-500 group-hover:text-slate-700 line-clamp-1 transition-colors mt-0.5 leading-snug">
-                            {item.description}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-7 px-4 text-center">
-                      <Search className="w-5 h-5 text-slate-300 mx-auto mb-1.5" />
-                      <p className="text-[13px] font-semibold text-slate-700">No results found for "{searchQuery}"</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Try "Ananda", "Dara", "Aura", or "Physics"</p>
-                    </div>
-                  )}
-
-                  <div className="mt-2 pt-2 border-t border-slate-100 px-2 py-1 flex items-center justify-between text-[10.5px] text-slate-400">
-                    <span>Press <kbd className="px-1 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-[9.5px]">Enter</kbd> to select</span>
-                    <span><kbd className="px-1 py-0.5 bg-slate-100 rounded text-slate-600 font-mono text-[9.5px]">ESC</kbd> to close</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Subtle Vertical Divider */}
-            <span className="h-5 w-px bg-slate-200/90 hidden sm:block" />
-
-            {/* 2. Global Locale / Region Selector (Globe + India ▾) */}
+            {/* 2. Global Locale / Region Selector (Showing India alone, dropdown commented out for now) */}
             <div
               ref={globalRef}
               className="relative hidden sm:block"
-              onMouseEnter={handleGlobalMouseEnter}
-              onMouseLeave={handleGlobalMouseLeave}
             >
-              <button
-                type="button"
-                onClick={handleGlobalToggle}
-                className={`flex items-center gap-1 sm:gap-1.5 py-1 sm:py-1.5 px-2 sm:px-3 xl:px-3.5 rounded-full text-[13px] sm:text-[14px] xl:text-[14.5px] font-medium text-slate-700 transition-colors cursor-pointer select-none ${globalOpen ? 'bg-slate-100 text-black font-semibold' : 'hover:bg-slate-100 hover:text-black'
-                  }`}
-                aria-label="Select Language or Region"
+              <div
+                className="flex items-center gap-1 sm:gap-1.5 py-1 sm:py-1.5 px-2 sm:px-3 xl:px-3.5 rounded-full text-[13px] sm:text-[14px] xl:text-[14.5px] font-medium text-slate-700 select-none"
+                aria-label={`Region: ${regionText || 'India'}`}
               >
                 <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 shrink-0" />
-                <span className="hidden xl:inline">{selectedLocale.label}</span>
-                <span className="hidden sm:inline xl:hidden uppercase font-semibold text-xs tracking-wider">{selectedLocale.code}</span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${globalOpen ? 'rotate-180 text-black' : ''
-                    }`}
-                />
-              </button>
+                <span>{regionText || 'India'}</span>
+                {/* <ChevronDown className="w-3.5 h-3.5 text-slate-500" /> */}
+              </div>
 
-              {/* Region Popover */}
+              {/* Region Popover (Commented out for now as requested)
               {globalOpen && (
                 <div
                   onMouseEnter={handleGlobalMouseEnter}
@@ -1483,6 +1364,7 @@ export default function Header({
                   </div>
                 </div>
               )}
+              */}
             </div>
 
             {/* Subtle Vertical Divider */}
@@ -1637,12 +1519,13 @@ export default function Header({
                   if (onNavigateToLogin) {
                     onNavigateToLogin('signin', null)
                   } else {
-                    window.location.hash = 'login'
+                    window.history.pushState(null, '', '/login')
+                    window.dispatchEvent(new Event('popstate'))
                   }
                 }}
                 className="hidden sm:inline-flex items-center justify-center px-4 xl:px-5 py-1.5 sm:py-2 rounded-full bg-black text-white hover:bg-orange-500 text-[13px] sm:text-[13.5px] xl:text-[14px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/25 active:scale-95 select-none"
               >
-                {t?.signIn || 'Sign In'}
+                {signInText || t?.signIn || 'Sign In'}
               </button>
             )}
 
@@ -1660,101 +1543,6 @@ export default function Header({
           </div>
 
         </div>
-
-
-
-        {/* ========================================================= */}
-        {/* MOBILE & TABLET SEARCH BAR DROPDOWN (Directly below capsule) */}
-        {/* ========================================================= */}
-        {searchOpen && (
-          <div
-            ref={mobileSearchRef}
-            className="pointer-events-auto lg:hidden w-full max-w-full sm:max-w-xl md:max-w-2xl mt-2 px-1 animate-in fade-in slide-in-from-top-2 duration-200"
-          >
-            <form
-              onSubmit={handleSearchSubmit}
-              className="flex items-center h-11 sm:h-12 w-full rounded-full bg-white shadow-[0_12px_36px_rgba(0,0,0,0.18)] border border-slate-200 px-4 ring-1 ring-black/5"
-            >
-              <Search className="w-4.5 h-4.5 text-slate-400 shrink-0 mr-2.5" />
-              <input
-                ref={mobileSearchInputRef}
-                type="text"
-                placeholder="Search products, solutions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
-                    setSearchOpen(false)
-                    setSearchQuery('')
-                  }
-                }}
-                className="w-full text-xs sm:text-sm font-normal bg-transparent outline-none text-slate-900 placeholder:text-slate-400"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-slate-400 hover:text-slate-600 p-1 mr-1.5 cursor-pointer"
-                  title="Clear text"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(false)
-                  setSearchQuery('')
-                }}
-                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-black py-1 px-2.5 rounded-md hover:bg-slate-100 cursor-pointer shrink-0"
-              >
-                Cancel
-              </button>
-            </form>
-
-            {/* Mobile Live Search Results Dropdown */}
-            {searchQuery.trim().length > 0 && (
-              <div className="mt-2 w-full bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] border border-slate-200/90 p-2.5 max-h-[360px] overflow-y-auto animate-in fade-in-0 slide-in-from-top-1 duration-150">
-                <div className="flex items-center justify-between px-2.5 py-1 mb-1.5 border-b border-slate-100">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    Search Results
-                  </span>
-                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                    {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'}
-                  </span>
-                </div>
-
-                {searchResults.length > 0 ? (
-                  <div className="space-y-0.5">
-                    {searchResults.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => handleSelectSearchResult(item)}
-                        className="px-3 py-2.5 rounded-xl hover:bg-slate-100/80 active:bg-slate-100 transition-colors cursor-pointer text-left"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-[13.5px] text-slate-900 truncate">
-                            {item.title}
-                          </span>
-                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        </div>
-                        <p className="text-[12px] text-slate-500 line-clamp-1 mt-0.5 leading-snug">
-                          {item.description}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-6 px-4 text-center">
-                    <Search className="w-5 h-5 text-slate-300 mx-auto mb-1.5" />
-                    <p className="text-[13px] font-semibold text-slate-700">No results found for "{searchQuery}"</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Try "Ananda", "Dara", "Aura", or "Physics"</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
 
 
 
@@ -1779,7 +1567,7 @@ export default function Header({
                   onClick={() => handleDropdownItemClick('introduction', 'PRODUCTS')}
                   className="w-full flex items-center justify-between py-2 text-[15px] font-semibold text-black hover:opacity-75"
                 >
-                  <span>{t?.products || 'Products'}</span>
+                  <span>{navProducts || t?.products || 'Products'}</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </button>
                 <div className="pl-1 py-1 space-y-2">
@@ -1901,21 +1689,22 @@ export default function Header({
             {/* Global region mobile */}
             <div className="pt-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">
-                {t?.regionLanguage || (isZh ? '地区与语言' : 'Region & Language')}
+                {t?.regionLanguage || 'Region & Language'}
               </span>
-              <div className="grid grid-cols-3 gap-2">
-                {GLOBAL_LOCALES.map((locale) => (
+              <div className="w-full">
+                {GLOBAL_LOCALES.filter((locale) => locale.code === 'en-in').map((locale) => (
                   <button
                     key={locale.code}
                     type="button"
                     onClick={() => handleSelectLocale(locale)}
-                    className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 p-2 rounded-xl text-xs text-center border cursor-pointer transition-colors ${selectedLocale.code === locale.code
+                    className={`w-full flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs text-center border cursor-pointer transition-colors ${
+                      selectedLocale.code === locale.code
                         ? 'border-slate-900 bg-slate-100 font-semibold text-slate-900'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
+                    }`}
                   >
                     <span className="text-base">{locale.country}</span>
-                    <span className="text-[11.5px]">{locale.label}</span>
+                    <span className="text-xs font-medium">{locale.label}</span>
                   </button>
                 ))}
               </div>

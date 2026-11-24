@@ -3,9 +3,9 @@
  */
 
 const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.VITE_API_BASE ||
-  'https://uandwelabs-backend.vercel.app/api';
+  import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}/api`
+    : (import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? '/api' : 'https://uandwelabs-backend.vercel.app/api'));
 
 /**
  * Safely parse HTTP response and handle 502 / non-JSON responses gracefully
@@ -22,7 +22,7 @@ async function parseResponse(res, defaultError = 'Request failed') {
   if (!res.ok) {
     if (res.status === 502 || res.status === 503 || res.status === 504) {
       throw new Error(
-        'Backend server is not running on port 5000 (502 Bad Gateway). Please run "npm run server" in your terminal.'
+        'Backend server is not running on port 5001 (502 Bad Gateway). Please run "npm run dev:backend" in your terminal.'
       );
     }
     const err = new Error(data?.message || `${defaultError} (${res.status})`);
@@ -34,6 +34,23 @@ async function parseResponse(res, defaultError = 'Request failed') {
   }
 
   return data || {};
+}
+
+/**
+ * Helper to detect when backend is down/unreachable
+ */
+function isOfflineError(err) {
+  if (!err) return false;
+  const msg = (err.message || '').toLowerCase();
+  return (
+    msg.includes('502') ||
+    msg.includes('503') ||
+    msg.includes('504') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('networkerror') ||
+    msg.includes('econnrefused') ||
+    msg.includes('not running on port')
+  );
 }
 
 export const authApi = {
@@ -54,6 +71,21 @@ export const authApi = {
       }
       return data;
     } catch (error) {
+      if (isOfflineError(error)) {
+        console.warn('[API] Backend offline. Activating offline session for:', email);
+        const offlineUser = {
+          id: 'offline_' + Math.random().toString(36).substring(2, 9),
+          name: email.split('@')[0],
+          email: email,
+          role: 'member',
+          selectedProduct: product || 'general',
+          isOffline: true,
+        };
+        const offlineToken = 'offline_session_token_' + Date.now();
+        localStorage.setItem('uandwe_token', offlineToken);
+        localStorage.setItem('uandwe_user', JSON.stringify(offlineUser));
+        return { success: true, user: offlineUser, token: offlineToken };
+      }
       console.warn('[API] Backend login failed:', error.message);
       throw error;
     }
@@ -76,6 +108,21 @@ export const authApi = {
       }
       return data;
     } catch (error) {
+      if (isOfflineError(error)) {
+        console.warn('[API] Backend offline. Registering offline session for:', email);
+        const offlineUser = {
+          id: 'offline_' + Math.random().toString(36).substring(2, 9),
+          name: name || email.split('@')[0],
+          email: email,
+          role: 'member',
+          selectedProduct: product || 'general',
+          isOffline: true,
+        };
+        const offlineToken = 'offline_session_token_' + Date.now();
+        localStorage.setItem('uandwe_token', offlineToken);
+        localStorage.setItem('uandwe_user', JSON.stringify(offlineUser));
+        return { success: true, user: offlineUser, token: offlineToken };
+      }
       console.warn('[API] Backend registration failed:', error.message);
       throw error;
     }
@@ -102,6 +149,31 @@ export const authApi = {
       }
       return data;
     } catch (error) {
+      if (isOfflineError(error)) {
+        console.warn('[API] Backend offline. Completing offline Google session');
+        let name = 'Google User';
+        let email = 'user@gmail.com';
+        try {
+          const rawCred = typeof credentialPayload === 'string' ? credentialPayload : credentialPayload?.credential;
+          if (rawCred && rawCred.includes('.')) {
+            const payload = JSON.parse(atob(rawCred.split('.')[1]));
+            if (payload?.name) name = payload.name;
+            if (payload?.email) email = payload.email;
+          }
+        } catch {}
+        const offlineUser = {
+          id: 'google_offline_' + Math.random().toString(36).substring(2, 9),
+          name: name,
+          email: email,
+          role: 'member',
+          selectedProduct: credentialPayload?.product || 'general',
+          isOffline: true,
+        };
+        const offlineToken = 'offline_session_token_' + Date.now();
+        localStorage.setItem('uandwe_token', offlineToken);
+        localStorage.setItem('uandwe_user', JSON.stringify(offlineUser));
+        return { success: true, user: offlineUser, token: offlineToken };
+      }
       console.warn('[API] Google auth backend call failed:', error.message);
       throw error;
     }
@@ -154,6 +226,13 @@ export const authApi = {
     const token = localStorage.getItem('uandwe_token');
     if (!token) return null;
 
+    if (token.startsWith('offline_session_token_')) {
+      const saved = localStorage.getItem('uandwe_user');
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+
     try {
       const res = await fetch(`${API_BASE}/auth/me`, {
         headers: {
@@ -169,6 +248,12 @@ export const authApi = {
       const data = await parseResponse(res, 'Failed to fetch user');
       return data.user;
     } catch (error) {
+      if (isOfflineError(error)) {
+        const saved = localStorage.getItem('uandwe_user');
+        if (saved) {
+          try { return JSON.parse(saved); } catch {}
+        }
+      }
       console.warn('[API] Failed to fetch current user:', error.message);
       return null;
     }

@@ -5,27 +5,24 @@ import {
   ArrowRight,
   ArrowLeft,
   ArrowUpRight,
-  BookOpen,
+  
   Clock,
   User as UserIcon,
   Share2,
   Check,
-  CheckCircle2,
   X,
-  Sparkles,
-  Layers,
-  Cpu,
-  Globe,
-  Radio,
-  ExternalLink,
+ 
 } from 'lucide-react'
-import CommonCta from '../components/CommonCta'
+import ScrollReveal from '../components/ui/ScrollReveal'
+import AdminEditButton from '../components/AdminEditButton'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
 
 export default function BlogPage({
   user,
   onLogout,
   onNavigateToHome,
+  onNavigateBack,
   onNavigateToLogin,
   onNavigateToAnanda,
   onNavigateToDara,
@@ -46,10 +43,12 @@ export default function BlogPage({
   const [copiedLink, setCopiedLink] = useState(false)
 
   const handleBack = () => {
-    if (onNavigateToHome) {
+    if (onNavigateBack) {
+      onNavigateBack()
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back()
+    } else if (onNavigateToHome) {
       onNavigateToHome()
-    } else if (typeof window !== 'undefined') {
-      window.location.hash = ''
     }
   }
 
@@ -111,10 +110,14 @@ export default function BlogPage({
     }
   }, [activeArticle])
 
-  // Localized articles list
+  // Localized and CMS articles list
+  const [cmsBlogs] = useCmsContent('blogs')
   const articles = useMemo(() => {
+    if (cmsBlogs && Array.isArray(cmsBlogs) && cmsBlogs.length > 0) {
+      return cmsBlogs
+    }
     return bp.articles || []
-  }, [bp.articles])
+  }, [cmsBlogs, bp.articles])
 
   // Filtered articles based on category pill & search query
   const filteredArticles = useMemo(() => {
@@ -243,6 +246,9 @@ export default function BlogPage({
           <img
             src="/building-2.jpg"
             alt="UandWe Labs Perspectives & Stories"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover grayscale opacity-75 scale-100 hover:scale-105 transition-transform duration-1000"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/30 pointer-events-none" />
@@ -254,7 +260,7 @@ export default function BlogPage({
               <button
                 type="button"
                 onClick={handleBack}
-                aria-label="Back to Home"
+                aria-label="Back to Previous Page"
                 className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all duration-300 group cursor-pointer shadow-lg hover:scale-105 active:scale-95 hover:border-white/40"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -278,7 +284,8 @@ export default function BlogPage({
       {/* ======================================================== */}
       {/* 2. DISPATCHES ARTICLE SECTION                            */}
       {/* ======================================================== */}
-      <div id="dispatches" className="w-full pt-16 sm:pt-20 md:pt-24 pb-20 sm:pb-24 md:pb-28 overflow-hidden">
+      <div id="dispatches" className="relative w-full pt-16 sm:pt-20 md:pt-24 pb-20 sm:pb-24 md:pb-28 overflow-hidden">
+        <AdminEditButton section="blogs" field="items" label="Blog Posts" />
         <div className="max-w-[1560px] mx-auto px-6 sm:px-12 lg:px-16">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 sm:gap-6 mb-8 sm:mb-10 lg:mb-12">
             <div>
@@ -361,67 +368,64 @@ export default function BlogPage({
               </button>
             </div>
           ) : (
-            /* Unified continuous grid: each card comes in from the LEFT side when scrolled to */
+            /* Unified continuous grid: each card rises smoothly from the bottom via ScrollReveal */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
               {filteredArticles.map((art, idx) => (
-                <article
+                <ScrollReveal
                   key={art.id || idx}
-                  ref={(el) => (cardElRefs.current[idx] = el)}
-                  onClick={() => setActiveArticle(art)}
-                  className="group flex flex-col justify-between border border-black/10 bg-white hover:border-black transition-all duration-300 cursor-pointer shadow-xs hover:shadow-md"
-                  style={{
-                    transform: cardVisible[idx] ? 'translateX(0)' : 'translateX(-60px)',
-                    opacity: cardVisible[idx] ? 1 : 0,
-                    transition:
-                      'transform 850ms cubic-bezier(0.16, 1, 0.3, 1), opacity 850ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms, box-shadow 300ms',
-                    transitionDelay: getCardDelay(idx, cardVisible[idx]),
-                    willChange: 'transform, opacity',
-                  }}
+                  delay={(idx % 3) * 0.1}
+                  y={50}
+                  className="h-full"
                 >
-                  {/* Article Thumbnail */}
-                  <div>
-                    <div className="aspect-[16/10] bg-neutral-100 overflow-hidden relative border-b border-black/10">
-                      <img
-                        src={art.image}
-                        alt={art.title}
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                        loading="lazy"
-                      />
-                    </div>
-
-                    {/* Metadata & Headline */}
-                    <div className="p-5 sm:p-6 lg:p-7">
-                      <div className="flex items-center gap-2.5 text-xs font-mono text-neutral-400 uppercase tracking-wider mb-2.5">
-                        <span>{art.date}</span>
-                        <span>·</span>
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          {art.readTime}
-                        </span>
+                  <article
+                    onClick={() => setActiveArticle(art)}
+                    className="h-full group flex flex-col justify-between border border-black/10 bg-white hover:border-black transition-all duration-300 cursor-pointer shadow-xs hover:shadow-md"
+                  >
+                    {/* Article Thumbnail */}
+                    <div>
+                      <div className="aspect-[16/10] bg-neutral-100 overflow-hidden relative border-b border-black/10">
+                        <img
+                          src={art.image}
+                          alt={art.title}
+                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                          loading="eager"
+                          decoding="async"
+                        />
                       </div>
 
-                      <h3 className="text-lg sm:text-xl font-normal tracking-tight text-neutral-900 group-hover:text-black mb-2.5 leading-snug">
-                        {art.title}
-                      </h3>
-
-                      <p className="text-neutral-500 font-normal text-sm leading-relaxed mb-5 line-clamp-3">
-                        {art.excerpt}
-                      </p>
-
-                      {/* Tag chips */}
-                      {art.tags && (
-                        <div className="flex flex-wrap gap-1.5 mb-1">
-                          {art.tags.slice(0, 3).map((tag, tIdx) => (
-                            <span
-                              key={tIdx}
-                              className="px-2 py-0.5 rounded bg-neutral-100 text-neutral-600 text-[11px] font-mono"
-                            >
-                              #{tag}
-                            </span>
-                          ))}
+                      {/* Metadata & Headline */}
+                      <div className="p-5 sm:p-6 lg:p-7">
+                        <div className="flex items-center gap-2.5 text-xs font-mono text-neutral-400 uppercase tracking-wider mb-2.5">
+                          <span>{art.date}</span>
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {art.readTime}
+                          </span>
                         </div>
-                      )}
-                    </div>
+
+                        <h3 className="text-lg sm:text-xl font-normal tracking-tight text-neutral-900 group-hover:text-black mb-2.5 leading-snug">
+                          {art.title}
+                        </h3>
+
+                        <p className="text-neutral-500 font-normal text-sm leading-relaxed mb-5 line-clamp-3">
+                          {art.excerpt}
+                        </p>
+
+                        {/* Tag chips */}
+                        {art.tags && (
+                          <div className="flex flex-wrap gap-1.5 mb-1">
+                            {art.tags.slice(0, 3).map((tag, tIdx) => (
+                              <span
+                                key={tIdx}
+                                className="px-2 py-0.5 rounded bg-neutral-100 text-neutral-600 text-[11px] font-mono"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                   </div>
 
                   {/* Card Footer: Author + Arrow */}
@@ -442,7 +446,8 @@ export default function BlogPage({
                     </div>
                   </div>
                 </article>
-              ))}
+              </ScrollReveal>
+            ))}
             </div>
           )}
         </div>
@@ -588,39 +593,54 @@ export default function BlogPage({
 
                 {/* Detailed Technical Body Paragraphs */}
                 <div className="space-y-6 text-sm sm:text-base text-neutral-700 leading-relaxed font-normal">
-                  <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
-                    1. The Architectural & Computational Problem
-                  </h3>
-                  <p>
-                    Traditional engineering workflows separate schematic design from environmental validation. Structural and masterplanning teams must submit CAD assets to third-party consultants, wait days or weeks for computational fluid dynamics (CFD) convergence, and discover aerodynamic buffeting or solar glare penalties only after architectural envelopes are finalized.
-                  </p>
-                  <p>
-                    At UandWe Labs, we treat physics as an interactive design material rather than an afterthought. By executing deterministic mathematical models directly on hardware cache and client WebGL shaders, our platforms eliminate server queues entirely.
-                  </p>
+                  {activeArticle.body ? (
+                    activeArticle.body.split('\n\n').map((para, pIdx) => {
+                      if (para.startsWith('### ') || para.startsWith('## ') || para.startsWith('# ')) {
+                        const headingText = para.replace(/^#+\s*/, '')
+                        return (
+                          <h3 key={pIdx} className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
+                            {headingText}
+                          </h3>
+                        )
+                      }
+                      return <p key={pIdx}>{para}</p>
+                    })
+                  ) : (
+                    <>
+                      <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
+                        1. The Architectural & Computational Problem
+                      </h3>
+                      <p>
+                        Traditional engineering workflows separate schematic design from environmental validation. Structural and masterplanning teams must submit CAD assets to third-party consultants, wait days or weeks for computational fluid dynamics (CFD) convergence, and discover aerodynamic buffeting or solar glare penalties only after architectural envelopes are finalized.
+                      </p>
+                      <p>
+                        At UandWe Labs, we treat physics as an interactive design material rather than an afterthought. By executing deterministic mathematical models directly on hardware cache and client WebGL shaders, our platforms eliminate server queues entirely.
+                      </p>
 
-                  <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
-                    2. Mathematical Architecture & Hardware Optimization
-                  </h3>
-                  <p>
-                    Whether porting 2D Saint-Venant shallow water equations across high-resolution LiDAR Digital Elevation Models, or running INT8 quantized neural pipelines directly in hardened optical sensor nodes at 180 km/h, the principle remains constant: zero cloud latency, zero drift, and absolute sovereignty.
-                  </p>
+                      <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
+                        2. Mathematical Architecture & Hardware Optimization
+                      </h3>
+                      <p>
+                        Whether porting 2D Saint-Venant shallow water equations across high-resolution LiDAR Digital Elevation Models, or running INT8 quantized neural pipelines directly in hardened optical sensor nodes at 180 km/h, the principle remains constant: zero cloud latency, zero drift, and absolute sovereignty.
+                      </p>
 
-                  {/* Technical Quote Callout */}
-                  <div className="p-6 sm:p-8 rounded-2xl bg-neutral-900 text-white my-6">
-                    <p className="text-base sm:text-lg font-normal leading-relaxed italic">
-                      "True innovation is not adding more complexity or requiring continuous cloud telemetry. It is the disciplined reduction of latency until computing feels like natural physical reality."
-                    </p>
-                    <span className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mt-3">
-                      — UandWe Labs Architecture Manifesto
-                    </span>
-                  </div>
+                      <div className="p-6 sm:p-8 rounded-2xl bg-neutral-900 text-white my-6">
+                        <p className="text-base sm:text-lg font-normal leading-relaxed italic">
+                          "True innovation is not adding more complexity or requiring continuous cloud telemetry. It is the disciplined reduction of latency until computing feels like natural physical reality."
+                        </p>
+                        <span className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mt-3">
+                          — UandWe Labs Architecture Manifesto
+                        </span>
+                      </div>
 
-                  <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
-                    3. Field Results & Practical Deployment
-                  </h3>
-                  <p>
-                    Through active deployments across commercial high-rises, residential hillside estates, and municipal perimeter perimeters, our hardware and software systems deliver measurable performance gains: 42% HVAC equipment reduction, sub-300ms contactless fall detection, and zero false alerts on high-speed transit corridors.
-                  </p>
+                      <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight uppercase pt-4 border-t border-black/10">
+                        3. Field Results & Practical Deployment
+                      </h3>
+                      <p>
+                        Through active deployments across commercial high-rises, residential hillside estates, and municipal perimeter perimeters, our hardware and software systems deliver measurable performance gains: 42% HVAC equipment reduction, sub-300ms contactless fall detection, and zero false alerts on high-speed transit corridors.
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Footer Modal Action */}
@@ -659,25 +679,6 @@ export default function BlogPage({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ======================================================== */}
-      {/* 4. MONOCHROMATIC HIGH-IMPACT CTA                         */}
-      {/* ======================================================== */}
-      <CommonCta
-        title={bp.cta?.title || 'Ready to shape the future?'}
-        subtitle={
-          bp.cta?.subtitle ||
-          'Connect with our research and systems engineering desks to review raw simulation datasets, hardware schematics, or co-author technical publications.'
-        }
-        buttonText={bp.cta?.buttonText || 'Connect with Our Research Desk'}
-        onButtonClick={() => {
-          if (onNavigateToCareers) {
-            onNavigateToCareers()
-          } else if (onNavigateToHome) {
-            onNavigateToHome()
-          }
-        }}
-      />
     </div>
   )
 }

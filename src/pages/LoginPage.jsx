@@ -7,7 +7,7 @@ import {
   EyeOff,
   ArrowRight,
   ArrowLeft,
-  AlertCircle,
+
   ShieldCheck,
   RefreshCw,
 } from 'lucide-react'
@@ -23,6 +23,7 @@ const PRODUCT_OPTIONS = [
 export default function LoginPage({
   onLogin,
   onNavigateToHome,
+  onNavigateBack,
   redirectTarget,
   initialMode = 'signup',
 }) {
@@ -31,17 +32,15 @@ export default function LoginPage({
     if (redirectTarget === 'ananda') return 'ananda'
     if (redirectTarget === 'dara') return 'dara'
     if (redirectTarget === 'aura') return 'aura'
-    try {
-      const savedProd = sessionStorage.getItem('uandwe_selected_product')
-      if (savedProd) return savedProd
-    } catch {}
-    return 'ananda'
+    return null
   })
 
   useEffect(() => {
-    try {
-      sessionStorage.setItem('uandwe_selected_product', selectedProduct)
-    } catch {}
+    if (selectedProduct) {
+      try {
+        sessionStorage.setItem('uandwe_selected_product', selectedProduct)
+      } catch {}
+    }
   }, [selectedProduct])
 
   const [productDropdownOpen, setProductDropdownOpen] = useState(false)
@@ -63,14 +62,14 @@ export default function LoginPage({
 
   const [mode, setMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      const hash = window.location.hash.toLowerCase()
-      if (hash === '#signin' || hash === '#login') return 'signin'
-      if (hash === '#signup' || hash === '#register') return 'signup'
+      const path = (window.location.pathname + window.location.hash).toLowerCase()
+      if (path.includes('signin') || path.includes('login')) return 'signin'
+      if (path.includes('signup') || path.includes('register')) return 'signup'
     }
     return initialMode === 'signin' ? 'signin' : 'signup'
   })
   const isSignUp = mode === 'signup'
-  const [isEntered, setIsEntered] = useState(false)
+  const [isEntered, setIsEntered] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(true)
@@ -155,14 +154,6 @@ export default function LoginPage({
     ? 'commercial'
     : null
 
-  // Trigger entrance sequence smoothly on load
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsEntered(true)
-    }, 40)
-    return () => clearTimeout(timer)
-  }, [])
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -219,7 +210,7 @@ export default function LoginPage({
       setLoading(true)
       try {
         const userName = formData.name.trim() || cleanEmail.split('@')[0]
-        const data = await authApi.register(userName, cleanEmail, formData.password, selectedProduct)
+        const data = await authApi.register(userName, cleanEmail, formData.password, selectedProduct || 'general')
         setSubmitted(true)
         if (onLogin) {
           onLogin({
@@ -227,9 +218,9 @@ export default function LoginPage({
             name: data.user.name || userName,
             email: data.user.email || cleanEmail,
             role: data.user.role || 'member',
-            selectedProduct: data.user.selectedProduct || selectedProduct,
+            selectedProduct: data.user.selectedProduct || selectedProduct || 'general',
             isNewAccount: true,
-          }, selectedProduct)
+          }, redirectTarget || null)
         }
       } catch (err) {
         const msg = err.message || ''
@@ -254,7 +245,7 @@ export default function LoginPage({
     } else {
       setLoading(true)
       try {
-        const data = await authApi.login(cleanEmail, formData.password, selectedProduct)
+        const data = await authApi.login(cleanEmail, formData.password, selectedProduct || 'general')
         setSubmitted(true)
         if (onLogin) {
           onLogin({
@@ -262,9 +253,9 @@ export default function LoginPage({
             name: data.user.name,
             email: data.user.email,
             role: data.user.role || 'member',
-            selectedProduct: data.user.selectedProduct || selectedProduct,
+            selectedProduct: data.user.selectedProduct || selectedProduct || 'general',
             isNewAccount: false,
-          }, selectedProduct)
+          }, redirectTarget || null)
         }
       } catch (err) {
         const msg = err.message || ''
@@ -369,9 +360,9 @@ export default function LoginPage({
                 email: data.user.email || profile.email,
                 avatar: data.user.avatar || profile.picture,
                 role: data.user.role || 'member',
-                selectedProduct: data.user.selectedProduct || selectedProduct,
+                selectedProduct: data.user.selectedProduct || selectedProduct || 'general',
                 isNewAccount: false,
-              }, selectedProduct)
+              }, redirectTarget || null)
             }
           } catch (err) {
             console.error('[Google Auth Error]:', err)
@@ -464,9 +455,9 @@ export default function LoginPage({
           email: data.user.email,
           avatar: data.user.avatar,
           role: data.user.role || 'member',
-          selectedProduct: data.user.selectedProduct || selectedProduct,
+          selectedProduct: data.user.selectedProduct || selectedProduct || 'general',
           isNewAccount: false,
-        }, selectedProduct)
+        }, redirectTarget || null)
       }
     } catch (err) {
       setErrorMessage(err.message || 'Invalid or expired verification code.')
@@ -501,17 +492,18 @@ export default function LoginPage({
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col justify-center items-center font-sans selection:bg-slate-800 selection:text-white">
+    <div className="min-h-screen relative flex flex-col justify-center items-center font-sans selection:bg-neutral-800 selection:text-white bg-black">
       
-      {/* ================= ATMOSPHERIC CITY BACKDROP ================= */}
+      {/* ================= FULL PAGE BACKGROUND IMAGE ================= */}
       <div className="fixed inset-0 pointer-events-none select-none z-0">
         <img
           src="/backdrop.jpg"
-          alt="Cityscape Backdrop"
-          className="w-full h-full object-cover object-center filter blur-[6px] scale-105"
+          alt="Login Background"
+          className="w-full h-full object-cover object-center scale-105"
         />
-        <div className="absolute inset-0 bg-slate-950/40 backdrop-contrast-105" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/50" />
+        {/* Atmospheric dark scrim overlays ensuring high contrast and legibility */}
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-black/40 to-black/90" />
       </div>
 
       {/* Floating Success Toast */}
@@ -532,75 +524,111 @@ export default function LoginPage({
 
       {/* Main card wrapper */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8 w-full z-10 my-auto py-10 sm:py-16">
-        {/* ================= CINEMATIC FLOATING MODAL CARD ================= */}
-        <div
-          className={`relative z-10 w-full max-w-5xl rounded-[28px] sm:rounded-[36px] overflow-hidden border border-white/15 bg-slate-950 shadow-[0_35px_100px_rgba(0,0,0,0.85)] transition-all duration-700 ${
-            isEntered ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
-          }`}
-        >
-          {/* Full-bleed Bridge Backdrop Image Spanning Entire Card */}
-          <div className="absolute inset-0 z-0 select-none pointer-events-none">
-            <img
-              src="/backdrop.jpg"
-              alt="Bridge Cityscape"
-              className="w-full h-full object-cover object-center scale-105"
-            />
-            {/* Gradient shading across the card to ensure high contrast */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-black/75 md:to-transparent" />
-            <div className="absolute inset-0 bg-black/25" />
-          </div>
-
+        {/* ================= CINEMATIC FLOATING MODAL CARD (INSTANT FRAME 0 PAINT) ================= */}
+        <div className="relative z-10 w-full max-w-5xl rounded-[28px] sm:rounded-[36px] overflow-hidden border border-white/15 bg-neutral-950/90 backdrop-blur-2xl shadow-[0_35px_100px_rgba(0,0,0,0.85)]">
           {/* Card Split Layout */}
           <div className="relative z-10 flex flex-col md:flex-row min-h-[560px] lg:min-h-[620px] w-full">
             
             {/* ================= LEFT HERO PANEL ================= */}
-            <div className="flex-1 p-8 sm:p-12 lg:p-14 flex flex-col justify-between relative z-10">
-              {/* Top Row: Back Navigation & Optional Category Badge */}
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <button
-                  type="button"
-                  onClick={onNavigateToHome}
-                  className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors font-medium text-xs cursor-pointer group"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                  <span>Back to uandwelabs</span>
-                </button>
-
-                <div>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[11px] font-semibold tracking-wide backdrop-blur-md">
-                    {selectedProduct === 'ananda'
-                      ? 'Ananda Commercial'
-                      : selectedProduct === 'ananda-residential'
-                      ? 'Ananda Residency'
-                      : selectedProduct === 'dara'
-                      ? 'Dara Healthcare'
-                      : selectedProduct === 'aura'
-                      ? 'Aura Physical AI'
-                      : 'Ananda Commercial'}
-                  </span>
-                </div>
+            <div className="flex-1 p-8 sm:p-12 lg:p-14 flex flex-col justify-between relative z-10 overflow-hidden">
+              {/* Left Panel Cityscape Backdrop Image */}
+              <div className="absolute inset-0 z-0 select-none pointer-events-none">
+                <img
+                  src="/backdrop.jpg"
+                  alt="Cityscape Backdrop"
+                  className="w-full h-full object-cover object-center scale-105"
+                />
+                {/* Contrast gradient ensuring white typography pops */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/60" />
+                <div className="absolute inset-0 bg-black/25" />
               </div>
 
-              {/* Center / Hero Typography (Matches Reference Screenshot) */}
-              <div className="my-auto py-10 md:py-8">
+              {/* Top Row: Back Navigation & Optional Category Badge */}
+              <div className="flex items-center justify-between gap-3 flex-wrap relative z-10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onNavigateBack) {
+                      onNavigateBack()
+                    } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                      window.history.back()
+                    } else if (onNavigateToHome) {
+                      onNavigateToHome()
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 hover:border-white/40 text-white transition-all font-medium text-sm sm:text-[14.5px] cursor-pointer group shadow-sm backdrop-blur-md"
+                >
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                  <span>Back</span>
+                </button>
+
+                {redirectTarget && selectedProduct && (
+                  <div>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[11px] font-semibold tracking-wide backdrop-blur-md">
+                      {selectedProduct === 'ananda'
+                        ? 'Ananda Commercial'
+                        : selectedProduct === 'ananda-residential'
+                        ? 'Ananda Residency'
+                        : selectedProduct === 'dara'
+                        ? 'Dara Healthcare'
+                        : selectedProduct === 'aura'
+                        ? 'Aura Physical AI'
+                        : selectedProduct}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Center / Hero Typography */}
+              <div className="my-auto py-10 md:py-8 relative z-10">
                 {isSignUp ? (
                   <>
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-white leading-[1.12] mb-4">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-white leading-[1.12] mb-4">
                       Don&apos;t Have An<br />
                       <span className="font-semibold">Account?</span>
                     </h1>
-                    <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed max-w-sm">
-                      Register to access all the features of our service. Manage your business in one place. It&apos;s free!
+                    <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed max-w-sm mb-6">
+                      Register to access all features of our service. Manage your business in one place. It&apos;s free!
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('signin')
+                        setErrorMessage('')
+                        try {
+                          sessionStorage.setItem('uandwe_login_mode', 'signin')
+                          window.history.replaceState(null, '', '#login')
+                        } catch {}
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-black/40 hover:bg-black/60 text-white text-xs font-medium backdrop-blur-md transition-all cursor-pointer"
+                    >
+                      <span>Already have an account? Sign In</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </>
                 ) : (
                   <>
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-white leading-[1.12] mb-4">
                       Welcome
                     </h1>
-                    <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed max-w-sm">
+                    <p className="text-xs sm:text-sm text-white/80 font-light leading-relaxed max-w-sm mb-6">
                       Sign in to access your high-performance simulation platforms, sovereign edge silicon, and workspaces.
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('signup')
+                        setErrorMessage('')
+                        try {
+                          sessionStorage.setItem('uandwe_login_mode', 'signup')
+                          window.history.replaceState(null, '', '#signup')
+                        } catch {}
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 bg-black/40 hover:bg-black/60 text-white text-xs font-medium backdrop-blur-md transition-all cursor-pointer"
+                    >
+                      <span>Don&apos;t have an account? Sign Up</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </>
                 )}
               </div>
@@ -729,46 +757,6 @@ export default function LoginPage({
                 /* ================= SIGN UP / SIGN IN VIEW (MATCHING SCREENSHOT) ================= */
                 <div className="w-full max-w-sm mx-auto my-auto flex flex-col justify-center">
                   
-                  {/* Sign Up / Sign In Option Switcher (Sign Up First, Sign In Second) */}
-                  <div className="flex items-center p-1 rounded-full bg-white/10 border border-white/15 mb-6 w-full">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode('signup')
-                        setErrorMessage('')
-                        try {
-                          sessionStorage.setItem('uandwe_login_mode', 'signup')
-                          window.history.replaceState(null, '', '#signup')
-                        } catch {}
-                      }}
-                      className={`flex-1 py-1.5 px-3 text-xs rounded-full transition-all cursor-pointer text-center ${
-                        isSignUp
-                          ? 'bg-white text-slate-900 shadow-sm font-semibold'
-                          : 'text-white/70 hover:text-white font-medium'
-                      }`}
-                    >
-                      Sign Up
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode('signin')
-                        setErrorMessage('')
-                        try {
-                          sessionStorage.setItem('uandwe_login_mode', 'signin')
-                          window.history.replaceState(null, '', '#login')
-                        } catch {}
-                      }}
-                      className={`flex-1 py-1.5 px-3 text-xs rounded-full transition-all cursor-pointer text-center ${
-                        !isSignUp
-                          ? 'bg-white text-slate-900 shadow-sm font-semibold'
-                          : 'text-white/70 hover:text-white font-medium'
-                      }`}
-                    >
-                      Sign In
-                    </button>
-                  </div>
-
                   {/* Header Title */}
                   <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-tight mb-6">
                     {isSignUp ? 'Sign Up' : 'Sign In'}
@@ -777,51 +765,53 @@ export default function LoginPage({
                   {/* Form with Clean Underline Inputs */}
                   <form onSubmit={handleSubmit} noValidate>
                     <div className="space-y-6">
-                      {/* Target Product Input Dropdown (Clean Underline Style, Zero Icons) */}
-                      <div ref={productDropdownRef} className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
-                        <label className="block text-[11px] text-white/60 mb-1 font-light">Target Workspace</label>
-                        <div
-                          onClick={() => setProductDropdownOpen(!productDropdownOpen)}
-                          className="flex items-center justify-between cursor-pointer py-0.5 select-none"
-                        >
-                          <span className="text-white text-xs font-medium">
-                            {PRODUCT_OPTIONS.find((p) => p.id === selectedProduct)?.name || 'Ananda Commercial'}
-                          </span>
-                          <span className="text-[10px] text-white/50 tracking-wider uppercase font-mono px-2 py-0.5 rounded border border-white/15 bg-white/5 hover:bg-white/10 hover:text-white transition-colors">
-                            {productDropdownOpen ? 'CLOSE' : 'CHANGE'}
-                          </span>
-                        </div>
-
-                        {/* Dropdown Menu (Zero Icons, Pure Typography) */}
-                        {productDropdownOpen && (
-                          <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-slate-950/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] animate-in fade-in-0 duration-150 space-y-1">
-                            {PRODUCT_OPTIONS.map((prod) => {
-                              const isSelected = selectedProduct === prod.id
-                              return (
-                                <button
-                                  key={prod.id}
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedProduct(prod.id)
-                                    setProductDropdownOpen(false)
-                                  }}
-                                  className={`w-full text-left px-3 py-2 rounded-xl transition-all text-xs cursor-pointer flex items-center justify-between ${
-                                    isSelected
-                                      ? 'bg-white text-slate-950 font-semibold shadow-xs'
-                                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                                  }`}
-                                >
-                                  <span className="text-[12px]">{prod.name}</span>
-                                  <span className={`text-[10px] ${isSelected ? 'text-slate-600' : 'text-white/45'}`}>
-                                    {prod.desc}
-                                  </span>
-                                </button>
-                              )
-                            })}
+                      {/* Target Product Input Dropdown (Only shown when redirected from a specific product action) */}
+                      {redirectTarget && (
+                        <div ref={productDropdownRef} className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
+                          <label className="block text-[11px] text-white/60 mb-1 font-light">Target Workspace</label>
+                          <div
+                            onClick={() => setProductDropdownOpen(!productDropdownOpen)}
+                            className="flex items-center justify-between cursor-pointer py-0.5 select-none"
+                          >
+                            <span className="text-white text-xs font-medium">
+                              {PRODUCT_OPTIONS.find((p) => p.id === selectedProduct)?.name || 'Ananda Commercial'}
+                            </span>
+                            <span className="text-[10px] text-white/50 tracking-wider uppercase font-mono px-2 py-0.5 rounded border border-white/15 bg-white/5 hover:bg-white/10 hover:text-white transition-colors">
+                              {productDropdownOpen ? 'CLOSE' : 'CHANGE'}
+                            </span>
                           </div>
-                        )}
-                      </div>
+
+                          {/* Dropdown Menu (Zero Icons, Pure Typography) */}
+                          {productDropdownOpen && (
+                            <div className="absolute top-full left-0 right-0 mt-2 z-40 bg-slate-950/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] animate-in fade-in-0 duration-150 space-y-1">
+                              {PRODUCT_OPTIONS.map((prod) => {
+                                const isSelected = selectedProduct === prod.id
+                                return (
+                                  <button
+                                    key={prod.id}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedProduct(prod.id)
+                                      setProductDropdownOpen(false)
+                                    }}
+                                    className={`w-full text-left px-3 py-2 rounded-xl transition-all text-xs cursor-pointer flex items-center justify-between ${
+                                      isSelected
+                                        ? 'bg-white text-slate-950 font-semibold shadow-xs'
+                                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                                    }`}
+                                  >
+                                    <span className="text-[12px]">{prod.name}</span>
+                                    <span className={`text-[10px] ${isSelected ? 'text-slate-600' : 'text-white/45'}`}>
+                                      {prod.desc}
+                                    </span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       {/* Email Field */}
                       <div className="relative border-b border-white/20 focus-within:border-white transition-colors pb-1">
                         <label className="block text-[11px] text-white/60 mb-1 font-light">Email</label>
@@ -915,16 +905,16 @@ export default function LoginPage({
                             />
                             <span>Remember me</span>
                           </label>
-                          <a
-                            href="#forgot"
+                          <button
+                            type="button"
                             onClick={(e) => {
                               e.preventDefault()
                               setErrorMessage('Password reset instructions have been dispatched to your email.')
                             }}
-                            className="text-[11.5px] text-white/60 hover:text-white transition-colors hover:underline"
+                            className="text-[11.5px] text-white/60 hover:text-white transition-colors hover:underline cursor-pointer bg-transparent border-0 p-0"
                           >
                             Forgot password?
-                          </a>
+                          </button>
                         </div>
                       )}
                     </div>
@@ -983,6 +973,47 @@ export default function LoginPage({
                       </svg>
                       <span>{isSignUp ? 'Sign up with Google' : 'Continue with Google'}</span>
                     </button>
+                  </div>
+
+                  {/* Switch between Sign In and Sign Up */}
+                  <div className="mt-6 text-center">
+                    {isSignUp ? (
+                      <p className="text-xs text-white/60">
+                        Already have an account?{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode('signin')
+                            setErrorMessage('')
+                            try {
+                              sessionStorage.setItem('uandwe_login_mode', 'signin')
+                              window.history.replaceState(null, '', '#login')
+                            } catch {}
+                          }}
+                          className="text-white font-medium hover:underline cursor-pointer bg-transparent border-0 p-0"
+                        >
+                          Sign In
+                        </button>
+                      </p>
+                    ) : (
+                      <p className="text-xs text-white/60">
+                        Don&apos;t have an account?{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode('signup')
+                            setErrorMessage('')
+                            try {
+                              sessionStorage.setItem('uandwe_login_mode', 'signup')
+                              window.history.replaceState(null, '', '#signup')
+                            } catch {}
+                          }}
+                          className="text-white font-medium hover:underline cursor-pointer bg-transparent border-0 p-0"
+                        >
+                          Sign Up
+                        </button>
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

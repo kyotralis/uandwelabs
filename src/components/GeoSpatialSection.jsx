@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import ProductShowcaseSection from './ProductShowcaseSection'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
 
 import goldenHourUrbanCampus from '../assets/anadha/Golden Hour Urban Campus.webp'
 import duskCampusAirflow from '../assets/anadha/Dusk Campus Airflow Visualization.webp'
@@ -48,35 +50,49 @@ export const RESIDENTIAL_SLIDES = SIMULATION_SLIDES
 export const ANANDA_CATEGORIES = []
 
 export default function GeoSpatialSection({ onNavigateToAnanda }) {
+  const [cmsHome] = useCmsContent('home')
   const { t } = useTranslation()
   const g = t.geospatial || {}
 
   const localizedSlides = useMemo(() => {
-    return SIMULATION_SLIDES.map((slide, idx) => ({
+    const base = (cmsHome?.geoSpatialSlides && Array.isArray(cmsHome.geoSpatialSlides) && cmsHome.geoSpatialSlides.length > 0)
+      ? cmsHome.geoSpatialSlides
+      : SIMULATION_SLIDES
+
+    return base.map((slide, idx) => ({
       ...slide,
-      title: g.slides?.[idx]?.title || slide.title,
-      subtitle: g.slides?.[idx]?.subtitle || slide.subtitle,
-      meta: g.slides?.[idx]?.meta || slide.meta,
+      title: slide.title || g.slides?.[idx]?.title,
+      subtitle: slide.subtitle || g.slides?.[idx]?.subtitle,
+      meta: slide.meta || g.slides?.[idx]?.meta,
     }))
-  }, [g])
+  }, [cmsHome?.geoSpatialSlides, g])
 
   return (
-    <ProductShowcaseSection
-      id="introduction"
-      title={g.title || 'Ananda'}
-      subtitle={g.subtitle || 'Geo Spatial'}
-      description={g.description || 'Planetary-scale solar ray-casting, aerodynamic CFD, and hydrological simulation modules calibrated for towers, campuses, and urban environments.'}
-      buttonText={g.buttonText || 'EXPLORE ANANDA'}
-      onButtonClick={() => {
-        if (onNavigateToAnanda) {
-          onNavigateToAnanda()
-        } else {
-          window.location.hash = 'ananda'
+    <div className="relative">
+      <ProductShowcaseSection
+        id="introduction"
+        title={cmsHome?.geoSpatial?.title || g.title || 'Ananda'}
+        subtitle={cmsHome?.geoSpatial?.subtitle || g.subtitle || 'Geo Spatial'}
+        description={cmsHome?.geoSpatial?.description || g.description || 'Planetary-scale solar ray-casting, aerodynamic CFD, and hydrological simulation modules calibrated for towers, campuses, and urban environments.'}
+        buttonText={cmsHome?.geoSpatial?.buttonText || g.buttonText || 'EXPLORE ANANDA'}
+        onButtonClick={() => {
+          if (onNavigateToAnanda) {
+            onNavigateToAnanda()
+          } else {
+            window.history.pushState(null, '', '/ananda')
+            window.dispatchEvent(new Event('popstate'))
+          }
+        }}
+        nextSectionId="healthcare"
+        slides={localizedSlides}
+        leftControls={
+          <AdminEditButton section="home" field="geoSpatial" label="Ananda Overview" buttonText="Edit Overview" inline />
         }
-      }}
-      nextSectionId="healthcare"
-      slides={localizedSlides}
-    />
+        extraControls={
+          <AdminEditButton section="home" field="geoSpatialSlides" label="GeoSpatial Simulation" buttonText="Edit Slides" inline />
+        }
+      />
+    </div>
   )
 }
 

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from '../i18n'
 import CommonCta from './CommonCta'
+import ScrollReveal from './ui/ScrollReveal'
 import { openAuthModal } from '../utils/authPrompt'
 import { isUserAuthorizedForProduct } from '../utils/accountManager'
 
@@ -137,61 +138,64 @@ export function ProductHero({
 }
 
 // ========================================================
-// 2. PRODUCT GALLERY (ASYMMETRIC 2-COLUMN)
+// 2. PRODUCT GALLERY (DYNAMIC RESPONSIVE MULTI-COLUMN)
 // ========================================================
 export function ProductGallery({ items = [], className = '' }) {
-  if (!items || items.length < 2) return null
+  if (!items || items.length === 0) return null
   const [ref, inView] = useAnandaInView(220)
 
-  return (
-    <div ref={ref} className={`w-full py-20 md:py-24 border-b border-black/10 overflow-hidden ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 w-full items-start">
-        {/* Card 1 - Glides from down 160px with dark label box matching reference */}
-        <div
-          className="aspect-[4/3] bg-neutral-100 relative group overflow-hidden border border-black/10 cursor-pointer"
-          style={{
-            transform: inView ? 'translateY(0)' : 'translateY(160px)',
-            opacity: inView ? 1 : 0,
-            transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-            willChange: 'transform, opacity',
-          }}
-        >
-          <img
-            src={items[0].image}
-            alt={items[0].alt || items[0].title}
-            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-          />
-          <div className="absolute bottom-0 left-0 p-8 bg-black text-white border-t border-r border-white/20 group-hover:bg-white group-hover:text-black transition-colors duration-500 max-w-md">
-            <h3 className="text-2xl font-normal tracking-tight mb-2">{items[0].title}</h3>
-            <p className="text-sm font-normal text-neutral-300 group-hover:text-neutral-600 transition-colors">
-              {items[0].desc}
-            </p>
-          </div>
-        </div>
+  const gridClass =
+    items.length === 2
+      ? 'grid-cols-1 md:grid-cols-2'
+      : items.length === 3
+        ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
 
-        {/* Card 2 (Asymmetric Staggered Drop: Top of Card 2 offset downward, glides up with delay & light label box) */}
-        <div
-          className="aspect-[4/3] bg-neutral-100 relative group overflow-hidden border border-black/10 mt-0 md:mt-20 lg:mt-28 cursor-pointer"
-          style={{
-            transform: inView ? 'translateY(0)' : 'translateY(160px)',
-            opacity: inView ? 1 : 0,
-            transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-            transitionDelay: inView ? '180ms' : '0ms',
-            willChange: 'transform, opacity',
-          }}
-        >
-          <img
-            src={items[1].image}
-            alt={items[1].alt || items[1].title}
-            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-          />
-          <div className="absolute bottom-0 left-0 p-8 bg-white text-neutral-900 border-t border-r border-black/10 group-hover:bg-black group-hover:text-white transition-colors duration-500 max-w-md">
-            <h3 className="text-2xl font-normal tracking-tight mb-2">{items[1].title}</h3>
-            <p className="text-sm font-normal text-neutral-500 group-hover:text-neutral-300 transition-colors">
-              {items[1].desc}
-            </p>
-          </div>
-        </div>
+  return (
+    <div ref={ref} className={`w-full pt-8 sm:pt-12 md:pt-14 pb-4 sm:pb-6 md:pb-8 overflow-hidden ${className}`}>
+      <div className={`grid ${gridClass} gap-8 lg:gap-10 w-full items-start`}>
+        {items.map((item, idx) => {
+          const isDark = idx % 2 === 0
+          return (
+            <div
+              key={item.id || idx}
+              className={`aspect-[4/3] bg-neutral-100 relative group overflow-hidden border border-black/10 cursor-pointer ${
+                idx % 2 === 1 ? 'mt-0 md:mt-12 lg:mt-16 xl:mt-20' : ''
+              } ${item.className || ''}`}
+              style={{
+                transform: inView ? 'translateY(0)' : 'translateY(160px)',
+                opacity: inView ? 1 : 0,
+                transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
+                transitionDelay: inView ? `${idx * 160}ms` : '0ms',
+                willChange: 'transform, opacity',
+              }}
+            >
+              <img
+                src={item.image || item.src}
+                alt={item.alt || item.title}
+                className={`w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ${item.imageClassName || ''}`}
+              />
+              <div
+                className={`absolute bottom-0 left-0 p-6 sm:p-8 border-t border-r transition-colors duration-500 max-w-md ${
+                  isDark
+                    ? 'bg-black text-white border-white/20 group-hover:bg-white group-hover:text-black'
+                    : 'bg-white text-neutral-900 border-black/10 group-hover:bg-black group-hover:text-white'
+                }`}
+              >
+                <h3 className="text-xl sm:text-2xl font-normal tracking-tight mb-2">{item.title}</h3>
+                <p
+                  className={`text-sm font-normal transition-colors ${
+                    isDark
+                      ? 'text-neutral-300 group-hover:text-neutral-600'
+                      : 'text-neutral-500 group-hover:text-neutral-300'
+                  }`}
+                >
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -199,127 +203,41 @@ export function ProductGallery({ items = [], className = '' }) {
 
 // ========================================================
 // 3. PRODUCT ARCHITECTURE GRID (CONTIGUOUS BORDER GRID)
-//    Responsive scroll animations:
-//    - Desktop (lg, ≥1024): 3-col, row of 3 cards animates together
-//    - Tablet  (md, 768-1023): 2-col, pairs of 2 cards animate together
-//    - Mobile  (sm, <768): 1-col, each card animates individually
+//    Streamlined with unified ScrollReveal animation system
 // ========================================================
 export function ProductArchitectureGrid({ title, features = [], className = '' }) {
-  const [titleRef, titleInView] = useAnandaInView(220)
-  const cardElRefs = useRef([])
-  const [cardVisible, setCardVisible] = useState(() => features.map(() => false))
-  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
-
-  // Responsive stagger delay per card
-  const getCardDelay = (idx, isVisible) => {
-    if (!isVisible) return '0ms'
-    if (screenWidth >= 1024) return `${(idx % 3) * 160}ms`
-    if (screenWidth >= 768) return `${(idx % 2) * 140}ms`
-    return '0ms'
-  }
-
-  useEffect(() => {
-    const count = features.length
-
-    const checkCards = () => {
-      const vh = window.innerHeight || document.documentElement.clientHeight
-      const vw = window.innerWidth || document.documentElement.clientWidth
-      setScreenWidth(vw)
-
-      const isInView = (el) => {
-        if (!el) return false
-        const r = el.getBoundingClientRect()
-        return r.top < vh - 50 && r.bottom > -200
-      }
-
-      const next = new Array(count).fill(false)
-
-      if (vw >= 1024) {
-        // Desktop: groups of 3
-        for (let i = 0; i < count; i += 3) {
-          const rowIndices = []
-          for (let j = i; j < Math.min(i + 3, count); j++) rowIndices.push(j)
-          const rowVis = rowIndices.some((idx) => isInView(cardElRefs.current[idx]))
-          rowIndices.forEach((idx) => { next[idx] = rowVis })
-        }
-      } else if (vw >= 768) {
-        // Tablet: groups of 2 ("two two cards")
-        for (let i = 0; i < count; i += 2) {
-          const rowIndices = []
-          for (let j = i; j < Math.min(i + 2, count); j++) rowIndices.push(j)
-          const rowVis = rowIndices.some((idx) => isInView(cardElRefs.current[idx]))
-          rowIndices.forEach((idx) => { next[idx] = rowVis })
-        }
-      } else {
-        // Mobile: each card individually ("one one card")
-        for (let i = 0; i < count; i++) {
-          next[i] = isInView(cardElRefs.current[i])
-        }
-      }
-
-      setCardVisible((prev) => {
-        for (let i = 0; i < count; i++) {
-          if (prev[i] !== next[i]) return next
-        }
-        return prev
-      })
-    }
-
-    window.addEventListener('scroll', checkCards, { passive: true })
-    window.addEventListener('resize', checkCards, { passive: true })
-    checkCards()
-    const t = setTimeout(checkCards, 80)
-
-    return () => {
-      window.removeEventListener('scroll', checkCards)
-      window.removeEventListener('resize', checkCards)
-      clearTimeout(t)
-    }
-  }, [features.length])
-
   return (
-    <div className={`w-full py-20 md:py-24 border-b border-black/10 overflow-hidden ${className}`}>
-      <div
-        ref={titleRef}
-        className="max-w-3xl mb-8 md:mb-12"
-        style={{
-          transform: titleInView ? 'translateY(0)' : 'translateY(80px)',
-          opacity: titleInView ? 1 : 0,
-          transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-          willChange: 'transform, opacity',
-        }}
-      >
-        <h2 className="text-3xl md:text-5xl font-normal tracking-tight text-neutral-900 uppercase">
-          {title}
-        </h2>
-      </div>
+    <div className={`w-full py-6 sm:py-8 md:py-10 overflow-hidden ${className}`}>
+      <ScrollReveal y={50}>
+        <div className="max-w-3xl mb-6 md:mb-8">
+          <h2 className="text-3xl md:text-5xl font-normal tracking-tight text-neutral-900 uppercase">
+            {title}
+          </h2>
+        </div>
+      </ScrollReveal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-black/10 w-full">
         {features.map((feature, idx) => (
-          <div
+          <ScrollReveal
             key={idx}
-            ref={(el) => (cardElRefs.current[idx] = el)}
-            className="p-10 md:p-12 border-b border-r border-black/10 flex flex-col justify-start group hover:bg-black transition-colors duration-500 cursor-default"
-            style={{
-              transform: cardVisible[idx] ? 'translateY(0)' : 'translateY(160px)',
-              opacity: cardVisible[idx] ? 1 : 0,
-              transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms',
-              transitionDelay: getCardDelay(idx, cardVisible[idx]),
-              willChange: 'transform, opacity',
-            }}
+            delay={(idx % 3) * 0.1}
+            y={60}
+            className="h-full border-b border-r border-black/10"
           >
-            <div className="text-neutral-900 group-hover:text-white transition-colors duration-500 mb-8">
-              {feature.icon}
+            <div className="p-10 md:p-12 flex flex-col justify-start group hover:bg-black transition-colors duration-500 cursor-default h-full">
+              <div className="text-neutral-900 group-hover:text-white transition-colors duration-500 mb-8">
+                {feature.icon}
+              </div>
+
+              <h3 className="text-2xl font-normal text-neutral-900 tracking-tight mb-4 group-hover:text-white transition-colors duration-500">
+                {feature.title}
+              </h3>
+
+              <p className="text-neutral-500 font-normal text-sm leading-relaxed group-hover:text-neutral-400 transition-colors duration-500">
+                {feature.desc}
+              </p>
             </div>
-
-            <h3 className="text-2xl font-normal text-neutral-900 tracking-tight mb-4 group-hover:text-white transition-colors duration-500">
-              {feature.title}
-            </h3>
-
-            <p className="text-neutral-500 font-normal text-sm leading-relaxed group-hover:text-neutral-400 transition-colors duration-500">
-              {feature.desc}
-            </p>
-          </div>
+          </ScrollReveal>
         ))}
       </div>
     </div>
@@ -328,135 +246,50 @@ export function ProductArchitectureGrid({ title, features = [], className = '' }
 
 // ========================================================
 // 4. PRODUCT PILLARS GRID (4-COLUMN EDITORIAL)
-//    Responsive scroll animations:
-//    - Desktop (lg, ≥1024): 4-col, row of 4 pillars animates together
-//    - Tablet  (sm, 640-1023): 2-col, pairs of 2 pillars animate together
-//    - Mobile  (<640): 1-col, each pillar animates individually
+//    Streamlined with unified ScrollReveal animation system
 // ========================================================
 export function ProductPillarsGrid({ title, pillars = [], className = '' }) {
-  const [titleRef, titleInView] = useAnandaInView(220)
-  const pillarElRefs = useRef([])
-  const [pillarVisible, setPillarVisible] = useState(() => pillars.map(() => false))
-  const [sw, setSw] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
-
-  const getPillarDelay = (idx, isVisible) => {
-    if (!isVisible) return '0ms'
-    if (sw >= 1024) return `${(idx % 4) * 140}ms`
-    if (sw >= 640) return `${(idx % 2) * 140}ms`
-    return '0ms'
-  }
-
-  useEffect(() => {
-    const count = pillars.length
-
-    const checkPillars = () => {
-      const vh = window.innerHeight || document.documentElement.clientHeight
-      const vw = window.innerWidth || document.documentElement.clientWidth
-      setSw(vw)
-
-      const isInView = (el) => {
-        if (!el) return false
-        const r = el.getBoundingClientRect()
-        return r.top < vh - 50 && r.bottom > -200
-      }
-
-      const next = new Array(count).fill(false)
-
-      if (vw >= 1024) {
-        // Desktop: groups of 4
-        for (let i = 0; i < count; i += 4) {
-          const row = []
-          for (let j = i; j < Math.min(i + 4, count); j++) row.push(j)
-          const vis = row.some((idx) => isInView(pillarElRefs.current[idx]))
-          row.forEach((idx) => { next[idx] = vis })
-        }
-      } else if (vw >= 640) {
-        // Tablet: groups of 2
-        for (let i = 0; i < count; i += 2) {
-          const row = []
-          for (let j = i; j < Math.min(i + 2, count); j++) row.push(j)
-          const vis = row.some((idx) => isInView(pillarElRefs.current[idx]))
-          row.forEach((idx) => { next[idx] = vis })
-        }
-      } else {
-        // Mobile: individual
-        for (let i = 0; i < count; i++) {
-          next[i] = isInView(pillarElRefs.current[i])
-        }
-      }
-
-      setPillarVisible((prev) => {
-        for (let i = 0; i < count; i++) {
-          if (prev[i] !== next[i]) return next
-        }
-        return prev
-      })
-    }
-
-    window.addEventListener('scroll', checkPillars, { passive: true })
-    window.addEventListener('resize', checkPillars, { passive: true })
-    checkPillars()
-    const t = setTimeout(checkPillars, 80)
-
-    return () => {
-      window.removeEventListener('scroll', checkPillars)
-      window.removeEventListener('resize', checkPillars)
-      clearTimeout(t)
-    }
-  }, [pillars.length])
-
   return (
-    <div className={`w-full py-20 md:py-24 border-b border-black/10 overflow-hidden ${className}`}>
+    <div className={`w-full py-6 sm:py-8 md:py-10 overflow-hidden ${className}`}>
       {/* Section Header */}
-      <div
-        ref={titleRef}
-        className="max-w-3xl mb-8 md:mb-12"
-        style={{
-          transform: titleInView ? 'translateY(0)' : 'translateY(80px)',
-          opacity: titleInView ? 1 : 0,
-          transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-          willChange: 'transform, opacity',
-        }}
-      >
-        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-tight text-neutral-900 uppercase leading-[1.08]">
-          {title}
-        </h2>
-      </div>
+      <ScrollReveal y={50}>
+        <div className="max-w-3xl mb-6 md:mb-8">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] tracking-tight text-neutral-900 uppercase leading-[1.08]">
+            {title}
+          </h2>
+        </div>
+      </ScrollReveal>
 
       {/* 4-Column Editorial Pillars Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-black/10 w-full">
         {pillars.map((pillar, idx) => (
-          <div
+          <ScrollReveal
             key={pillar.title || idx}
-            ref={(el) => (pillarElRefs.current[idx] = el)}
-            className="p-8 sm:p-10 border-b border-r border-black/10 flex flex-col justify-between group hover:bg-black transition-colors duration-500 cursor-default"
-            style={{
-              transform: pillarVisible[idx] ? 'translateY(0)' : 'translateY(160px)',
-              opacity: pillarVisible[idx] ? 1 : 0,
-              transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms',
-              transitionDelay: getPillarDelay(idx, pillarVisible[idx]),
-              willChange: 'transform, opacity',
-            }}
+            delay={(idx % 4) * 0.1}
+            y={60}
+            className="h-full border-b border-r border-black/10"
           >
-            <div className="space-y-6">
-              <div className="text-neutral-700 group-hover:text-white transition-colors duration-500 mb-8">
-                {pillar.icon}
-              </div>
+            <div className="p-8 sm:p-10 flex flex-col justify-between group hover:bg-black transition-colors duration-500 cursor-default h-full">
+              <div className="space-y-6">
+                <div className="text-neutral-700 group-hover:text-white transition-colors duration-500 mb-8">
+                  {pillar.icon}
+                </div>
 
-              <div>
-                <h3 className="text-2xl font-normal tracking-tight text-neutral-900 group-hover:text-white transition-colors duration-500 mb-2">
-                  {pillar.title}
-                </h3>
-                <p className="text-xs font-mono uppercase tracking-wider text-neutral-500 group-hover:text-neutral-400 transition-colors duration-500">
-                  {pillar.tagline}
+                <div>
+                  <h3 className="text-2xl font-normal tracking-tight text-neutral-900 group-hover:text-white transition-colors duration-500 mb-2">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-xs font-mono uppercase tracking-wider text-neutral-500 group-hover:text-neutral-400 transition-colors duration-500">
+                    {pillar.tagline}
+                  </p>
+                </div>
+
+                <p className="text-sm text-neutral-500 leading-relaxed font-normal group-hover:text-neutral-300 transition-colors duration-500">
+                  {pillar.desc}
                 </p>
               </div>
-
-              <p className="text-sm text-neutral-500 leading-relaxed font-normal group-hover:text-neutral-300 transition-colors duration-500">
-                {pillar.desc}
-              </p>
             </div>
-          </div>
+          </ScrollReveal>
         ))}
       </div>
     </div>
@@ -465,9 +298,7 @@ export function ProductPillarsGrid({ title, pillars = [], className = '' }) {
 
 // ========================================================
 // 5. PRODUCT DARK SHOWCASE (INVERTED HOVER TO WHITE)
-//    Responsive scroll animations:
-//    - Desktop (md, ≥768): 3-col, all 3 cards animate together
-//    - Mobile  (<768): 1-col, each card animates individually
+//    Streamlined with unified ScrollReveal animation system
 // ========================================================
 export function ProductDarkShowcase({
   backgroundImage,
@@ -475,60 +306,8 @@ export function ProductDarkShowcase({
   cards = [],
   className = '',
 }) {
-  const [titleRef, titleInView] = useAnandaInView(220)
-  const darkCardRefs = useRef([])
-  const [darkCardVisible, setDarkCardVisible] = useState(() => cards.map(() => false))
-  const [darkSw, setDarkSw] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
-
-  useEffect(() => {
-    const count = cards.length
-
-    const checkDarkCards = () => {
-      const vh = window.innerHeight || document.documentElement.clientHeight
-      const vw = window.innerWidth || document.documentElement.clientWidth
-      setDarkSw(vw)
-
-      const isInView = (el) => {
-        if (!el) return false
-        const r = el.getBoundingClientRect()
-        return r.top < vh - 50 && r.bottom > -200
-      }
-
-      const next = new Array(count).fill(false)
-
-      if (vw >= 1024) {
-        // Desktop (lg): all 3 cards in one row animate together
-        const anyVis = darkCardRefs.current.some((el) => isInView(el))
-        next.fill(anyVis)
-      } else {
-        // Tablet & Mobile (< 1024px, 1-column): each card individually
-        for (let i = 0; i < count; i++) {
-          next[i] = isInView(darkCardRefs.current[i])
-        }
-      }
-
-      setDarkCardVisible((prev) => {
-        for (let i = 0; i < count; i++) {
-          if (prev[i] !== next[i]) return next
-        }
-        return prev
-      })
-    }
-
-    window.addEventListener('scroll', checkDarkCards, { passive: true })
-    window.addEventListener('resize', checkDarkCards, { passive: true })
-    checkDarkCards()
-    const t = setTimeout(checkDarkCards, 80)
-
-    return () => {
-      window.removeEventListener('scroll', checkDarkCards)
-      window.removeEventListener('resize', checkDarkCards)
-      clearTimeout(t)
-    }
-  }, [cards.length])
-
   return (
-    <div className={`w-full bg-black text-white py-20 md:py-24 relative overflow-hidden ${className}`}>
+    <div className={`w-full bg-black text-white py-10 sm:py-12 md:py-16 relative overflow-hidden ${className}`}>
       {/* Subtle Ambient Background Scrim with Grayscale Visual */}
       {backgroundImage && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -544,44 +323,32 @@ export function ProductDarkShowcase({
 
       <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] 2xl:max-w-[1840px] mx-auto w-full relative z-10">
         {/* Section Header */}
-        <div
-          ref={titleRef}
-          className="mb-8 md:mb-12 pb-6 border-b border-white/10"
-          style={{
-            transform: titleInView ? 'translateY(0)' : 'translateY(80px)',
-            opacity: titleInView ? 1 : 0,
-            transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1)',
-            willChange: 'transform, opacity',
-          }}
-        >
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-white leading-[1.08]">
-            {title}
-          </h2>
-        </div>
+        <ScrollReveal y={50}>
+          <div className="mb-6 md:mb-8 pb-6 border-b border-white/10">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-white leading-[1.08]">
+              {title}
+            </h2>
+          </div>
+        </ScrollReveal>
 
         {/* 3-Column Architectural Cards Grid with Inverted Hover to White */}
-        {/* 1 col on mobile & tablet (< 1024px), 3 cols on desktop (≥ 1024px) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {cards.map((card, idx) => (
-            <div
+            <ScrollReveal
               key={idx}
-              ref={(el) => (darkCardRefs.current[idx] = el)}
-              className="bg-neutral-950/85 backdrop-blur-2xl border border-white/15 p-8 sm:p-10 flex flex-col justify-start hover:bg-white hover:border-white transition-all duration-500 group cursor-default"
-              style={{
-                transform: darkCardVisible[idx] ? 'translateY(0)' : 'translateY(160px)',
-                opacity: darkCardVisible[idx] ? 1 : 0,
-                transition: 'transform 1250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1250ms cubic-bezier(0.16, 1, 0.3, 1), background-color 500ms',
-                transitionDelay: darkCardVisible[idx] ? `${idx * 160}ms` : '0ms',
-                willChange: 'transform, opacity',
-              }}
+              delay={(idx % 3) * 0.12}
+              y={60}
+              className="h-full"
             >
-              <h3 className="text-2xl sm:text-3xl font-normal text-white group-hover:text-black tracking-tight mb-4 transition-colors duration-500">
-                {card.title}
-              </h3>
-              <p className="text-sm sm:text-base text-neutral-400 group-hover:text-neutral-800 leading-relaxed font-normal transition-colors duration-500">
-                {card.desc}
-              </p>
-            </div>
+              <div className="bg-neutral-950/85 backdrop-blur-2xl border border-white/15 p-8 sm:p-10 flex flex-col justify-start hover:bg-white hover:border-white transition-all duration-500 group cursor-default h-full">
+                <h3 className="text-2xl sm:text-3xl font-normal text-white group-hover:text-black tracking-tight mb-4 transition-colors duration-500">
+                  {card.title}
+                </h3>
+                <p className="text-sm sm:text-base text-neutral-400 group-hover:text-neutral-800 leading-relaxed font-normal transition-colors duration-500">
+                  {card.desc}
+                </p>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
@@ -600,10 +367,8 @@ export function ProductPurposeStatement({
   description,
   className = '',
 }) {
-  const [ref, inView] = useAnandaInView(220)
-
   return (
-    <div ref={ref} className={`w-full py-20 md:py-24 border-b border-black/10 relative overflow-hidden bg-white text-neutral-900 group ${className}`}>
+    <div className={`w-full py-10 sm:py-12 md:py-16 relative overflow-hidden bg-white text-neutral-900 group ${className}`}>
       {/* Subtle Ambient Background Scrim with Grayscale Imagery */}
       {backgroundImage && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -618,24 +383,18 @@ export function ProductPurposeStatement({
       )}
 
       <div className="px-6 sm:px-12 lg:px-16 max-w-[1560px] 2xl:max-w-[1840px] mx-auto w-full relative z-10 flex flex-col items-center justify-center">
-        <div
-          className="max-w-4xl mx-auto text-center space-y-6 flex flex-col items-center"
-          style={{
-            transform: inView ? 'translateY(0)' : 'translateY(120px)',
-            opacity: inView ? 1 : 0,
-            transition: 'transform 1350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1350ms cubic-bezier(0.16, 1, 0.3, 1)',
-            willChange: 'transform, opacity',
-          }}
-        >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-900 leading-[1.12] text-center">
-            <span className="block">{line1}</span>
-            <span className="block">{line2}</span>
-          </h2>
+        <ScrollReveal y={60}>
+          <div className="max-w-4xl mx-auto text-center space-y-6 flex flex-col items-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal font-['Inter'] uppercase tracking-tight text-neutral-900 leading-[1.12] text-center">
+              <span className="block">{line1}</span>
+              <span className="block">{line2}</span>
+            </h2>
 
-          <p className="text-base sm:text-lg md:text-xl text-neutral-600 font-normal leading-relaxed max-w-2xl text-center mx-auto">
-            {description}
-          </p>
-        </div>
+            <p className="text-base sm:text-lg md:text-xl text-neutral-600 font-normal leading-relaxed max-w-2xl text-center mx-auto">
+              {description}
+            </p>
+          </div>
+        </ScrollReveal>
       </div>
     </div>
   )

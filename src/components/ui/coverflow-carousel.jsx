@@ -24,6 +24,7 @@ export function CoverflowCarousel({
   cardClassName,
   onSlideChange,
   isUnrolled: propIsUnrolled,
+  extraControls = null,
 }) {
   const count = slides.length
 
@@ -46,11 +47,13 @@ export function CoverflowCarousel({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setInternalUnrolled(entry.isIntersecting)
+        if (entry.isIntersecting) {
+          setInternalUnrolled(true)
+        }
       },
       {
-        threshold: 0.25,
-        rootMargin: '0px 0px -100px 0px',
+        threshold: 0.15,
+        rootMargin: '0px 0px 50px 0px',
       }
     )
 
@@ -100,6 +103,14 @@ export function CoverflowCarousel({
       const fadeFactor = Math.max(0.4, 1 - fade * distance)
       card.style.setProperty('--cf-fade', String(fadeFactor * edge))
       card.style.zIndex = String(100 - Math.round(distance))
+
+      if (Math.abs(offset) < 0.25) {
+        card.dataset.side = 'center'
+      } else if (offset > 0) {
+        card.dataset.side = 'right'
+      } else {
+        card.dataset.side = 'left'
+      }
     })
   }, [count, depth, fade, falloff, gap, loop, rotate])
 
@@ -370,32 +381,37 @@ export function CoverflowCarousel({
       aria-roledescription="carousel"
       aria-label={label}
     >
-      {/* Top-Right Navigation Controls (NVIDIA Style) */}
-      {showNavigation && (
+      {/* Top-Right Navigation Controls (NVIDIA Style) & Extra Header Controls */}
+      {(showNavigation || extraControls) && (
         <div
-          className="flex items-center justify-end gap-1.5 sm:gap-2 mb-2 sm:mb-3 pr-1 sm:pr-2"
+          className="flex items-center justify-end gap-2.5 sm:gap-3 mb-2 sm:mb-3 pr-1 sm:pr-2"
           style={{
             opacity: isUnrolled ? 1 : 0,
             pointerEvents: isUnrolled ? 'auto' : 'none',
             transition: isUnrolled ? 'opacity 600ms ease 300ms' : 'opacity 300ms ease',
           }}
         >
-          <button
-            type="button"
-            aria-label="Previous slide"
-            onClick={() => nudge(-1)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer border border-slate-800"
-          >
-            <ChevronLeft className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Next slide"
-            onClick={() => nudge(1)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer border border-slate-800"
-          >
-            <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-          </button>
+          {extraControls}
+          {showNavigation && (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                aria-label="Previous slide"
+                onClick={() => nudge(-1)}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer border border-slate-800"
+              >
+                <ChevronLeft className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next slide"
+                onClick={() => nudge(1)}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer border border-slate-800"
+              >
+                <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -452,7 +468,7 @@ export function CoverflowCarousel({
                     handleCardClick(e, index)
                   }}
                   className={cn(
-                    'absolute left-1/2 p-1 sm:p-[5px] rounded-3xl bg-[var(--site-card-bg)] shadow-2xl will-change-transform cursor-pointer border-2 border-[var(--site-border)] ring-1 ring-slate-900/10 hover:shadow-black/40 overflow-hidden',
+                    'group absolute left-1/2 p-1 sm:p-[5px] rounded-3xl bg-[var(--site-card-bg)] shadow-2xl will-change-transform cursor-pointer border-2 border-[var(--site-border)] ring-1 ring-slate-900/10 hover:shadow-black/40 overflow-hidden',
                     cardClassName,
                   )}
                   style={{
@@ -461,8 +477,8 @@ export function CoverflowCarousel({
                     bottom: isUnrolled ? '0px' : '50%',
                     opacity: isUnrolled ? 1 : 0,
                     transition: isUnrolled
-                      ? `top 1650ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, bottom 1650ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, opacity 1200ms ease ${delay}ms`
-                      : 'top 500ms ease, bottom 500ms ease, opacity 400ms ease',
+                      ? `top 1100ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, bottom 1100ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, opacity 800ms ease ${delay}ms`
+                      : 'top 400ms ease, bottom 400ms ease, opacity 300ms ease',
                   }}
                 >
                   {/* Inner Card Container */}
@@ -480,6 +496,8 @@ export function CoverflowCarousel({
                         src={slide.src}
                         alt={slide.alt || slide.title || ''}
                         draggable={false}
+                        loading="eager"
+                        decoding="async"
                         className="h-full w-full select-none object-cover pointer-events-none"
                       />
 
@@ -490,7 +508,7 @@ export function CoverflowCarousel({
                       {/* Scrim & title inside card */}
                       {slide.title && (
                         <div className="absolute inset-0 flex flex-col justify-end p-3.5 sm:p-5 md:p-6 lg:p-7 text-white pointer-events-none z-10">
-                          <div className="w-full">
+                          <div className="w-full text-left transition-all duration-300 group-data-[side=right]:text-right group-data-[side=right]:pl-10 group-data-[side=right]:pr-1">
                             <p
                               className={cn(
                                 "font-semibold tracking-wide uppercase font-['Inter'] leading-snug sm:leading-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]",

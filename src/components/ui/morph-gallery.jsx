@@ -205,8 +205,15 @@ const loadImage = (src) =>
     img.crossOrigin = "anonymous"
     img.decoding = "async"
     img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error("could not load " + src))
+    img.onerror = () => {
+      const fallbackImg = new Image()
+      fallbackImg.decoding = "async"
+      fallbackImg.onload = () => resolve(fallbackImg)
+      fallbackImg.onerror = () => reject(new Error("could not load " + src))
+      fallbackImg.src = src
+    }
     img.src = src
+    if (img.complete && img.naturalWidth > 0) resolve(img)
   })
 
 export default function MorphGallery({
@@ -284,6 +291,7 @@ export default function MorphGallery({
       canvas.getContext("experimental-webgl")
     if (!gl) {
       setFailed(true)
+      onReady?.()
       return
     }
 
@@ -296,7 +304,6 @@ export default function MorphGallery({
     let raf = 0
     let disposed = false
     let isLoopRunning = false
-    let isVisible = true
 
     // Dissolve state, in the loop rather than in React: it changes every frame.
     let from = active
@@ -371,7 +378,7 @@ export default function MorphGallery({
     }
 
     const loopStep = () => {
-      if (disposed || !isVisible) {
+      if (disposed) {
         isLoopRunning = false
         return
       }
@@ -384,42 +391,33 @@ export default function MorphGallery({
       }
     }
 
+    const resize = () => {
+      if (disposed) return
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const clientW = canvas.clientWidth || window.innerWidth
+      const clientH = canvas.clientHeight || window.innerHeight
+      const w = Math.round(clientW * dpr)
+      const h = Math.round(clientH * dpr)
+      if (w === 0 || h === 0) return
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w
+        canvas.height = h
+        gl.viewport(0, 0, w, h)
+        draw()
+      }
+    }
+
     const wakeUp = () => {
-      if (!isLoopRunning && !disposed && isVisible) {
+      if (!isLoopRunning && !disposed) {
+        resize()
         isLoopRunning = true
         raf = requestAnimationFrame(loopStep)
       }
     }
     wakeUpRef.current = wakeUp
 
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const w = Math.round(canvas.clientWidth * dpr)
-      const h = Math.round(canvas.clientHeight * dpr)
-      if (w === 0 || h === 0 || (canvas.width === w && canvas.height === h)) return
-      canvas.width = w
-      canvas.height = h
-      gl.viewport(0, 0, w, h)
-      draw()
-    }
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
-
-    // Pause rendering entirely when scrolled out of view
-    const visibilityObserver = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        isVisible = entry ? entry.isIntersecting : true
-        if (isVisible) {
-          wakeUp()
-        } else if (isLoopRunning) {
-          cancelAnimationFrame(raf)
-          isLoopRunning = false
-        }
-      },
-      { threshold: 0.02 }
-    )
-    visibilityObserver.observe(canvas)
 
     const start = async () => {
       try {
@@ -494,7 +492,6 @@ export default function MorphGallery({
       cancelAnimationFrame(raf)
       wakeUpRef.current = null
       observer.disconnect()
-      visibilityObserver.disconnect()
       canvas.removeEventListener("webglcontextlost", onLost)
       canvas.removeEventListener("webglcontextrestored", onRestored)
       for (const tex of textures) if (tex) gl.deleteTexture(tex)
@@ -584,8 +581,8 @@ export default function MorphGallery({
         <>
           {/* Base background image to guarantee instant visual paint without black screen void */}
           <img
-            src={items[0]?.src}
-            alt={items[0]?.alt ?? ""}
+            src={items[active]?.src || items[0]?.src}
+            alt={items[active]?.alt ?? ""}
             className={`absolute inset-0 block h-full w-full object-cover transition-opacity duration-700 ${
               ready ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}

@@ -1,11 +1,13 @@
 import { useMemo } from 'react'
 import ProductShowcaseSection from './ProductShowcaseSection'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
 
 // Healthcare 3 Assistive Elderly Care & Safety Slides
 export const HEALTHCARE_SLIDES = [
   {
-    src: '/dara_device_home.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     alt: 'Dara Assistive Device with Magnifying Glass and Multi-Language Voice Clock',
     title: 'Talking Clock & Magnifier',
     subtitle: 'Multi-Language Voice & Label Reading',
@@ -16,7 +18,7 @@ export const HEALTHCARE_SLIDES = [
     ],
   },
   {
-    src: '/dara_emergency_fall.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     alt: 'Dara Automatic Fall Detection and Emergency SOS Alert',
     title: 'Fall Detection & SOS',
     subtitle: 'Automatic Impact Sensing & Rapid Alert',
@@ -27,7 +29,7 @@ export const HEALTHCARE_SLIDES = [
     ],
   },
   {
-    src: '/dara_torch_risetowake.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
     alt: 'Dara Built-in Torch Light and Rise-to-Wake Display in Dark Environment',
     title: 'Torch Light & Rise-to-Wake',
     subtitle: 'Night Guidance & Lift-Activated Clock',
@@ -40,35 +42,54 @@ export const HEALTHCARE_SLIDES = [
 ]
 
 export default function HealthcareSection({ onNavigateToDara }) {
+  const [cmsHome, , isLoaded] = useCmsContent('home')
   const { t } = useTranslation()
   const h = t.healthcare || {}
 
   const localizedSlides = useMemo(() => {
-    return HEALTHCARE_SLIDES.map((slide, idx) => ({
+    // Wait for direct database response before rendering slides so no stale or old mock image flashes
+    if (!isLoaded) {
+      return []
+    }
+
+    const base = (cmsHome?.healthcareSlides && Array.isArray(cmsHome.healthcareSlides) && cmsHome.healthcareSlides.length > 0)
+      ? cmsHome.healthcareSlides
+      : HEALTHCARE_SLIDES
+
+    return base.map((slide, idx) => ({
       ...slide,
-      title: h.slides?.[idx]?.title || slide.title,
-      subtitle: h.slides?.[idx]?.subtitle || slide.subtitle,
-      meta: h.slides?.[idx]?.meta || slide.meta,
+      title: slide.title || h.slides?.[idx]?.title,
+      subtitle: slide.subtitle || h.slides?.[idx]?.subtitle,
+      meta: slide.meta || h.slides?.[idx]?.meta,
     }))
-  }, [h])
+  }, [cmsHome?.healthcareSlides, h, isLoaded])
 
   return (
-    <ProductShowcaseSection
-      id="healthcare"
-      title={h.title || 'Dara'}
-      subtitle={h.subtitle || 'Healthcare'}
-      description={h.description || 'Smart assistive device for seniors—featuring a talking clock, reading magnifier, night torch, rise-to-wake display, and automatic fall emergency alerts.'}
-      buttonText={h.buttonText || 'EXPLORE DARA'}
-      onButtonClick={() => {
-        if (onNavigateToDara) {
-          onNavigateToDara()
-        } else {
-          window.location.hash = 'dara'
+    <div className="relative">
+      <ProductShowcaseSection
+        id="healthcare"
+        title={cmsHome?.healthcare?.title || h.title || 'Dara'}
+        subtitle={cmsHome?.healthcare?.subtitle || h.subtitle || 'Healthcare'}
+        description={cmsHome?.healthcare?.description || h.description || 'Smart assistive device for seniors—featuring a talking clock, reading magnifier, night torch, rise-to-wake display, and automatic fall emergency alerts.'}
+        buttonText={cmsHome?.healthcare?.buttonText || h.buttonText || 'EXPLORE DARA'}
+        onButtonClick={() => {
+          if (onNavigateToDara) {
+            onNavigateToDara()
+          } else {
+            window.history.pushState(null, '', '/dara')
+            window.dispatchEvent(new Event('popstate'))
+          }
+        }}
+        nextSectionId="board"
+        slides={localizedSlides}
+        leftControls={
+          <AdminEditButton section="home" field="healthcare" label="Dara Overview" buttonText="Edit Overview" inline />
         }
-      }}
-      nextSectionId="board"
-      slides={localizedSlides}
-    />
+        extraControls={
+          <AdminEditButton section="home" field="healthcareSlides" label="Healthcare & Dara" buttonText="Edit Slides" inline />
+        }
+      />
+    </div>
   )
 }
 

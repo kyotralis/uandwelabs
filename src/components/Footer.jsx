@@ -1,5 +1,7 @@
 import Logo from '../assets/logo.webp'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
 
 export default function Footer({
   onNavigateToHome,
@@ -13,6 +15,7 @@ export default function Footer({
   onNavigateToSecurity,
   onNavigateToTerms,
 }) {
+  const [cmsSettings] = useCmsContent('settings')
   const { t } = useTranslation()
   const f = t.footer || {}
 
@@ -28,12 +31,13 @@ export default function Footer({
       if (onNavigateToHome) {
         onNavigateToHome()
       }
-      window.location.hash = id
+      window.history.pushState(null, '', `/${id}`)
     }
   }
 
   return (
-    <footer className="w-full bg-[var(--site-bg)] text-slate-900 border-t border-[var(--site-border)] font-sans pt-14 sm:pt-16 pb-12 px-6 sm:px-12 lg:px-16">
+    <footer className="relative w-full bg-[var(--site-bg)] text-slate-900 border-t border-[var(--site-border)] font-sans pt-14 sm:pt-16 pb-12 px-6 sm:px-12 lg:px-16 overflow-visible">
+      <AdminEditButton section="settings" field="footer" label="Website Footer" />
       <div className="max-w-[1560px] 2xl:max-w-[1840px] w-full mx-auto">
         
         {/* ================= MAIN FOOTER GRID ================= */}
@@ -42,7 +46,7 @@ export default function Footer({
           {/* Left: Brand Logo + Description together (Original clean layout) */}
           <div className="md:col-span-5 pr-0 lg:pr-8">
             <a
-              href="#hero"
+              href="/"
               onClick={(e) => {
                 e.preventDefault()
                 const el = document.getElementById('hero')
@@ -56,23 +60,23 @@ export default function Footer({
                   if (onNavigateToHome) {
                     onNavigateToHome()
                   }
-                  window.location.hash = 'hero'
+                  window.history.pushState(null, '', '/')
                 }
               }}
               className="inline-flex items-center gap-3 mb-4 group cursor-pointer"
             >
               <img
-                src={Logo}
+                src={cmsSettings?.footer?.logo || cmsSettings?.logo || Logo}
                 alt="UandWe Labs logo"
                 className="h-11 sm:h-12 w-auto object-contain group-hover:scale-105 transition-all"
               />
               <span className="text-[19px] sm:text-[20px] font-semibold tracking-[-0.03em] text-slate-900 group-hover:text-black transition-colors font-['Inter']">
-                UANDWE LABS
+                {cmsSettings?.footer?.companyName || cmsSettings?.companyName || 'UANDWE LABS'}
               </span>
             </a>
 
             <p className="text-sm text-slate-500 font-normal leading-relaxed max-w-sm mt-1">
-              {f.description || 'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities.'}
+              {cmsSettings?.footer?.footerTagline || cmsSettings?.footerTagline || f.description || 'We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities.'}
             </p>
           </div>
 
@@ -160,7 +164,7 @@ export default function Footer({
                     }}
                     className="hover:text-black transition-colors cursor-pointer text-left"
                   >
-                    {f.links?.ananda || 'Ananda'}
+                    {f.links?.ananda || 'Geo Spatial'}
                   </button>
                 </li>
                 <li>
@@ -202,7 +206,7 @@ export default function Footer({
           <div className="md:col-span-2 flex md:justify-end items-start pt-1">
             <div className="flex items-center gap-3">
               <a
-                href="https://twitter.com"
+                href={cmsSettings?.footer?.twitter || cmsSettings?.socialLinks?.twitter || 'https://x.com/uandwelabs'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:text-black hover:bg-slate-50 hover:border-slate-400 transition-all shadow-xs cursor-pointer"
@@ -215,7 +219,7 @@ export default function Footer({
               </a>
 
               <a
-                href="https://linkedin.com"
+                href={cmsSettings?.footer?.linkedin || cmsSettings?.socialLinks?.linkedin || 'https://linkedin.com/company/uandwelabs'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:text-[#0A66C2] hover:bg-blue-50/60 hover:border-blue-300 transition-all shadow-xs cursor-pointer"
@@ -234,7 +238,7 @@ export default function Footer({
         {/* ================= BOTTOM BAR: COPYRIGHT & LEGAL ================= */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            <span>{f.copyright || '© 2026 uandwelabs. All rights reserved.'}</span>
+            <span>{cmsSettings?.footer?.copyrightText || cmsSettings?.copyrightText || f.copyright || '© 2026 uandwelabs. All rights reserved.'}</span>
           </div>
 
           <div className="flex items-center gap-5 sm:gap-6 flex-wrap">
@@ -247,9 +251,9 @@ export default function Footer({
                   try {
                     sessionStorage.setItem('uandwe_current_page', 'privacy')
                   } catch {}
-                  window.location.hash = 'privacy'
+                  window.history.pushState(null, '', '/privacy')
                   if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new Event('hashchange'))
+                    window.dispatchEvent(new Event('popstate'))
                   }
                 }
               }}
@@ -267,9 +271,9 @@ export default function Footer({
                   try {
                     sessionStorage.setItem('uandwe_current_page', 'terms')
                   } catch {}
-                  window.location.hash = 'terms'
+                  window.history.pushState(null, '', '/terms')
                   if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new Event('hashchange'))
+                    window.dispatchEvent(new Event('popstate'))
                   }
                 }
               }}

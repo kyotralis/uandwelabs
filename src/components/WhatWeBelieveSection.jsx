@@ -38,12 +38,12 @@ export default function WhatWeBelieveSection() {
   const b = t.beliefs || {}
   const beliefsData = cmsHome?.beliefs || {}
 
-  // Parse title lines intelligently:
-  // If user edited title, derive lines from title; otherwise use title1/title2 or i18n
-  let line1 = ''
-  let line2 = ''
+  // Priority 1: Direct title1 / title2 fields edited by user
+  let line1 = beliefsData.title1 || ''
+  let line2 = beliefsData.title2 || ''
 
-  if (beliefsData.title && beliefsData.title !== `${beliefsData.title1 || ''} ${beliefsData.title2 || ''}`.trim()) {
+  // Priority 2: Full section title parsed into lines if title1/title2 not explicitly set
+  if (!line1 && !line2 && beliefsData.title) {
     const cleanTitle = beliefsData.title.trim()
     if (cleanTitle.includes('\n')) {
       const parts = cleanTitle.split('\n')
@@ -62,14 +62,9 @@ export default function WhatWeBelieveSection() {
         line2 = ''
       }
     }
-  } else if (beliefsData.title1 || beliefsData.title2) {
-    line1 = beliefsData.title1 || ''
-    line2 = beliefsData.title2 || ''
-  } else if (beliefsData.title) {
-    line1 = beliefsData.title
-    line2 = ''
   }
 
+  // Fallback defaults
   if (!line1 && !line2) {
     line1 = b.title1 || 'What We'
     line2 = b.title2 || 'Believe In'

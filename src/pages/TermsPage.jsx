@@ -312,52 +312,6 @@ export default function TermsPage({
                       </ul>
                     )}
                   </div>
-
-                  {art.id === 'legal-desk' && (
-                    <div className="p-6 sm:p-8 rounded-2xl bg-neutral-950 text-white space-y-3 font-mono text-xs sm:text-sm shadow-xl border border-white/10 mt-4 relative">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                        <span className="text-neutral-400 tracking-wider uppercase font-semibold">
-                          {contactData.officeTitle || 'Office of General Counsel & Regulatory Affairs'}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
-                            Active Desk
-                          </span>
-                          <AdminEditButton
-                            section="termsOfService"
-                            field="contact"
-                            label="Legal & Security Desk Details"
-                            inline={true}
-                            buttonText="Edit Desk"
-                            className="text-[10px] py-0.5 px-2 font-mono"
-                          />
-                        </div>
-                      </div>
-                      <p className="text-white font-medium text-base">{contactData.companyName || 'UandWe Labs Private Limited'}</p>
-                      <p className="text-neutral-300">{contactData.campus || 'Advanced Hardware & Physical AI Campus'}</p>
-                      <p className="text-neutral-400">{contactData.address || 'Bengaluru, Karnataka 560001, Republic of India'}</p>
-                      <div className="pt-2 flex flex-wrap gap-4 text-xs">
-                        <div>
-                          <span className="text-neutral-400 block text-[10px]">LEGAL COUNSEL DESK:</span>
-                          <a
-                            href={`mailto:${contactEmail}`}
-                            className="text-white underline underline-offset-4 hover:text-neutral-200"
-                          >
-                            {contactEmail}
-                          </a>
-                        </div>
-                        <div>
-                          <span className="text-neutral-400 block text-[10px]">SECURITY & INCIDENT DESK:</span>
-                          <a
-                            href={`mailto:${contactSecurityEmail}`}
-                            className="text-white underline underline-offset-4 hover:text-neutral-200"
-                          >
-                            {contactSecurityEmail}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </article>
               )
             })}

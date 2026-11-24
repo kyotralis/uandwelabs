@@ -23,13 +23,10 @@ export default function HomePage({
   const lenisRef = useRef(null)
   const isRestoringRef = useRef(true)
 
-  // Ensure current page session is registered as 'home' and clean any legacy section locks
+  // Ensure current page session is registered as 'home'
   useEffect(() => {
     try {
       sessionStorage.setItem('uandwe_current_page', 'home')
-      sessionStorage.removeItem('uandwe_active_section')
-      sessionStorage.removeItem('uandwe_scroll_y')
-      sessionStorage.removeItem('uandwe_hero_slide_index')
     } catch {}
   }, [])
 
@@ -182,13 +179,12 @@ export default function HomePage({
         sessionStorage.setItem('uandwe_active_section', activeId)
         sessionStorage.setItem('uandwe_home_section', activeId)
 
-        // Notify parent iframe (Admin) of section change so Admin knows exact section
+        // Notify parent iframe (Admin) of section scroll without triggering iframe reloads
         if (window.parent !== window) {
           window.parent.postMessage(
             {
-              type: 'SECTION_CHANGE',
+              type: 'SECTION_SCROLL',
               section: activeId,
-              path: activeId === 'hero' ? '/' : `/#${activeId}`,
               scrollY: window.scrollY,
             },
             '*'

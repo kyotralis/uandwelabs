@@ -19,15 +19,19 @@ const API_BASE =
     ? window.__CMS_API_URL
     : (import.meta.env?.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/cms` : '/api/cms')
 
-// Clean up any legacy localStorage/sessionStorage cache so the backend database is always the true source
-if (typeof window !== 'undefined') {
-  try {
-    localStorage.removeItem('uandwe_cms_live_cache')
-    sessionStorage.removeItem('uandwe_cms_session_data')
-  } catch {}
+// Local storage cache key for instant refresh persistence
+const CMS_CACHE_KEY = 'uandwe_cms_cache'
+
+// Helper to persist CMS state in browser localStorage
+function persistToLocalCache(data) {
+  if (typeof window !== 'undefined' && data) {
+    try {
+      localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(data))
+    } catch {}
+  }
 }
 
-// In-memory multi-tab broadcast (purely for instant live preview, no localStorage)
+// In-memory multi-tab broadcast (for instant live preview across tabs)
 function broadcastCmsSync(data) {
   if (typeof BroadcastChannel !== 'undefined') {
     try {
@@ -60,9 +64,9 @@ export const DEFAULT_CMS_DATA = {
       "twitter": "https://x.com/uandwelabs"
     },
     "footerTagline": "We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities.",
-    "logo": "https://res.cloudinary.com/fukpn05e/image/upload/v1795433842/uandwelabs/cms/uandwe_logo_1795433840415.png",
+    "logo": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505972/uandwelabs/cms/logo_1795505971242.png",
     "header": {
-      "logo": "https://res.cloudinary.com/fukpn05e/image/upload/v1795433842/uandwelabs/cms/uandwe_logo_1795433840415.png",
+      "logo": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505972/uandwelabs/cms/logo_1795505971242.png",
       "companyName": "UANDWE Labs",
       "regionText": "India",
       "signInText": "Sign In",
@@ -78,7 +82,7 @@ export const DEFAULT_CMS_DATA = {
       "buttonText": "Explore Open Careers"
 },
     "footer": {
-      "logo": "https://res.cloudinary.com/fukpn05e/image/upload/v1795433842/uandwelabs/cms/uandwe_logo_1795433840415.png",
+      "logo": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505972/uandwelabs/cms/logo_1795505971242.png",
       "companyName": "UANDWE Labs",
       "footerTagline": "We bridge generative intelligence, environmental physics, and precision engineering to design sustainable, future-ready realities.",
       "copyrightText": "© 2026 uandwelabs. All rights reserved.",
@@ -1471,8 +1475,24 @@ export function isCmsLoaded() {
   return isCmsLoadedFromServer
 }
 
-// Runtime CMS memory store initialized purely from default seed, populated strictly from database
-let memoryCmsData = { ...DEFAULT_CMS_DATA }
+// Helper to retrieve initial CMS data from localStorage cache merged with default seed
+function getInitialCmsData() {
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem(CMS_CACHE_KEY)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed && typeof parsed === 'object') {
+          return deepMerge(DEFAULT_CMS_DATA, parsed)
+        }
+      }
+    } catch {}
+  }
+  return JSON.parse(JSON.stringify(DEFAULT_CMS_DATA))
+}
+
+// Runtime CMS memory store initialized from local cache (for instant refresh retention) and synchronized with backend
+let memoryCmsData = getInitialCmsData()
 
 // Global listeners for live admin updates and server synchronization
 if (typeof window !== 'undefined') {
@@ -1480,6 +1500,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('message', (e) => {
     if (e.data?.type === 'CMS_UPDATE' && e.data.cms) {
       memoryCmsData = deepMerge(DEFAULT_CMS_DATA, e.data.cms)
+      persistToLocalCache(memoryCmsData)
       isCmsLoadedFromServer = true
       broadcastCmsSync(memoryCmsData)
       window.dispatchEvent(new CustomEvent(UPDATE_EVENT, { detail: memoryCmsData }))
@@ -1495,6 +1516,7 @@ if (typeof window !== 'undefined') {
       bc.onmessage = (e) => {
         if (e.data?.type === 'CMS_SYNC' && e.data.data) {
           memoryCmsData = deepMerge(DEFAULT_CMS_DATA, e.data.data)
+          persistToLocalCache(memoryCmsData)
           isCmsLoadedFromServer = true
           window.dispatchEvent(new CustomEvent(UPDATE_EVENT, { detail: memoryCmsData }))
         }
@@ -1536,6 +1558,7 @@ export function getCmsData() {
  */
 export function saveCmsData(nextData, passcode = 'uandwe2026') {
   memoryCmsData = nextData
+  persistToLocalCache(nextData)
   broadcastCmsSync(nextData)
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent(UPDATE_EVENT, { detail: nextData }))
@@ -1604,7 +1627,10 @@ export async function fetchCmsFromServer() {
       if (!res.ok) continue
       const json = await res.json()
       if (json.success && json.data) {
-        memoryCmsData = deepMerge(DEFAULT_CMS_DATA, json.data)
+        const serverData = deepMerge(DEFAULT_CMS_DATA, json.data)
+        // Merge with memory to protect any active unsaved or live local edits
+        memoryCmsData = deepMerge(serverData, memoryCmsData)
+        persistToLocalCache(memoryCmsData)
         isCmsLoadedFromServer = true
         serverSyncState = {
           isOnline: true,

@@ -1509,6 +1509,24 @@ if (typeof window !== 'undefined') {
 
   // 3. Automatically fetch published CMS data directly from database immediately on initial page load
   fetchCmsFromServer()
+
+  // 4. Auto-sync whenever user switches back to this tab (instant live update without needing F5 refresh)
+  window.addEventListener('focus', () => {
+    fetchCmsFromServer()
+  })
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      fetchCmsFromServer()
+    }
+  })
+
+  // 5. Periodic background sync (checks every 10 seconds while active)
+  setInterval(() => {
+    if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+      fetchCmsFromServer()
+    }
+  }, 10000)
 }
 
 // ==========================================

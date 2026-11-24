@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ShieldCheck, Lock, Cpu, Server, Key, AlertTriangle, CheckCircle2, Mail, Terminal, FileCode } from 'lucide-react'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
 
 export default function SecurityPage({
-
   onNavigateToHome,
   onNavigateBack,
-
 }) {
   const { t } = useTranslation()
   const [activeSection, setActiveSection] = useState('philosophy')
+  const [cmsTerms] = useCmsContent('termsOfService')
+  const securityEmail = cmsTerms?.contact?.securityEmail || 'security@uandwelabs.com'
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
@@ -267,7 +268,7 @@ export default function SecurityPage({
                   If you conduct good-faith vulnerability research in compliance with this policy, we will consider your research authorized, work with you to remediate the vulnerability swiftly, and not pursue legal action.
                 </p>
                 <div className="pt-2 text-xs font-mono text-neutral-700 space-y-1">
-                  <p>• Reporting Address: <strong className="text-neutral-950">security@uandwelabs.com</strong></p>
+                  <p>• Reporting Address: <strong className="text-neutral-950">{securityEmail}</strong></p>
                   <p>• Initial Response SLA: &lt; 24 Hours</p>
                   <p>• Triage & Patch Verification: &lt; 72 Hours</p>
                 </div>
@@ -302,8 +303,8 @@ export default function SecurityPage({
                 <p className="text-neutral-300">Bengaluru, Karnataka 560001, India</p>
                 <p className="pt-2">
                   Emergency Desk:{' '}
-                  <a href="mailto:security@uandwelabs.com" className="text-white underline underline-offset-4">
-                    security@uandwelabs.com
+                  <a href={`mailto:${securityEmail}`} className="text-white underline underline-offset-4">
+                    {securityEmail}
                   </a>
                 </p>
                 <p className="text-xs text-neutral-400 pt-1">

@@ -12,8 +12,8 @@ const HERO_SLIDES = [
   {
     id: 'ananda-urban-physics',
     category: 'Urban Physics & CFD',
-    src: '/hero_ananda_urban_physics.jpg',
-    thumb: '/hero_ananda_urban_physics.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433129/uandwelabs/cms/hero_ananda_urban_physics_1795433127739.jpg',
+    thumb: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433129/uandwelabs/cms/hero_ananda_urban_physics_1795433127739.jpg',
     alt: 'Ananda - Urban Physics & Microclimate CFD Architecture',
     headline: 'More Than Meets the Eye.',
     tagline: 'Precision and intelligent systems',
@@ -39,8 +39,8 @@ const HERO_SLIDES = [
   {
     id: 'tomorrow-starts-today',
     category: 'Physical AI & Edge Vision',
-    src: '/aura_2.webp',
-    thumb: '/aura_2.webp',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433117/uandwelabs/cms/aura_2_1795433115192.jpg',
+    thumb: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433117/uandwelabs/cms/aura_2_1795433115192.jpg',
     alt: 'Tomorrow Starts with What We Build Today - Aura Physical AI & Autonomous Edge Vision',
     headline: 'Tomorrow Starts with What We Build Today.',
     tagline: 'Products with a clear purpose',
@@ -70,31 +70,19 @@ export default function Hero({
 }) {
   const [activeNav, setActiveNav] = useState('PROJECTS')
   const [isRevealed, setIsRevealed] = useState(() => heroHasRevealedOnce)
-  const [slideIndex, setSlideIndex] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = sessionStorage.getItem('uandwe_hero_slide_index')
-        if (saved !== null) {
-          const parsed = parseInt(saved, 10)
-          if (!isNaN(parsed) && parsed >= 0 && parsed < HERO_SLIDES.length) {
-            return parsed
-          }
-        }
-      } catch { }
-    }
-    return 0
-  })
+  // Always start on the first slide (Index 0: Ananda - "More Than Meets the Eye")
+  const [slideIndex, setSlideIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const readyTriggered = useRef(heroHasRevealedOnce)
 
-  // Persist current active hero slide in sessionStorage so refresh stays on current slide
+  // Clear any legacy saved slide index so the homepage always opens on Slide 0
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem('uandwe_hero_slide_index', String(slideIndex))
+        sessionStorage.removeItem('uandwe_hero_slide_index')
       } catch { }
     }
-  }, [slideIndex])
+  }, [])
 
   const [cmsHome] = useCmsContent('home')
   const { t } = useTranslation()

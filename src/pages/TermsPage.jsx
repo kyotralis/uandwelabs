@@ -145,6 +145,7 @@ export default function TermsPage({
 
   const contactData = cmsTerms?.contact || {}
   const contactEmail = contactData.contactEmail || cmsTerms?.contactEmail || 'legal@uandwelabs.com'
+  const contactSecurityEmail = contactData.securityEmail || 'security@uandwelabs.com'
   const contactLabel = contactData.label || 'Compliance Desk'
   const deskDesc = contactData.deskDescription || 'Questions regarding master enterprise agreements (MSA) or custom hardware SLAs:'
 
@@ -312,15 +313,25 @@ export default function TermsPage({
                     )}
                   </div>
 
-                  {(art.id === 'legal-desk' || art.contactEmail) && (
-                    <div className="p-6 sm:p-8 rounded-2xl bg-neutral-950 text-white space-y-3 font-mono text-xs sm:text-sm shadow-xl border border-white/10 mt-4">
+                  {(art.id === 'legal-desk' || art.contactEmail || art.securityEmail) && (
+                    <div className="p-6 sm:p-8 rounded-2xl bg-neutral-950 text-white space-y-3 font-mono text-xs sm:text-sm shadow-xl border border-white/10 mt-4 relative">
                       <div className="flex items-center justify-between border-b border-white/10 pb-3">
                         <span className="text-neutral-400 tracking-wider uppercase font-semibold">
-                          Office of General Counsel & Regulatory Affairs
+                          {contactData.officeTitle || 'Office of General Counsel & Regulatory Affairs'}
                         </span>
-                        <span className="text-[11px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
-                          Active Desk
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
+                            Active Desk
+                          </span>
+                          <AdminEditButton
+                            section="termsOfService"
+                            field="contact"
+                            label="Legal & Security Desk Emails"
+                            inline={true}
+                            buttonText="Edit Desk"
+                            className="text-[10px] py-0.5 px-2 font-mono"
+                          />
+                        </div>
                       </div>
                       <p className="text-white font-medium text-base">UandWe Labs Private Limited</p>
                       <p className="text-neutral-300">Advanced Hardware & Physical AI Campus</p>
@@ -338,10 +349,10 @@ export default function TermsPage({
                         <div>
                           <span className="text-neutral-400 block text-[10px]">SECURITY & INCIDENT DESK:</span>
                           <a
-                            href="mailto:security@uandwelabs.com"
+                            href={`mailto:${art.securityEmail || contactSecurityEmail}`}
                             className="text-white underline underline-offset-4 hover:text-neutral-200"
                           >
-                            security@uandwelabs.com
+                            {art.securityEmail || contactSecurityEmail}
                           </a>
                         </div>
                       </div>

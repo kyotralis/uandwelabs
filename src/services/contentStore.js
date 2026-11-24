@@ -15,6 +15,7 @@ const DIRECT_API =
 
 const API_BASE =
   typeof window !== 'undefined' && window.__CMS_API_URL
+  
     ? window.__CMS_API_URL
     : (import.meta.env?.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/cms` : '/api/cms')
 
@@ -1332,7 +1333,9 @@ export const DEFAULT_CMS_DATA = {
   "termsOfService": {
     "contact": {
     "contactEmail": "legal@uandwelabs.com",
-    "label": "Compliance Desk",
+      "securityEmail": "security@uandwelabs.com",
+      "officeTitle": "Office of General Counsel & Regulatory Affairs",
+      "label": "Compliance Desk",
     "deskDescription": "Questions regarding master enterprise agreements (MSA) or custom hardware SLAs:"
 },
   "hero": {

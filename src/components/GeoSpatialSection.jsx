@@ -4,9 +4,9 @@ import { useTranslation } from '../i18n'
 import { useCmsContent } from '../services/contentStore'
 import AdminEditButton from './AdminEditButton'
 
-import goldenHourUrbanCampus from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505956/uandwelabs/cms/Golden_Hour_Urban_Campus_1795505956064.jpg'
-import duskCampusAirflow from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505953/uandwelabs/cms/Dusk_Campus_Airflow_Visualization_1795505952466.jpg'
-import stormFloodedCampus from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505970/uandwelabs/cms/Storm-Flooded_Urban_Campus_at_Dusk_1795505969048.jpg'
+const goldenHourUrbanCampus = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505956/uandwelabs/cms/Golden_Hour_Urban_Campus_1795505956064.jpg'
+const duskCampusAirflow = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505953/uandwelabs/cms/Dusk_Campus_Airflow_Visualization_1795505952466.jpg'
+const stormFloodedCampus = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505970/uandwelabs/cms/Storm-Flooded_Urban_Campus_at_Dusk_1795505969048.jpg'
 
 // Simulation Slides for Ananda Geo Spatial
 export const SIMULATION_SLIDES = [

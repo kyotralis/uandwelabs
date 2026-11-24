@@ -39,29 +39,29 @@ import { useTranslation } from '../i18n';
 import { useCmsContent } from '../services/contentStore';
 
 // Ananda Hero Images (Indian Modern Architecture & Microclimate CFD)
-import goldenHourWindflow from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505959/uandwelabs/cms/Golden-Hour_Courtyard_Windflow_1795505958136.jpg';
-import goldenHourRiverside from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505955/uandwelabs/cms/Golden_Hour_Skyline_by_the_Riverside_1795505954604.jpg';
-import geminiEcoCourtyard from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505954/uandwelabs/cms/Gemini_Generated_Image_huaymkhuaymkhuay_1795505953438.jpg';
+const goldenHourWindflow = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505959/uandwelabs/cms/Golden-Hour_Courtyard_Windflow_1795505958136.jpg';
+const goldenHourRiverside = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505955/uandwelabs/cms/Golden_Hour_Skyline_by_the_Riverside_1795505954604.jpg';
+const geminiEcoCourtyard = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505954/uandwelabs/cms/Gemini_Generated_Image_huaymkhuaymkhuay_1795505953438.jpg';
 
 // Commercial Bento Physics Simulation Assets
-import airflowModernCampus from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505913/uandwelabs/cms/Airflow_Streamlines_Across_a_Modern_Campus_1795505912741.jpg';
-import modernCampusPlazaShadows from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505964/uandwelabs/cms/Modern_Campus_Plaza_with_Dramatic_Shadows_1795505963123.jpg';
-import rainyPlazaFloodModel from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505966/uandwelabs/cms/Rainy_Corporate_Plaza_Flood_Model_1795505965666.jpg';
+const airflowModernCampus = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505913/uandwelabs/cms/Airflow_Streamlines_Across_a_Modern_Campus_1795505912741.jpg';
+const modernCampusPlazaShadows = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505964/uandwelabs/cms/Modern_Campus_Plaza_with_Dramatic_Shadows_1795505963123.jpg';
+const rainyPlazaFloodModel = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505966/uandwelabs/cms/Rainy_Corporate_Plaza_Flood_Model_1795505965666.jpg';
 
 // Residential Bento Physics Simulation Assets
-import goldenHourUrbanShadow from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505958/uandwelabs/cms/Golden_Hour_Urban_Shadow_Analysis_1795505957033.jpg';
-import stormFloodedNeighborhood from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505968/uandwelabs/cms/Storm-Flooded_Residential_Neighborhood_1795505967704.jpg';
-import aerialWindflowResidentialPark from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505912/uandwelabs/cms/Aerial_Windflow_Over_Residential_Park_1795505909461.jpg';
+const goldenHourUrbanShadow = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505958/uandwelabs/cms/Golden_Hour_Urban_Shadow_Analysis_1795505957033.jpg';
+const stormFloodedNeighborhood = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505968/uandwelabs/cms/Storm-Flooded_Residential_Neighborhood_1795505967704.jpg';
+const aerialWindflowResidentialPark = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505912/uandwelabs/cms/Aerial_Windflow_Over_Residential_Park_1795505909461.jpg';
 
 // Real CFD & Urban Physics Simulation Assets
-import cfdComplexStructure from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505934/uandwelabs/cms/CFD_Streamlines_Around_Complex_Structure_1795505933664.jpg';
-import cfdGridCavity from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505949/uandwelabs/cms/Crisp_CFD_Streamlines_in_a_Grid_Cavity_1795505948507.jpg';
-import cityBlueWaterways from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505965/uandwelabs/cms/Pastel_Isometric_City_with_Blue_Waterways_1795505964263.jpg';
-import cfdWireframeGrid from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505937/uandwelabs/cms/CFD_Streamlines_Through_Wireframe_Grid__1__1795505936089.jpg';
-import cfdFlowBlocks from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505933/uandwelabs/cms/CFD_Flow_Around_Building_Blocks_1795505932699.jpg';
-import cfdVortices from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505935/uandwelabs/cms/CFD_Streamlines_Through_Vortices_1795505934765.jpg';
-import cityMassingModel from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505963/uandwelabs/cms/Isometric_Gray_City_Massing_Model_1795505962177.jpg';
-import cfdCityStreamlines from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505948/uandwelabs/cms/Colorful_Streamlines_Over_a_Cityscape_1795505947447.jpg';
+const cfdComplexStructure = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505934/uandwelabs/cms/CFD_Streamlines_Around_Complex_Structure_1795505933664.jpg';
+const cfdGridCavity = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505949/uandwelabs/cms/Crisp_CFD_Streamlines_in_a_Grid_Cavity_1795505948507.jpg';
+const cityBlueWaterways = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505965/uandwelabs/cms/Pastel_Isometric_City_with_Blue_Waterways_1795505964263.jpg';
+const cfdWireframeGrid = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505937/uandwelabs/cms/CFD_Streamlines_Through_Wireframe_Grid__1__1795505936089.jpg';
+const cfdFlowBlocks = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505933/uandwelabs/cms/CFD_Flow_Around_Building_Blocks_1795505932699.jpg';
+const cfdVortices = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505935/uandwelabs/cms/CFD_Streamlines_Through_Vortices_1795505934765.jpg';
+const cityMassingModel = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505963/uandwelabs/cms/Isometric_Gray_City_Massing_Model_1795505962177.jpg';
+const cfdCityStreamlines = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505948/uandwelabs/cms/Colorful_Streamlines_Over_a_Cityscape_1795505947447.jpg';
 
 const CURRENT_YEAR = 2026;
 

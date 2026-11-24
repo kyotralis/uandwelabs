@@ -1628,8 +1628,7 @@ export async function fetchCmsFromServer() {
       const json = await res.json()
       if (json.success && json.data) {
         const serverData = deepMerge(DEFAULT_CMS_DATA, json.data)
-        // Merge with memory to protect any active unsaved or live local edits
-        memoryCmsData = deepMerge(serverData, memoryCmsData)
+        memoryCmsData = serverData
         persistToLocalCache(memoryCmsData)
         isCmsLoadedFromServer = true
         serverSyncState = {

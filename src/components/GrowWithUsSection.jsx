@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
-const careerHeroImg = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505971/uandwelabs/cms/careerhomeimage_1795505970368.jpg'
 import { useTranslation } from '../i18n'
+import { useCmsContent } from '../services/contentStore'
+import AdminEditButton from './AdminEditButton'
+
+const careerHeroImg = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505971/uandwelabs/cms/careerhomeimage_1795505970368.jpg'
 
 // Module-level flag so GrowWithUsSection stays visible when returning to Home
 let hasGrowSectionShownOnce = false
@@ -11,6 +14,11 @@ export default function GrowWithUsSection({ onNavigateToCareers }) {
   const cardRef = useRef(null)
   const { t } = useTranslation()
   const c = t.careers || {}
+
+  const [cmsHome] = useCmsContent('home')
+  const [cmsCareers] = useCmsContent('careers')
+  const careersData = (!Array.isArray(cmsCareers) ? cmsCareers : null) || {}
+  const bgImg = cmsHome?.careers?.image || careersData?.hero?.image || careerHeroImg
 
   useEffect(() => {
     if (hasGrowSectionShownOnce) {
@@ -62,13 +70,15 @@ export default function GrowWithUsSection({ onNavigateToCareers }) {
             }}
           >
             <img
-              src={careerHeroImg}
+              src={bgImg}
               alt="Modern architectural terrace with ascending spiral staircase in warm sunrise light"
               loading="eager"
               decoding="async"
               className="w-full h-full object-cover object-[70%_center] sm:object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
             />
           </div>
+
+          <AdminEditButton section="careers" field="hero" label="Edit Careers Banner & Image" />
 
           {/* Editorial Light Gradient Overlay for crisp typography contrast */}
           <div

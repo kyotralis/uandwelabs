@@ -368,20 +368,20 @@ export default function AnandaPage({
 
   // Localized data structures
   const commercialHeroSlides = useMemo(() => {
-    const list = ap.heroCommercialSlides || COMMERCIAL_HERO_SLIDES;
+    const list = cmsAnanda?.heroCommercialSlides || ap.heroCommercialSlides || COMMERCIAL_HERO_SLIDES;
     return list.map((slide, idx) => ({
       ...slide,
-      src: COMMERCIAL_HERO_SLIDES[idx]?.src || slide.src,
+      src: slide.src || COMMERCIAL_HERO_SLIDES[idx]?.src,
     }));
-  }, [ap.heroCommercialSlides]);
+  }, [cmsAnanda?.heroCommercialSlides, ap.heroCommercialSlides]);
 
   const residentialHeroSlides = useMemo(() => {
-    const list = ap.heroResidentialSlides || RESIDENTIAL_HERO_SLIDES;
+    const list = cmsAnanda?.heroResidentialSlides || ap.heroResidentialSlides || RESIDENTIAL_HERO_SLIDES;
     return list.map((slide, idx) => ({
       ...slide,
-      src: RESIDENTIAL_HERO_SLIDES[idx]?.src || slide.src,
+      src: slide.src || RESIDENTIAL_HERO_SLIDES[idx]?.src,
     }));
-  }, [ap.heroResidentialSlides]);
+  }, [cmsAnanda?.heroResidentialSlides, ap.heroResidentialSlides]);
 
   const environmentFeatures = useMemo(() => {
     const icons = [
@@ -415,28 +415,21 @@ export default function AnandaPage({
     const list = ap.testimonials || TESTIMONIALS;
     return list.map((item, idx) => ({
       ...item,
-      image: TESTIMONIALS[idx]?.image,
+      image: item.image || item.src || TESTIMONIALS[idx]?.image,
     }));
   }, [cmsAnanda?.testimonials, ap.testimonials]);
 
   const mosaicStudies = useMemo(() => {
     if (cmsAnanda?.mosaicStudies && Array.isArray(cmsAnanda.mosaicStudies) && cmsAnanda.mosaicStudies.length > 0) {
-      return cmsAnanda.mosaicStudies.map((item, idx) => {
-        let img = item.src || item.image;
-        // Guard against any old corrupted placeholder strings that might be cached
-        if (!img || img.includes('residential_breeze') || img.includes('bangalore_ubcity') || img.includes('ananda_hero_exoskeleton')) {
-          img = MOSAIC_STUDIES[idx]?.image;
-        }
-        return {
-          ...item,
-          image: img || MOSAIC_STUDIES[idx]?.image,
-        };
-      });
+      return cmsAnanda.mosaicStudies.map((item, idx) => ({
+        ...item,
+        image: item.src || item.image || MOSAIC_STUDIES[idx]?.image,
+      }));
     }
     const list = ap.caseStudies || MOSAIC_STUDIES;
     return list.map((item, idx) => ({
       ...item,
-      image: MOSAIC_STUDIES[idx]?.image,
+      image: item.image || item.src || MOSAIC_STUDIES[idx]?.image,
     }));
   }, [cmsAnanda?.mosaicStudies, ap.caseStudies]);
 
@@ -458,21 +451,19 @@ export default function AnandaPage({
     if (cmsAnanda?.heroSlides && Array.isArray(cmsAnanda.heroSlides) && cmsAnanda.heroSlides.length > 0) {
       return cmsAnanda.heroSlides.map((slide, idx) => ({
         ...slide,
-        src: (slide.src && !slide.src.includes('residential_breeze') && !slide.src.includes('https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg'))
-          ? slide.src
-          : ANANDA_HERO_SLIDES[idx]?.src,
-        thumb: (slide.thumb && !slide.thumb.includes('https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg'))
-          ? slide.thumb
-          : ANANDA_HERO_SLIDES[idx]?.thumb,
+        src: slide.src || ANANDA_HERO_SLIDES[idx]?.src,
+        thumb: slide.thumb || slide.src || ANANDA_HERO_SLIDES[idx]?.thumb,
         title: slide.headline || slide.title || ANANDA_HERO_SLIDES[idx]?.title,
         desc: slide.subtitle || slide.desc || ANANDA_HERO_SLIDES[idx]?.desc,
       }));
     }
     const localized = ap.heroSlides || ANANDA_HERO_SLIDES;
-    return ANANDA_HERO_SLIDES.map((slide, idx) => ({
+    return localized.map((slide, idx) => ({
       ...slide,
-      title: localized[idx]?.title || slide.title,
-      desc: localized[idx]?.desc || slide.desc,
+      src: slide.src || ANANDA_HERO_SLIDES[idx]?.src,
+      thumb: slide.thumb || slide.src || ANANDA_HERO_SLIDES[idx]?.thumb,
+      title: slide.title || ANANDA_HERO_SLIDES[idx]?.title,
+      desc: slide.desc || ANANDA_HERO_SLIDES[idx]?.desc,
     }));
   }, [cmsAnanda?.heroSlides, ap.heroSlides]);
 

@@ -7,7 +7,7 @@ import AdminEditButton from './AdminEditButton'
 // Aura Physical AI Slides
 export const BOARD_SLIDES = [
   {
-    src: '/aura_2.webp',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433117/uandwelabs/cms/aura_2_1795433115192.jpg',
     alt: 'AURA LPR - AI-powered license plate recognition and vehicle identification',
     title: 'AURA LPR',
     subtitle: 'AI-powered license plate recognition and vehicle identification',
@@ -18,7 +18,7 @@ export const BOARD_SLIDES = [
     ],
   },
   {
-    src: '/aura_1.webp',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433119/uandwelabs/cms/aura_1_1795433117743.jpg',
     alt: 'AURA VISION - Intelligent cameras with real-time AI detection',
     title: 'AURA VISION',
     subtitle: 'Intelligent cameras with real-time AI detection',
@@ -29,7 +29,7 @@ export const BOARD_SLIDES = [
     ],
   },
   {
-    src: '/aura_sentinel_ladybug.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433121/uandwelabs/cms/aura_sentinel_ladybug_1795433118929.jpg',
     alt: 'AURA SENTINEL - Multi-camera security and suspicious vehicle monitoring',
     title: 'AURA SENTINEL',
     subtitle: 'Multi-camera security and suspicious vehicle monitoring',

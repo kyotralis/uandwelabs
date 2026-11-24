@@ -244,7 +244,7 @@ export default function BlogPage({
         {/* Dynamic Image with subtle overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/building-2.jpg"
+            src="https://res.cloudinary.com/fukpn05e/image/upload/v1795505931/uandwelabs/cms/building-2_1795505930761.jpg"
             alt="UandWe Labs Perspectives & Stories"
             loading="eager"
             fetchPriority="high"

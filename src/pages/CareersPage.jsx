@@ -39,7 +39,7 @@ export default function CareersPage({
     return cp.jobs || []
   }, [cmsCareers, cp.jobs])
 
-  const heroImage = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.image) || '/about_team_discussion.jpg'
+  const heroImage = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.image) || 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433142/uandwelabs/cms/about_team_discussion_1795433140845.jpg'
   const heroHeadline = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.headline) || (cp.heroTitle?.line1 ? `${cp.heroTitle.line1} ${cp.heroTitle.line2 || ''}` : 'Build What Endures. Careers at UANDWE Labs.')
   const heroSubtitle = (typeof cmsCareers === 'object' && !Array.isArray(cmsCareers) && cmsCareers?.hero?.subtitle) || cp.heroSubtitle || 'We are expanding our research and engineering branch in Bengaluru. We bring together hardware craftsmen and computational engineers building deep technology that truly endures.'
 
@@ -52,19 +52,19 @@ export default function CareersPage({
         title: 'From Wild Ideas to Living Cities',
         desc: 'We explore how breezes flow through neighborhood courtyards, how sunlight naturally warms living rooms, and how future buildings can live in gentle harmony with nature.',
         tag: 'IMAGINING TOMORROW',
-        image: '/ananda_hero.jpg',
+        image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg',
       },
       {
         title: 'Whiteboards, Warm Chai & Making Things',
         desc: 'No corporate red tape or endless slide decks. A fresh spark sketched over lunch often turns into a real, working prototype you can hold and test in your hands by Friday afternoon.',
         tag: 'THE MAKER SPIRIT',
-        image: '/about_team_brainstorm.jpg',
+        image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433148/uandwelabs/cms/about_team_brainstorm_1795433146739.jpg',
       },
       {
         title: 'Tech That Cares Without Getting in the Way',
         desc: 'From looking out for elders at home without intrusive cameras to creating calmer everyday spaces, we build thoughtful technology that puts human comfort, peace of mind, and dignity first.',
         tag: 'HUMAN-FIRST IMPACT',
-        image: '/about_indian_team_1.jpg',
+        image: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795433149/uandwelabs/cms/about_indian_team_1_1795433147917.jpg',
       },
     ]
   }, [cmsCareers, cp.lifeBenches])

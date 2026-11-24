@@ -55,8 +55,8 @@ const DARA_HERO_SLIDES = [
   {
     id: 'dara-wellness',
     category: 'DAILY WELLNESS & ROUTINE',
-    src: '/dara_hero_wellness.jpg',
-    thumb: '/dara_hero_wellness.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505952/uandwelabs/cms/dara_hero_wellness_1795505951558.jpg',
+    thumb: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505952/uandwelabs/cms/dara_hero_wellness_1795505951558.jpg',
     alt: 'Gentle Reminders and Daily Independence',
     headline: 'Gentle Reminders. Natural Independence.',
     subtitle:
@@ -66,8 +66,8 @@ const DARA_HERO_SLIDES = [
   {
     id: 'dara-twilight',
     category: 'NIGHT GUIDANCE & PEACE OF MIND',
-    src: '/dara_hero_twilight.jpg',
-    thumb: '/dara_hero_twilight.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505951/uandwelabs/cms/dara_hero_twilight_1795505950763.jpg',
+    thumb: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505951/uandwelabs/cms/dara_hero_twilight_1795505950763.jpg',
     alt: 'Twilight Assurance and Nighttime Protection',
     headline: 'Twilight Assurance. Nighttime Clarity.',
     subtitle:

@@ -485,7 +485,7 @@ export default function AuraPage({
       <div className="relative">
         <AdminEditButton section="aura" field="security" label="Security Showcase" variant="dark" />
         <ProductDarkShowcase
-          backgroundImage={securityData.image || "/hero_compute_board.jpg"}
+          backgroundImage={securityData.image || "https://res.cloudinary.com/fukpn05e/image/upload/v1795505962/uandwelabs/cms/hero_compute_board_1795505961255.jpg"}
           title={<>{securityData.headingLine1 || ap.darkCanvasTitle?.line1 || 'Zero Cloud Reliance.'} <br /><span className="text-white">{securityData.headingLine2 || ap.darkCanvasTitle?.line2 || 'Absolute Sovereignty.'}</span></>}
           cards={darkCards}
         />

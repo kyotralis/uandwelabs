@@ -286,19 +286,19 @@ function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const criticalImages = [
-      '/hero_ananda_urban_physics.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433129/uandwelabs/cms/hero_ananda_urban_physics_1795433127739.jpg',
       'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
-      '/hero_aura_highway_lpr.jpg',
-      '/about_hero_studio.jpg',
-      '/about_team_discussion.jpg',
-      '/building-2.jpg',
-      '/careerhomeimage.jpg',
-      '/ananda_hero.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433127/uandwelabs/cms/hero_aura_highway_lpr_1795433125508.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433140/uandwelabs/cms/about_hero_studio_1795433139418.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433142/uandwelabs/cms/about_team_discussion_1795433140845.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795505931/uandwelabs/cms/building-2_1795505930761.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795505971/uandwelabs/cms/careerhomeimage_1795505970368.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg',
       'https://res.cloudinary.com/fukpn05e/image/upload/v1795424401/uandwelabs/cms/Hands_Cradling_a_Dynamic_Heart_1795424399358.jpg',
       '/aura_hero.jpg',
-      '/aura_2.webp',
-      '/aura_vision_ladybug.jpg',
-      '/aura_sentinel_ladybug.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433117/uandwelabs/cms/aura_2_1795433115192.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433123/uandwelabs/cms/aura_vision_ladybug_1795433121288.jpg',
+      'https://res.cloudinary.com/fukpn05e/image/upload/v1795433121/uandwelabs/cms/aura_sentinel_ladybug_1795433118929.jpg',
     ]
     criticalImages.forEach((src) => {
       const img = new Image()

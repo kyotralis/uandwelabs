@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
-import careerHeroImg from '../assets/careerhomeimage.jpg'
+import careerHeroImg from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505971/uandwelabs/cms/careerhomeimage_1795505970368.jpg'
 import { useTranslation } from '../i18n'
 
 // Module-level flag so GrowWithUsSection stays visible when returning to Home

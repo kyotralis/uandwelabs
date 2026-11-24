@@ -1,4 +1,4 @@
-import Logo from '../assets/logo.webp'
+import Logo from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505972/uandwelabs/cms/logo_1795505971242.png'
 import { useTranslation } from '../i18n'
 import { useCmsContent } from '../services/contentStore'
 import AdminEditButton from './AdminEditButton'

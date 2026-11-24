@@ -39,29 +39,29 @@ import { useTranslation } from '../i18n';
 import { useCmsContent } from '../services/contentStore';
 
 // Ananda Hero Images (Indian Modern Architecture & Microclimate CFD)
-import goldenHourWindflow from '../assets/anadha/Golden-Hour Courtyard Windflow.webp';
-import goldenHourRiverside from '../assets/anadha/Golden Hour Skyline by the Riverside.webp';
-import geminiEcoCourtyard from '../assets/anadha/Gemini_Generated_Image_huaymkhuaymkhuay.webp';
+import goldenHourWindflow from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505959/uandwelabs/cms/Golden-Hour_Courtyard_Windflow_1795505958136.jpg';
+import goldenHourRiverside from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505955/uandwelabs/cms/Golden_Hour_Skyline_by_the_Riverside_1795505954604.jpg';
+import geminiEcoCourtyard from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505954/uandwelabs/cms/Gemini_Generated_Image_huaymkhuaymkhuay_1795505953438.jpg';
 
 // Commercial Bento Physics Simulation Assets
-import airflowModernCampus from '../assets/anadha/Airflow Streamlines Across a Modern Campus.webp';
-import modernCampusPlazaShadows from '../assets/anadha/Modern Campus Plaza with Dramatic Shadows.webp';
-import rainyPlazaFloodModel from '../assets/anadha/Rainy Corporate Plaza Flood Model.webp';
+import airflowModernCampus from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505913/uandwelabs/cms/Airflow_Streamlines_Across_a_Modern_Campus_1795505912741.jpg';
+import modernCampusPlazaShadows from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505964/uandwelabs/cms/Modern_Campus_Plaza_with_Dramatic_Shadows_1795505963123.jpg';
+import rainyPlazaFloodModel from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505966/uandwelabs/cms/Rainy_Corporate_Plaza_Flood_Model_1795505965666.jpg';
 
 // Residential Bento Physics Simulation Assets
-import goldenHourUrbanShadow from '../assets/anadha/Golden Hour Urban Shadow Analysis.webp';
-import stormFloodedNeighborhood from '../assets/anadha/Storm-Flooded Residential Neighborhood.webp';
-import aerialWindflowResidentialPark from '../assets/anadha/Aerial Windflow Over Residential Park.webp';
+import goldenHourUrbanShadow from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505958/uandwelabs/cms/Golden_Hour_Urban_Shadow_Analysis_1795505957033.jpg';
+import stormFloodedNeighborhood from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505968/uandwelabs/cms/Storm-Flooded_Residential_Neighborhood_1795505967704.jpg';
+import aerialWindflowResidentialPark from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505912/uandwelabs/cms/Aerial_Windflow_Over_Residential_Park_1795505909461.jpg';
 
 // Real CFD & Urban Physics Simulation Assets
-import cfdComplexStructure from '../assets/anadha/CFD Streamlines Around Complex Structure.webp';
-import cfdGridCavity from '../assets/anadha/Crisp CFD Streamlines in a Grid Cavity.webp';
-import cityBlueWaterways from '../assets/anadha/Pastel Isometric City with Blue Waterways.webp';
-import cfdWireframeGrid from '../assets/anadha/CFD Streamlines Through Wireframe Grid (1).webp';
-import cfdFlowBlocks from '../assets/anadha/CFD Flow Around Building Blocks.webp';
-import cfdVortices from '../assets/anadha/CFD Streamlines Through Vortices.webp';
-import cityMassingModel from '../assets/anadha/Isometric Gray City Massing Model.webp';
-import cfdCityStreamlines from '../assets/anadha/Colorful Streamlines Over a Cityscape.webp';
+import cfdComplexStructure from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505934/uandwelabs/cms/CFD_Streamlines_Around_Complex_Structure_1795505933664.jpg';
+import cfdGridCavity from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505949/uandwelabs/cms/Crisp_CFD_Streamlines_in_a_Grid_Cavity_1795505948507.jpg';
+import cityBlueWaterways from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505965/uandwelabs/cms/Pastel_Isometric_City_with_Blue_Waterways_1795505964263.jpg';
+import cfdWireframeGrid from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505937/uandwelabs/cms/CFD_Streamlines_Through_Wireframe_Grid__1__1795505936089.jpg';
+import cfdFlowBlocks from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505933/uandwelabs/cms/CFD_Flow_Around_Building_Blocks_1795505932699.jpg';
+import cfdVortices from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505935/uandwelabs/cms/CFD_Streamlines_Through_Vortices_1795505934765.jpg';
+import cityMassingModel from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505963/uandwelabs/cms/Isometric_Gray_City_Massing_Model_1795505962177.jpg';
+import cfdCityStreamlines from 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505948/uandwelabs/cms/Colorful_Streamlines_Over_a_Cityscape_1795505947447.jpg';
 
 const CURRENT_YEAR = 2026;
 
@@ -218,7 +218,7 @@ const COMMERCIAL_HERO_SLIDES = [
   },
   {
     id: 'mumbai_one',
-    src: '/ananda_indian_mumbai_one.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505916/uandwelabs/cms/ananda_indian_mumbai_one_1795505915833.jpg',
     title: 'Mumbai Business District Towers',
     desc: 'LBM aerodynamic boundary layer wind solver and pedestrian vortex mapping in dense urban hubs'
   },
@@ -239,25 +239,25 @@ const COMMERCIAL_HERO_SLIDES = [
 const RESIDENTIAL_HERO_SLIDES = [
   {
     id: 'indian_residential_courtyard',
-    src: '/ananda_indian_residential_courtyard.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505917/uandwelabs/cms/ananda_indian_residential_courtyard_1795505916575.jpg',
     title: 'Biophilic Indian Courtyard Sanctuary',
     desc: 'Open-to-sky central aangan with water reflection pool, Burma teakwood louvers, and passive cross-ventilation'
   },
   {
     id: 'indian_goa_villa',
-    src: '/ananda_indian_goa_villa.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505915/uandwelabs/cms/ananda_indian_goa_villa_1795505914745.jpg',
     title: 'Goa Coastal Pavilion Estate',
     desc: 'Passive cross-breeze corridors, natural stone terrace, and tropical lap pool for luxury coastal living'
   },
   {
     id: 'residential_sunset_villa',
-    src: '/ananda_residential_sunset_villa.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505919/uandwelabs/cms/ananda_residential_sunset_villa_1795505918372.jpg',
     title: 'Hillside Residential Villa',
     desc: 'Indoor-outdoor living with sunken fire pit lounge and cantilevered timber overhangs'
   },
   {
     id: 'residential_estate_pool',
-    src: '/ananda_residential_estate_pool.jpg',
+    src: 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505918/uandwelabs/cms/ananda_residential_estate_pool_1795505917494.jpg',
     title: 'Luxury Residential Estate',
     desc: 'Floor-to-ceiling glass pavilions opening to infinity reflection pool and private courtyard'
   }
@@ -458,10 +458,10 @@ export default function AnandaPage({
     if (cmsAnanda?.heroSlides && Array.isArray(cmsAnanda.heroSlides) && cmsAnanda.heroSlides.length > 0) {
       return cmsAnanda.heroSlides.map((slide, idx) => ({
         ...slide,
-        src: (slide.src && !slide.src.includes('residential_breeze') && !slide.src.includes('ananda_hero.jpg'))
+        src: (slide.src && !slide.src.includes('residential_breeze') && !slide.src.includes('https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg'))
           ? slide.src
           : ANANDA_HERO_SLIDES[idx]?.src,
-        thumb: (slide.thumb && !slide.thumb.includes('ananda_hero.jpg'))
+        thumb: (slide.thumb && !slide.thumb.includes('https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg'))
           ? slide.thumb
           : ANANDA_HERO_SLIDES[idx]?.thumb,
         title: slide.headline || slide.title || ANANDA_HERO_SLIDES[idx]?.title,

@@ -497,7 +497,7 @@ export default function LoginPage({
       {/* ================= FULL PAGE BACKGROUND IMAGE ================= */}
       <div className="fixed inset-0 pointer-events-none select-none z-0">
         <img
-          src="/backdrop.jpg"
+          src="https://res.cloudinary.com/fukpn05e/image/upload/v1795505930/uandwelabs/cms/backdrop_1795505929899.jpg"
           alt="Login Background"
           className="w-full h-full object-cover object-center scale-105"
         />
@@ -534,7 +534,7 @@ export default function LoginPage({
               {/* Left Panel Cityscape Backdrop Image */}
               <div className="absolute inset-0 z-0 select-none pointer-events-none">
                 <img
-                  src="/backdrop.jpg"
+                  src="https://res.cloudinary.com/fukpn05e/image/upload/v1795505930/uandwelabs/cms/backdrop_1795505929899.jpg"
                   alt="Cityscape Backdrop"
                   className="w-full h-full object-cover object-center scale-105"
                 />

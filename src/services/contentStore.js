@@ -686,49 +686,49 @@ export const DEFAULT_CMS_DATA = {
         "id": 1,
         "title": "Hydro-Morphology & Blue Corridors",
         "desc": "2D Saint-Venant shallow water simulation across urban massing and waterway detention basins.",
-        "image": "/Pastel Isometric City with Blue Waterways.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505965/uandwelabs/cms/Pastel_Isometric_City_with_Blue_Waterways_1795505964263.jpg"
       },
       {
         "id": 2,
         "title": "Aerodynamic Complex Envelope",
         "desc": "LBM aerodynamic streamlines and vortex wake modeling around high-rise tower geometries.",
-        "image": "/CFD Streamlines Around Complex Structure.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505934/uandwelabs/cms/CFD_Streamlines_Around_Complex_Structure_1795505933664.jpg"
       },
       {
         "id": 3,
         "title": "Mesoscale Cityscape Streamlines",
         "desc": "Atmospheric boundary layer CFD flow vectors and convective thermal streamlines across metropolitan sectors.",
-        "image": "/Colorful Streamlines Over a Cityscape.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505948/uandwelabs/cms/Colorful_Streamlines_Over_a_Cityscape_1795505947447.jpg"
       },
       {
         "id": 4,
         "title": "Vortex Cross-Breeze Acceleration",
         "desc": "Corner vortex shedding and convective pressure differential corridors for natural passive ventilation.",
-        "image": "/CFD Streamlines Through Vortices.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505935/uandwelabs/cms/CFD_Streamlines_Through_Vortices_1795505934765.jpg"
       },
       {
         "id": 5,
         "title": "Building Blocks Micro-Airflow",
         "desc": "Pedestrian-level aerodynamic comfort and wake diversion across dense modular urban blocks.",
-        "image": "/CFD Flow Around Building Blocks.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505933/uandwelabs/cms/CFD_Flow_Around_Building_Blocks_1795505932699.jpg"
       },
       {
         "id": 6,
         "title": "Grid Cavity Boundary Layer Flow",
         "desc": "High-resolution microclimate airflow streamlines and recirculating vortex simulation in urban cavities.",
-        "image": "/Crisp CFD Streamlines in a Grid Cavity.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505949/uandwelabs/cms/Crisp_CFD_Streamlines_in_a_Grid_Cavity_1795505948507.jpg"
       },
       {
         "id": 7,
         "title": "Structural Wireframe CFD Grid",
         "desc": "Sub-meter wind velocity vectors and turbulence kinetic energy solved through structural wireframe matrices.",
-        "image": "/CFD Streamlines Through Wireframe Grid (1).webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505937/uandwelabs/cms/CFD_Streamlines_Through_Wireframe_Grid__1__1795505936089.jpg"
       },
       {
         "id": 8,
         "title": "Metropolitan Massing Masterplan",
         "desc": "Multi-acre urban physics convergence, solar diurnal ray-casting, and environmental massing analysis.",
-        "image": "/Isometric Gray City Massing Model.webp"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505963/uandwelabs/cms/Isometric_Gray_City_Massing_Model_1795505962177.jpg"
       }
     ],
     "cta": {
@@ -1026,7 +1026,7 @@ export const DEFAULT_CMS_DATA = {
         "title": "From Wild Ideas to Living Cities",
         "desc": "We explore how breezes flow through neighborhood courtyards, how sunlight naturally warms living rooms, and how future buildings can live in gentle harmony with nature.",
         "tag": "IMAGINING TOMORROW",
-        "image": "/ananda_hero.jpg"
+        "image": "https://res.cloudinary.com/fukpn05e/image/upload/v1795505914/uandwelabs/cms/ananda_hero_1795505913763.jpg"
       },
       {
         "title": "Whiteboards, Warm Chai & Making Things",

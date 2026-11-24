@@ -42,16 +42,11 @@ export const HEALTHCARE_SLIDES = [
 ]
 
 export default function HealthcareSection({ onNavigateToDara }) {
-  const [cmsHome, , isLoaded] = useCmsContent('home')
+  const [cmsHome] = useCmsContent('home')
   const { t } = useTranslation()
   const h = t.healthcare || {}
 
   const localizedSlides = useMemo(() => {
-    // Wait for direct database response before rendering slides so no stale or old mock image flashes
-    if (!isLoaded) {
-      return []
-    }
-
     const base = (cmsHome?.healthcareSlides && Array.isArray(cmsHome.healthcareSlides) && cmsHome.healthcareSlides.length > 0)
       ? cmsHome.healthcareSlides
       : HEALTHCARE_SLIDES
@@ -62,7 +57,7 @@ export default function HealthcareSection({ onNavigateToDara }) {
       subtitle: slide.subtitle || h.slides?.[idx]?.subtitle,
       meta: slide.meta || h.slides?.[idx]?.meta,
     }))
-  }, [cmsHome?.healthcareSlides, h, isLoaded])
+  }, [cmsHome?.healthcareSlides, h])
 
   return (
     <div className="relative">

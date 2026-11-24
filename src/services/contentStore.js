@@ -6,7 +6,13 @@ const SYNC_STATUS_EVENT = 'uandwe_cms_sync_status'
 const BROADCAST_CHANNEL = 'uandwe_cms_sync_channel'
 
 // Base API URL for backend CMS integration
-const DIRECT_API = 'http://localhost:5001/api/cms'
+const PROD_DIRECT_API = 'https://uandwelabs-backend.vercel.app/api/cms'
+const LOCAL_DIRECT_API = 'http://localhost:5001/api/cms'
+const DIRECT_API =
+  typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? LOCAL_DIRECT_API
+    : PROD_DIRECT_API
+
 const API_BASE =
   typeof window !== 'undefined' && window.__CMS_API_URL
     ? window.__CMS_API_URL
@@ -1527,6 +1533,7 @@ export function saveCmsData(nextData, passcode = 'uandwe2026') {
     const endpoints = [API_BASE]
     if (API_BASE !== '/api/cms') endpoints.push('/api/cms')
     if (!endpoints.includes(DIRECT_API)) endpoints.push(DIRECT_API)
+    if (!endpoints.includes(PROD_DIRECT_API)) endpoints.push(PROD_DIRECT_API)
 
     const trySync = async () => {
       for (const ep of endpoints) {
@@ -1574,6 +1581,7 @@ export async function fetchCmsFromServer() {
   const endpoints = [API_BASE]
   if (API_BASE !== '/api/cms') endpoints.push('/api/cms')
   if (!endpoints.includes(DIRECT_API)) endpoints.push(DIRECT_API)
+  if (!endpoints.includes(PROD_DIRECT_API)) endpoints.push(PROD_DIRECT_API)
 
   for (const ep of endpoints) {
     try {
@@ -1615,6 +1623,8 @@ export async function syncCmsWithServer(passcode = 'uandwe2026') {
   const current = getCmsData()
   const endpoints = [API_BASE]
   if (API_BASE !== '/api/cms') endpoints.push('/api/cms')
+  if (!endpoints.includes(DIRECT_API)) endpoints.push(DIRECT_API)
+  if (!endpoints.includes(PROD_DIRECT_API)) endpoints.push(PROD_DIRECT_API)
 
   for (const ep of endpoints) {
     try {

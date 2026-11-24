@@ -23,10 +23,13 @@ export default function HomePage({
   const lenisRef = useRef(null)
   const isRestoringRef = useRef(true)
 
-  // Ensure current page session is registered as 'home'
+  // Ensure current page session is registered as 'home' and clean any legacy section locks
   useEffect(() => {
     try {
       sessionStorage.setItem('uandwe_current_page', 'home')
+      sessionStorage.removeItem('uandwe_active_section')
+      sessionStorage.removeItem('uandwe_scroll_y')
+      sessionStorage.removeItem('uandwe_hero_slide_index')
     } catch {}
   }, [])
 
@@ -63,7 +66,7 @@ export default function HomePage({
     }
   }, [])
 
-  // 2. Restore scroll position to the current section upon page refresh / reload
+  // 2. Only scroll to a section if explicitly requested via URL hash (e.g. #healthcare)
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -71,19 +74,8 @@ export default function HomePage({
       window.history.scrollRestoration = 'manual'
     }
 
-    const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase()
     const hash = window.location.hash.replace('#', '').toLowerCase()
-    let savedSection = null
-    let savedScrollY = null
-
-    try {
-      savedSection = sessionStorage.getItem('uandwe_active_section')
-      savedScrollY = sessionStorage.getItem('uandwe_scroll_y')
-    } catch {
-      // ignore storage access errors
-    }
-
-    const targetSection = (path && SECTION_IDS.includes(path)) ? path : ((hash && SECTION_IDS.includes(hash)) ? hash : savedSection)
+    const targetSection = hash && SECTION_IDS.includes(hash) ? hash : null
 
     if (targetSection && targetSection !== 'hero') {
       const doScrollToSection = () => {
@@ -114,29 +106,13 @@ export default function HomePage({
         clearTimeout(t3)
         clearTimeout(t4)
       }
-    } else if (savedScrollY && Number(savedScrollY) > 80) {
-      const scrollPos = Number(savedScrollY)
-      const doScrollToY = () => {
-        if (window.__lenis) {
-          window.__lenis.scrollTo(scrollPos, { immediate: true })
-        } else {
-          window.scrollTo({ top: scrollPos, behavior: 'instant' })
-        }
-      }
-      doScrollToY()
-      const t1 = setTimeout(doScrollToY, 50)
-      const t2 = setTimeout(doScrollToY, 180)
-      const t3 = setTimeout(() => {
-        doScrollToY()
-        isRestoringRef.current = false
-      }, 800)
-
-      return () => {
-        clearTimeout(t1)
-        clearTimeout(t2)
-        clearTimeout(t3)
-      }
     } else {
+      // Always start at top (Hero section) on initial home page visit
+      if (window.__lenis) {
+        window.__lenis.scrollTo(0, { immediate: true })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'instant' })
+      }
       isRestoringRef.current = false
     }
   }, [])

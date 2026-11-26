@@ -190,17 +190,6 @@ export default function HomePage({
             '*'
           )
         }
-
-        // Update URL hash gently without jumping or polluting history
-        if (activeId !== 'hero') {
-          if (window.location.hash !== `#${activeId}`) {
-            window.history.replaceState(null, '', `#${activeId}`)
-          }
-        } else {
-          if (window.location.hash) {
-            window.history.replaceState(null, '', window.location.pathname)
-          }
-        }
       } catch {}
     }
 

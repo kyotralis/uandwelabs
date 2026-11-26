@@ -4,7 +4,6 @@ import { TRANSLATIONS } from './translations'
 export const GLOBAL_LOCALES = [
   { code: 'en-in', label: 'India', region: 'India (English)', country: '🇮🇳' },
   { code: 'en-us', label: 'USA', region: 'United States (English)', country: '🇺🇸' },
-  { code: 'zh-cn', label: '中文', region: 'China (中国 · 简体中文)', country: '🇨🇳' },
 ]
 
 const LanguageContext = createContext(null)
@@ -23,8 +22,6 @@ export function LanguageProvider({ children }) {
     }
     return GLOBAL_LOCALES[0]
   })
-
-  const isZh = selectedLocale?.code === 'zh-cn'
 
   const changeLocale = useCallback((localeOrCode) => {
     let nextLocale = localeOrCode
@@ -51,20 +48,19 @@ export function LanguageProvider({ children }) {
   }, [selectedLocale.code])
 
   const t = useMemo(() => {
-    return isZh ? TRANSLATIONS['zh-cn'] : TRANSLATIONS.en
-  }, [isZh])
+    return TRANSLATIONS[selectedLocale?.code] || TRANSLATIONS.en
+  }, [selectedLocale?.code])
 
   const value = useMemo(
     () => ({
       locale: selectedLocale.code,
       selectedLocale,
-      isZh,
       t,
       setLocale: changeLocale,
       changeLanguage: changeLocale,
       locales: GLOBAL_LOCALES,
     }),
-    [selectedLocale, isZh, t, changeLocale]
+    [selectedLocale, t, changeLocale]
   )
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
@@ -76,7 +72,6 @@ export function useTranslation() {
     return {
       locale: 'en-in',
       selectedLocale: GLOBAL_LOCALES[0],
-      isZh: false,
       t: TRANSLATIONS.en,
       setLocale: () => {},
       changeLanguage: () => {},

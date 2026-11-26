@@ -384,7 +384,7 @@ export default function Header({
   const lastSectionRef = useRef('hero')
 
   // Global i18n Translation Context
-  const { selectedLocale, setLocale, isZh, t: i18nDict } = useTranslation()
+  const { selectedLocale, setLocale, t: i18nDict } = useTranslation()
   const t = i18nDict.header
   const localizedSolutions = t.solutions
 
@@ -956,7 +956,7 @@ export default function Header({
                     e.currentTarget.src = Logo
                   }
                 }}
-                className="h-8 sm:h-10 md:h-11 lg:h-11 xl:h-[50px] w-auto object-contain group-hover:scale-105 transition-all duration-200 drop-shadow-xs"
+                className="h-11 sm:h-[54px] md:h-[56px] lg:h-[60px] xl:h-[64px] w-auto object-contain group-hover:scale-105 transition-all duration-200 drop-shadow-xs"
               />
               <span className="text-[13px] sm:text-[17px] xl:text-[19px] font-semibold tracking-[-0.01em] uppercase text-slate-900 group-hover:text-black transition-colors font-['Inter'] whitespace-nowrap">
                 {companyName}
@@ -1436,7 +1436,7 @@ export default function Header({
                       <div className="py-2.5">
                         <div className="px-1 mb-2">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
-                            {isZh ? '已登录产品' : 'Logged Products'}
+                            Logged Products
                           </span>
                         </div>
 
@@ -1503,7 +1503,7 @@ export default function Header({
                           }}
                           className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-400 hover:text-black hover:bg-slate-100/70 text-[11px] font-medium text-left cursor-pointer transition-colors"
                         >
-                          <span>{isZh ? '使用其他账户登录' : 'Sign in with different account'}</span>
+                          <span>Sign in with different account</span>
                         </button>
                       </div>
 
@@ -1557,7 +1557,7 @@ export default function Header({
           >
             <div className="space-y-1">
               <span className="text-[11px] font-bold text-black uppercase tracking-widest block mb-2">
-                {t?.navigation || (isZh ? '导航菜单' : 'Navigation')}
+                {t?.navigation || 'Navigation'}
               </span>
 
               {/* Products Mobile */}
@@ -1612,7 +1612,7 @@ export default function Header({
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <Radio className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
-                          <span>{isZh ? 'Dara — 智能辅具看护硬件' : 'Dara — Assistive Elder Hardware'}</span>
+                          <span>Dara — Assistive Elder Hardware</span>
                         </div>
                         <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
                       </button>
@@ -1628,7 +1628,7 @@ export default function Header({
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <Cpu className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 group-hover:text-black transition-colors" />
-                          <span>{isZh ? 'Aura — 边缘自主视觉' : 'Aura — Autonomous Edge Vision'}</span>
+                          <span>Aura — Autonomous Edge Vision</span>
                         </div>
                         <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
                       </button>
@@ -1716,7 +1716,7 @@ export default function Header({
                 <div className="space-y-2">
                   <div className="px-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
-                      {isZh ? '切换账户' : 'Switch Account'}
+                      Switch Account
                     </span>
                   </div>
 
@@ -1769,7 +1769,7 @@ export default function Header({
                         }}
                         className="w-full text-left p-2 rounded-xl border border-dashed border-slate-300 text-slate-600 text-xs font-medium flex items-center justify-between"
                       >
-                        <span>{isZh ? '+ 添加其他账户 / 工作区' : '+ Add another account / workspace'}</span>
+                        <span>+ Add another account / workspace</span>
                       </button>
                     )}
                   </div>
@@ -1783,7 +1783,7 @@ export default function Header({
                     }}
                     className="w-full py-2.5 rounded-full bg-red-50 text-red-600 font-semibold text-xs flex items-center justify-center mt-2"
                   >
-                    <span>{effectiveAccounts.length > 1 ? (isZh ? '退出当前活跃账户' : 'Sign Out of Active Account') : (t?.signOut || (isZh ? '退出登录' : 'Sign Out'))}</span>
+                    <span>{effectiveAccounts.length > 1 ? 'Sign Out of Active Account' : (t?.signOut || 'Sign Out')}</span>
                   </button>
                 </div>
               ) : (
@@ -1795,7 +1795,7 @@ export default function Header({
                   }}
                   className="w-full py-2.5 rounded-full bg-black text-white hover:bg-orange-500 font-semibold text-xs text-center transition-colors cursor-pointer"
                 >
-                  {t?.signIn || (isZh ? '登录' : 'Sign In')}
+                  {t?.signIn || 'Sign In'}
                 </button>
               )}
             </div>

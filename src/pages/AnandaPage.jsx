@@ -47,11 +47,13 @@ const geminiEcoCourtyard = 'https://res.cloudinary.com/fukpn05e/image/upload/v17
 const airflowModernCampus = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505913/uandwelabs/cms/Airflow_Streamlines_Across_a_Modern_Campus_1795505912741.jpg';
 const modernCampusPlazaShadows = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505964/uandwelabs/cms/Modern_Campus_Plaza_with_Dramatic_Shadows_1795505963123.jpg';
 const rainyPlazaFloodModel = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505966/uandwelabs/cms/Rainy_Corporate_Plaza_Flood_Model_1795505965666.jpg';
+import earthquakeModernCampus from '../assets/anadha/Commercial Campus Earthquake Simulation.jpg';
 
 // Residential Bento Physics Simulation Assets
 const goldenHourUrbanShadow = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505958/uandwelabs/cms/Golden_Hour_Urban_Shadow_Analysis_1795505957033.jpg';
 const stormFloodedNeighborhood = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505968/uandwelabs/cms/Storm-Flooded_Residential_Neighborhood_1795505967704.jpg';
 const aerialWindflowResidentialPark = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505912/uandwelabs/cms/Aerial_Windflow_Over_Residential_Park_1795505909461.jpg';
+import earthquakeResidentialNeighborhood from '../assets/anadha/Residential Neighborhood Earthquake Simulation.jpg';
 
 // Real CFD & Urban Physics Simulation Assets
 const cfdComplexStructure = 'https://res.cloudinary.com/fukpn05e/image/upload/v1795505934/uandwelabs/cms/CFD_Streamlines_Around_Complex_Structure_1795505933664.jpg';
@@ -421,10 +423,17 @@ export default function AnandaPage({
 
   const mosaicStudies = useMemo(() => {
     if (cmsAnanda?.mosaicStudies && Array.isArray(cmsAnanda.mosaicStudies) && cmsAnanda.mosaicStudies.length > 0) {
-      return cmsAnanda.mosaicStudies.map((item, idx) => ({
-        ...item,
-        image: item.src || item.image || MOSAIC_STUDIES[idx]?.image,
-      }));
+      return cmsAnanda.mosaicStudies.map((item, idx) => {
+        let img = item.src || item.image;
+        // Guard against legacy placeholder strings cached in Neo4j/localStorage
+        if (!img || img.includes('residential_breeze') || img.includes('bangalore_ubcity') || img.includes('ananda_hero_exoskeleton')) {
+          img = MOSAIC_STUDIES[idx]?.image;
+        }
+        return {
+          ...item,
+          image: img || MOSAIC_STUDIES[idx]?.image,
+        };
+      });
     }
     const list = ap.caseStudies || MOSAIC_STUDIES;
     return list.map((item, idx) => ({
@@ -1002,21 +1011,22 @@ export default function AnandaPage({
             {environmentFeatures.map((feature, idx) => (
               <ScrollReveal
                 key={idx}
-                delay={(idx % 3) * 0.1}
+                delay={(idx % 3) * 0.18 + Math.floor(idx / 3) * 0.16}
+                duration={1.4}
                 y={50}
                 className="h-full md:border-b md:border-r md:border-black/10"
               >
                 <div
-                  className="p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-none border border-black/10 md:border-0 flex flex-col justify-between group hover:bg-black transition-all duration-500 cursor-default bg-white shadow-xs md:shadow-none h-full"
+                  className="p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-none border border-black/10 md:border-0 flex flex-col justify-between group hover:bg-black transition-all duration-700 ease-out cursor-default bg-white shadow-xs md:shadow-none h-full"
                 >
                   <div>
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-neutral-100 group-hover:bg-white/10 flex items-center justify-center text-neutral-900 group-hover:text-white transition-colors duration-500 mb-6 sm:mb-8 shrink-0">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-neutral-100 group-hover:bg-white/10 flex items-center justify-center text-neutral-900 group-hover:text-white transition-colors duration-700 ease-out mb-6 sm:mb-8 shrink-0">
                       {feature.icon}
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight mb-3 sm:mb-4 group-hover:text-white transition-colors duration-500 font-sans">
+                    <h3 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight mb-3 sm:mb-4 group-hover:text-white transition-colors duration-700 ease-out font-sans">
                       {feature.title}
                     </h3>
-                    <p className="text-neutral-600 font-normal text-sm leading-relaxed group-hover:text-neutral-300 transition-colors duration-500 font-sans">
+                    <p className="text-neutral-600 font-normal text-sm leading-relaxed group-hover:text-neutral-300 transition-colors duration-700 ease-out font-sans">
                       {feature.desc}
                     </p>
                   </div>
@@ -1039,8 +1049,8 @@ export default function AnandaPage({
 
           {/* The Toggle Switch */}
           <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-3 sm:gap-6 mb-10 sm:mb-12 md:mb-16">
-            <span className={`text-base sm:text-2xl md:text-3xl font-normal transition-colors duration-500 text-center ${!isResidential ? 'text-white' : 'text-neutral-600'}`}>
-              {ap.commercialScale || 'Commercial Scale'}
+            <span className={`text-base sm:text-2xl md:text-3xl font-normal transition-colors duration-500 text-center ${isResidential ? 'text-white' : 'text-neutral-600'}`}>
+              {ap.residentialLiving || 'Residential Living'}
             </span>
 
             <button
@@ -1058,17 +1068,17 @@ export default function AnandaPage({
                 window.dispatchEvent(new CustomEvent('ananda_category_change', { detail: nextCategory }));
               }}
               className="w-20 sm:w-24 h-10 sm:h-12 rounded-full bg-neutral-800 border border-white/20 relative flex items-center px-1.5 sm:px-2 cursor-pointer transition-colors duration-500 hover:border-white/50 shrink-0"
-              aria-label={ap.toggleScaleAria || "Toggle Commercial or Residential Scale"}
+              aria-label={ap.toggleScaleAria || "Toggle Residential or Commercial Scale"}
             >
               <motion.div
-                animate={{ x: isResidential ? 40 : 0 }}
+                animate={{ x: isResidential ? 0 : 40 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white shadow-lg"
               />
             </button>
 
-            <span className={`text-base sm:text-2xl md:text-3xl font-normal transition-colors duration-500 text-center ${isResidential ? 'text-white' : 'text-neutral-600'}`}>
-              {ap.residentialLiving || 'Residential Living'}
+            <span className={`text-base sm:text-2xl md:text-3xl font-normal transition-colors duration-500 text-center ${!isResidential ? 'text-white' : 'text-neutral-600'}`}>
+              {ap.commercialScale || 'Commercial Scale'}
             </span>
           </div>
 
@@ -1076,25 +1086,44 @@ export default function AnandaPage({
           <div className="max-w-6xl w-full">
             <div
               ref={dualityRef}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full h-auto md:h-[580px]"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full h-auto md:h-[640px]"
             >
 
-              {/* Main Left Card (Col Span 2) - 1st image comes from down via ScrollReveal */}
-              <ScrollReveal y={60} className="col-span-1 md:col-span-2 h-[260px] sm:h-[340px] md:h-full min-h-0">
-                <div
-                  className="w-full h-full relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
-                >
-                  <img
-                    key={isResidential ? 'res-1' : 'comm-1'}
-                    src={isResidential ? goldenHourUrbanShadow : modernCampusPlazaShadows}
-                    alt={isResidential ? "Residential Neighborhood Solar & Shadow Simulation" : "Commercial Solar Simulation"}
-                    className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-              </ScrollReveal>
+              {/* Stacked Left Column (Solar Shadow + Earthquake Seismic Simulation) */}
+              <div className="col-span-1 flex flex-col gap-4 sm:gap-6 h-auto md:h-full min-h-0">
+
+                {/* Top Left Card - Solar & Shadow Simulation */}
+                <ScrollReveal y={60} className="h-[220px] md:h-auto md:flex-1 min-h-0">
+                  <div
+                    className="w-full h-full relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
+                  >
+                    <img
+                      key={isResidential ? 'res-1' : 'comm-1'}
+                      src={isResidential ? goldenHourUrbanShadow : modernCampusPlazaShadows}
+                      alt={isResidential ? "Residential Neighborhood Solar & Shadow Simulation" : "Commercial Solar Simulation"}
+                      className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
+                    />
+                  </div>
+                </ScrollReveal>
+
+                {/* Bottom Left Card - Earthquake & Seismic Simulation */}
+                <ScrollReveal y={60} delay={0.1} className="h-[220px] md:h-auto md:flex-1 min-h-0">
+                  <div
+                    className="w-full h-full relative overflow-hidden bg-neutral-800 rounded-2xl md:rounded-none group cursor-pointer"
+                  >
+                    <img
+                      key={isResidential ? 'res-4' : 'comm-4'}
+                      src={isResidential ? earthquakeResidentialNeighborhood : earthquakeModernCampus}
+                      alt={isResidential ? "Residential Neighborhood Earthquake & Seismic Simulation" : "Commercial Campus Earthquake & Seismic Simulation"}
+                      className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:contrast-100 transition-all duration-700 ease-out group-hover:scale-105"
+                    />
+                  </div>
+                </ScrollReveal>
+
+              </div>
 
               {/* Stacked Right Column */}
-              <div className="col-span-1 flex flex-col gap-6 h-auto md:h-full min-h-0">
+              <div className="col-span-1 flex flex-col gap-4 sm:gap-6 h-auto md:h-full min-h-0">
 
                 {/* Top Right Card - comes from right side */}
                 <div
